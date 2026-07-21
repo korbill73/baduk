@@ -291,11 +291,12 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
   return (
     <div className="board-frame" style={{
       width: '100%',
-      maxWidth: isExpanded ? '920px' : '640px',
+      maxWidth: isExpanded ? 'min(940px, calc(100vh - 28px))' : '640px',
+      maxHeight: isExpanded ? 'calc(100vh - 28px)' : 'none',
       aspectRatio: '1/1',
       margin: '0 auto',
       position: 'relative',
-      transition: 'max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
     }}>
       {onToggleExpand && (
         <button

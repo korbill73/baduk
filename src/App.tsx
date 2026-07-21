@@ -349,25 +349,27 @@ export function App() {
   };
 
   return (
-    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '1rem 1.5rem 3rem 1.5rem' }}>
-      <Header
-        mode={mode}
-        setMode={setMode}
-        boardSize={boardSize}
-        setBoardSize={handleBoardSizeChange}
-        aiRank={aiRank}
-        onOpenRankSelector={() => setShowRankSelector(true)}
-        onOpenAiEngineModal={() => setShowAiEngineModal(true)}
-        onOpenOnlineModal={() => setIsOnlineModalOpen(true)}
-        onOpenProfileModal={() => setIsProfileModalOpen(true)}
-        myNickname={userProfile.nickname}
-        myRankTitle={userProfile.rankTitle}
-        onNewGame={() => handleNewGame()}
-        soundEnabled={soundEnabled}
-        setSoundEnabled={setSoundEnabled}
-        isBoardExpanded={isBoardExpanded}
-        onToggleBoardExpand={() => setIsBoardExpanded(prev => !prev)}
-      />
+    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: isBoardExpanded ? '0.4rem 1.5rem 1rem 1.5rem' : '1rem 1.5rem 3rem 1.5rem', transition: 'padding 0.3s' }}>
+      {!isBoardExpanded && (
+        <Header
+          mode={mode}
+          setMode={setMode}
+          boardSize={boardSize}
+          setBoardSize={handleBoardSizeChange}
+          aiRank={aiRank}
+          onOpenRankSelector={() => setShowRankSelector(true)}
+          onOpenAiEngineModal={() => setShowAiEngineModal(true)}
+          onOpenOnlineModal={() => setIsOnlineModalOpen(true)}
+          onOpenProfileModal={() => setIsProfileModalOpen(true)}
+          myNickname={userProfile.nickname}
+          myRankTitle={userProfile.rankTitle}
+          onNewGame={() => handleNewGame()}
+          soundEnabled={soundEnabled}
+          setSoundEnabled={setSoundEnabled}
+          isBoardExpanded={isBoardExpanded}
+          onToggleBoardExpand={() => setIsBoardExpanded(prev => !prev)}
+        />
+      )}
 
       {/* Main Grid Area */}
       <main style={{
@@ -404,6 +406,31 @@ export function App() {
 
             {/* Right Column: Game Status Controls, Chat & AI Coach Panel */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+              {isBoardExpanded && (
+                <div className="glass-panel" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.65rem 1rem',
+                  background: 'rgba(15, 23, 42, 0.95)',
+                  border: '1px solid #fbbf24',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.4)'
+                }}>
+                  <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    ⛶ 크게 보기 모드
+                  </span>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={() => handleNewGame()} className="glass-button primary" style={{ padding: '0.38rem 0.75rem', fontSize: '0.8rem' }}>
+                      새 대국
+                    </button>
+                    <button onClick={() => setIsBoardExpanded(false)} className="glass-button" style={{ padding: '0.38rem 0.75rem', fontSize: '0.8rem', borderColor: '#fbbf24', color: '#fbbf24' }}>
+                      ↙ 기본 화면
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <GameStatus
                 mode={mode}
                 turn={turn}
