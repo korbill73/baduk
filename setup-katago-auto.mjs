@@ -112,10 +112,26 @@ async function prepareKataGo() {
         KATAGO_EXE = systemKatago;
         console.log(`✅ [시스템 KataGo 엔진 감지] ${KATAGO_EXE} 사용`);
       } else {
-        console.warn(`⚠️ 시스템에 'katago' 패키지가 설치되어 있지 않습니다. 리눅스에서는 'sudo apt-get install -y katago' 를 실행해 주셔야 정상 구동됩니다.`);
+        const localLinuxExe = path.join(BIN_DIR, 'katago');
+        if (fs.existsSync(localLinuxExe)) {
+          KATAGO_EXE = localLinuxExe;
+          console.log(`✅ [로컬 바이너리 감지] ${KATAGO_EXE} 사용`);
+        } else {
+          console.log(`⏳ [2/2] 시스템에 katago가 없어 공식 KataGo Linux (x64 eigen) 엔진 다운로드를 시작합니다...`);
+          const zipPath = path.join(BIN_DIR, 'katago-linux.zip');
+          await downloadFile('https://github.com/lightvector/KataGo/releases/download/v1.15.0/katago-v1.15.0-eigen-linux-x64.zip', zipPath);
+          console.log(`✅ 리눅스 바이너리 다운로드 완료! 압축 해제 중...`);
+          execSync(`unzip -o "${zipPath}" -d "${BIN_DIR}" 2>/dev/null || python3 -m zipfile -e "${zipPath}" "${BIN_DIR}" 2>/dev/null || tar -xf "${zipPath}" -C "${BIN_DIR}"`);
+          if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
+          if (fs.existsSync(localLinuxExe)) {
+            execSync(`chmod +x "${localLinuxExe}"`);
+            KATAGO_EXE = localLinuxExe;
+            console.log(`✅ [리눅스 바이너리 준비 완료] ${KATAGO_EXE}`);
+          }
+        }
       }
     } catch (e) {
-      console.warn(`⚠️ katago 경로 확인 중 알림: ${e.message}`);
+      console.warn(`⚠️ katago 경로 확인/다운로드 알림: ${e.message}`);
     }
   }
 
