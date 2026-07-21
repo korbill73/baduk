@@ -208,14 +208,15 @@ pause
           {config.enabled && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
               <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', display: 'block', marginBottom: '0.4rem' }}>
-                  서버 연결 주소 (REST API 또는 HTTP 중계)
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                  <span>서버 연결 주소 (REST API 또는 HTTP 중계)</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)', fontWeight: 500 }}>✨ 24시간 공식 서버 자동 연동 중</span>
                 </label>
                 <input
                   type="text"
                   value={config.serverUrl}
                   onChange={(e) => setConfig({ ...config, serverUrl: e.target.value })}
-                  placeholder="예: http://localhost:63333"
+                  placeholder="예: http://211.253.36.117:63333 (기본값)"
                   style={{
                     width: '100%',
                     padding: '0.65rem 0.9rem',

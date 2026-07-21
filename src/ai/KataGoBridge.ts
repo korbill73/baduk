@@ -9,8 +9,8 @@ export interface KataGoConfig {
 
 export class KataGoBridge {
   private static config: KataGoConfig = {
-    enabled: false,
-    serverUrl: 'http://localhost:63333',
+    enabled: true,
+    serverUrl: 'http://211.253.36.117:63333',
     modelName: 'kata-pro-9d',
     autoConnect: true
   };
@@ -27,6 +27,11 @@ export class KataGoBridge {
       const saved = localStorage.getItem('baduk-katago-config');
       if (saved) {
         const parsed = JSON.parse(saved);
+        // 만약 로컬호스트로 설정되어 있거나 URL이 없으면 공식 24시간 KT Cloud 프로 9단 서버로 자동 업그레이드!
+        if (!parsed.serverUrl || parsed.serverUrl.includes('localhost') || parsed.serverUrl === 'http://localhost:63333') {
+          parsed.serverUrl = 'http://211.253.36.117:63333';
+          parsed.enabled = true;
+        }
         this.config = { ...this.config, ...parsed };
       }
     } catch (e) {
@@ -77,7 +82,7 @@ export class KataGoBridge {
 
   static async checkAndSyncConnection(): Promise<boolean> {
     try {
-      let targetUrl = (this.config.serverUrl || 'http://localhost:63333').trim().replace(/\/$/, '');
+      let targetUrl = (this.config.serverUrl || 'http://211.253.36.117:63333').trim().replace(/\/$/, '');
       if (targetUrl.startsWith('ws://')) targetUrl = targetUrl.replace('ws://', 'http://');
       if (targetUrl.startsWith('wss://')) targetUrl = targetUrl.replace('wss://', 'https://');
       if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
@@ -98,6 +103,15 @@ export class KataGoBridge {
         }
         return true;
       } else {
+        // 접속 실패 시 사용자 경험을 위해 공식 KT Cloud 서버로 자동 폴백(Fallback) 시도
+        if (targetUrl !== 'http://211.253.36.117:63333') {
+          console.warn(`⏳ ${targetUrl} 응답 없음 -> 공식 KT Cloud 서버(http://211.253.36.117:63333)로 자동 전환합니다.`);
+          this.config.serverUrl = 'http://211.253.36.117:63333';
+          this.config.enabled = true;
+          try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
+          this.notifyListeners();
+          return this.checkAndSyncConnection();
+        }
         if (this.config.enabled) {
           this.config.enabled = false;
           try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
@@ -106,6 +120,13 @@ export class KataGoBridge {
         return false;
       }
     } catch (e) {
+      if (this.config.serverUrl !== 'http://211.253.36.117:63333') {
+        this.config.serverUrl = 'http://211.253.36.117:63333';
+        this.config.enabled = true;
+        try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
+        this.notifyListeners();
+        return this.checkAndSyncConnection();
+      }
       if (this.config.enabled) {
         this.config.enabled = false;
         try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
@@ -169,8 +190,8 @@ export class KataGoBridge {
         maxVisits: 120
       };
 
-      let targetUrl = (this.config.serverUrl || 'http://localhost:63333').trim().replace(/\/$/, '');
-      // ws:// 나 wss:// 로 입력되어도 로컬 HTTP REST API로 자동 전환하여 접속 안정성 극대화
+      let targetUrl = (this.config.serverUrl || 'http://211.253.36.117:63333').trim().replace(/\/$/, '');
+      // ws:// 나 wss:// 로 입력되어도 로컬/원격 HTTP REST API로 자동 전환하여 접속 안정성 극대화
       if (targetUrl.startsWith('ws://')) {
         targetUrl = targetUrl.replace('ws://', 'http://');
       } else if (targetUrl.startsWith('wss://')) {
