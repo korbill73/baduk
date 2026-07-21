@@ -88,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Mode navigation */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', background: 'var(--bg-glass)', padding: '4px', borderRadius: 'var(--radius-md)' }}>
+      <div className="header-nav-group" style={{ background: 'var(--bg-glass)', padding: '4px', borderRadius: 'var(--radius-md)' }}>
         <button
           onClick={() => setMode('play')}
           style={{
@@ -186,7 +186,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem' }}>
+      <div className="header-actions-group">
         {/* User Profile Button */}
         <button
           onClick={onOpenProfileModal}

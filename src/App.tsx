@@ -349,7 +349,7 @@ export function App() {
   };
 
   return (
-    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: isBoardExpanded ? '0.4rem 1.5rem 1rem 1.5rem' : '1rem 1.5rem 3rem 1.5rem', transition: 'padding 0.3s' }}>
+    <div className="app-main-container" style={{ maxWidth: '1440px', margin: '0 auto', padding: isBoardExpanded ? '0.4rem 1.5rem 1rem 1.5rem' : '1rem 1.5rem 3rem 1.5rem', transition: 'padding 0.3s' }}>
       {!isBoardExpanded && (
         <Header
           mode={mode}
@@ -371,13 +371,8 @@ export function App() {
         />
       )}
 
-      {/* Main Grid Area */}
-      <main style={{
-        display: 'grid',
-        gridTemplateColumns: mode === 'tsumego' ? '1fr' : (isBoardExpanded ? 'minmax(680px, 2.6fr) minmax(320px, 0.75fr)' : 'minmax(480px, 1.2fr) minmax(340px, 0.8fr)'),
-        gap: '1.8rem',
-        alignItems: 'start'
-      }}>
+      {/* Main Grid Area (Mobile responsive single column on phone screens via CSS) */}
+      <main className={`main-grid-layout ${mode === 'tsumego' ? 'tsumego' : isBoardExpanded ? 'expanded' : ''}`}>
         {mode !== 'tsumego' ? (
           <>
             {/* Left Column: Board Canvas ONLY (prevents any vertical shifting when stones are placed) */}

@@ -179,3 +179,82 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.35);
 }
+
+/* Mobile Optimization & Responsive Grid Rules */
+.main-grid-layout {
+  display: grid;
+  grid-template-columns: var(--grid-cols, minmax(480px, 1.2fr) minmax(340px, 0.8fr));
+  gap: 1.8rem;
+  align-items: start;
+}
+
+.main-grid-layout.expanded {
+  grid-template-columns: minmax(680px, 2.6fr) minmax(320px, 0.75fr);
+}
+
+.main-grid-layout.tsumego {
+  grid-template-columns: 1fr;
+}
+
+.header-nav-group,
+.header-actions-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Eliminate tap delays on mobile touch screens */
+.board-frame,
+button,
+.glass-button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 960px) {
+  .app-main-container {
+    padding: 0.5rem 0.8rem 2.5rem 0.8rem !important;
+  }
+
+  .main-grid-layout,
+  .main-grid-layout.expanded {
+    grid-template-columns: 1fr !important;
+    gap: 1.2rem;
+  }
+
+  .header-nav-group,
+  .header-actions-group {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .header-nav-group button,
+  .header-actions-group button,
+  .header-actions-group > div {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .board-frame {
+    padding: 10px !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .glass-panel {
+    border-radius: var(--radius-md);
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+  .glass-button {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}

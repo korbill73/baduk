@@ -144,6 +144,36 @@ pause
           </span>
         </div>
 
+        {/* Mobile & Tablet AI Guide Box */}
+        <div style={{
+          background: 'rgba(16, 185, 129, 0.1)',
+          border: '1px solid rgba(16, 185, 129, 0.35)',
+          borderRadius: 'var(--radius-md)',
+          padding: '1.1rem',
+          fontSize: '0.85rem',
+          lineHeight: 1.5
+        }}>
+          <strong style={{ color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
+            📱 모바일(스마트폰/태블릿)에서는 AI 대국을 어떻게 두나요?
+          </strong>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+            <div>
+              <span style={{ color: '#fff', fontWeight: 600 }}>1. 기본 모바일 AI 대국 (설치 0%, 즉시 실행)</span>
+              <p style={{ margin: '0.2rem 0 0 0', color: 'var(--text-muted)' }}>
+                스마트폰 웹 브라우저 접속 직후, 별도 앱이나 서버 설치 없이 상단의 <strong>[AI 대국]</strong> 모드에서 즉시 두실 수 있습니다!
+                스마트폰 내부의 고성능 Web Worker(MCTS+휴리스틱 엔진)가 작동하여 지하철이나 카페에서도 빠른 속도로 응수합니다.
+              </p>
+            </div>
+            <div>
+              <span style={{ color: '#fff', fontWeight: 600 }}>2. 모바일에서 세계 최강 프로 9단 KataGo와 대국하는 법</span>
+              <p style={{ margin: '0.2rem 0 0 0', color: 'var(--text-muted)' }}>
+                • <strong>원격 클라우드 / 내 PC 중계 방식 (가장 강력 추천!)</strong>: 집의 PC에서 카타고를 켜고 무료 터널링 URL(`https://내주소.trycloudflare.com` 등)을 발급받아 아래 <strong>[서버 연결 주소]</strong>에 넣으면 스마트폰이 프로 9단 엔진으로 업그레이드됩니다.<br />
+                • <strong>안드로이드 로컬 구동</strong>: 안드로이드 기기 `Termux` 앱에서 로컬 서버를 구동하여 `http://localhost:63333` 연결도 가능합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Engine Selection / Toggle */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.03)',
