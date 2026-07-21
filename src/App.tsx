@@ -151,7 +151,7 @@ export function App() {
       setTimeout(async () => {
         try {
           const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
-          const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false, aiRank);
+          const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false, aiRank, b.grid);
           if (extResult && extResult.move && b.canPlay(extResult.move.x, extResult.move.y, b.turn).valid) {
             b.playMove(extResult.move.x, extResult.move.y, b.turn);
             soundManager.playStoneClick();
@@ -276,7 +276,7 @@ export function App() {
     const b = boardRef.current;
     try {
       const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
-      const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false, aiRank);
+      const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false, aiRank, b.grid);
       if (extResult && extResult.recommendations && extResult.recommendations.length > 0) {
         setRecommendations(extResult.recommendations);
         setIsThinking(false);

@@ -162,7 +162,8 @@ export class KataGoBridge {
     historyMoves: Move[],
     aiColor: StoneColor,
     forceTest: boolean = false,
-    rankInfo?: any
+    rankInfo?: any,
+    grid?: StoneColor[][]
   ): Promise<{ move: Point | null; recommendations: AiRecommendation[]; isExternal: boolean } | null> {
     if (!aiColor) {
       return null;
@@ -229,7 +230,7 @@ export class KataGoBridge {
           this.config.enabled = true;
           try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
         }
-        return this.parseKataGoResponse(data, boardSize);
+        return this.parseKataGoResponse(data, boardSize, grid);
       } catch (err: any) {
         clearTimeout(timeoutId);
         if (forceTest && !err.name?.includes('AbortError')) {
@@ -242,13 +243,28 @@ export class KataGoBridge {
     }
   }
 
-  private static parseKataGoResponse(data: any, boardSize: number): { move: Point | null; recommendations: AiRecommendation[]; isExternal: boolean } {
+  private static parseKataGoResponse(data: any, boardSize: number, grid?: StoneColor[][]): { move: Point | null; recommendations: AiRecommendation[]; isExternal: boolean } {
     if (!data || !data.moveInfos || data.moveInfos.length === 0) {
       return { move: null, recommendations: [], isExternal: true };
     }
 
-    const bestMoveGtp = data.moveInfos[0].move;
-    const bestPoint = this.gtpToPoint(bestMoveGtp, boardSize);
+    let bestPoint: Point | null = null;
+    for (const info of data.moveInfos) {
+      const pt = this.gtpToPoint(info.move, boardSize);
+      if (pt) {
+        // 만약 해당 위치에 이미 돌이 놓여져 있다면 중복 착수이므로 다음 추천수를 선택
+        if (grid && grid[pt.y] && grid[pt.y][pt.x] !== null) {
+          continue;
+        }
+        bestPoint = pt;
+        break;
+      }
+    }
+
+    // 만약 모든 추천수가 이미 놓여져 있다면 첫 번째 추천수의 좌표를 그대로 반환 (후속 검증 로직에 의해 폴백 처리)
+    if (!bestPoint) {
+      bestPoint = this.gtpToPoint(data.moveInfos[0].move, boardSize);
+    }
 
     const recommendations: AiRecommendation[] = data.moveInfos.slice(0, 3).map((info: any, idx: number) => {
       const pt = this.gtpToPoint(info.move, boardSize) || { x: 0, y: 0 };
