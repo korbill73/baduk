@@ -1,0 +1,29 @@
+{
+  "name": "Baduk AI Master Class (프로 9단 카타고 바둑 도장)",
+  "short_name": "AI 바둑 도장",
+  "description": "6급 실력에서 9단 최고수 수준까지 단계별 AI와 대국하고 실시간 훈수 및 복기로 배우는 프리미엄 웹 바둑 도장 플랫폼",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

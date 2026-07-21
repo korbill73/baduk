@@ -3,6 +3,7 @@ import type { GameMode, BoardSize, RankInfo } from '../../types/go';
 import { Volume2, VolumeX, Award, BookOpen, Play, RotateCcw, HelpCircle, Users, Globe, User, Maximize2, Minimize2 } from 'lucide-react';
 import { soundManager } from '../../sound/SoundManager';
 import { KataGoBridge } from '../../ai/KataGoBridge';
+import { PwaInstallPrompt } from '../PwaInstallPrompt';
 
 interface HeaderProps {
   mode: GameMode;
@@ -187,6 +188,8 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Controls */}
       <div className="header-actions-group">
+        <PwaInstallPrompt />
+
         {/* User Profile Button */}
         <button
           onClick={onOpenProfileModal}
