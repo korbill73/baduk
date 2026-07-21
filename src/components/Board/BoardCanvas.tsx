@@ -11,6 +11,8 @@ interface BoardCanvasProps {
   territoryMap: TerritoryMap | null;
   showTerritory: boolean;
   isThinking: boolean;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
   onPlaceStone: (x: number, y: number) => void;
 }
 
@@ -24,6 +26,8 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
   territoryMap,
   showTerritory,
   isThinking,
+  isExpanded = false,
+  onToggleExpand,
   onPlaceStone,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -285,7 +289,42 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
   };
 
   return (
-    <div className="board-frame" style={{ width: '100%', maxWidth: '640px', aspectRatio: '1/1', margin: '0 auto' }}>
+    <div className="board-frame" style={{
+      width: '100%',
+      maxWidth: isExpanded ? '920px' : '640px',
+      aspectRatio: '1/1',
+      margin: '0 auto',
+      position: 'relative',
+      transition: 'max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    }}>
+      {onToggleExpand && (
+        <button
+          onClick={onToggleExpand}
+          style={{
+            position: 'absolute',
+            top: '14px',
+            right: '14px',
+            zIndex: 20,
+            background: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(56, 189, 248, 0.5)',
+            color: '#38bdf8',
+            padding: '6px 14px',
+            borderRadius: '24px',
+            fontSize: '0.82rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
+            transition: 'all 0.2s'
+          }}
+          title="한게임 바둑 스타일 바둑판 크기 전환"
+        >
+          <span>{isExpanded ? '↙ 기본 크기로 축소' : '⛶ 바둑판 크게 보기'}</span>
+        </button>
+      )}
       <div className="board-inner" style={{ width: '100%', height: '100%', display: 'flex' }}>
         <canvas
           ref={canvasRef}

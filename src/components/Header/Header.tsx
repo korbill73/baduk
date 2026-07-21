@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { GameMode, BoardSize, RankInfo } from '../../types/go';
-import { Volume2, VolumeX, Award, BookOpen, Play, RotateCcw, HelpCircle, Users, Globe, User } from 'lucide-react';
+import { Volume2, VolumeX, Award, BookOpen, Play, RotateCcw, HelpCircle, Users, Globe, User, Maximize2, Minimize2 } from 'lucide-react';
 import { soundManager } from '../../sound/SoundManager';
+import { KataGoBridge } from '../../ai/KataGoBridge';
 
 interface HeaderProps {
   mode: GameMode;
@@ -18,6 +19,8 @@ interface HeaderProps {
   onNewGame: () => void;
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
+  isBoardExpanded?: boolean;
+  onToggleBoardExpand?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -35,7 +38,16 @@ export const Header: React.FC<HeaderProps> = ({
   onNewGame,
   soundEnabled,
   setSoundEnabled,
+  isBoardExpanded = false,
+  onToggleBoardExpand,
 }) => {
+  const [isKataGoConnected, setIsKataGoConnected] = useState(KataGoBridge.getConfig().enabled);
+
+  useEffect(() => {
+    return KataGoBridge.onStatusChange((enabled) => {
+      setIsKataGoConnected(enabled);
+    });
+  }, []);
   const toggleSound = () => {
     const newState = soundManager.toggleSound();
     setSoundEnabled(newState);
@@ -219,11 +231,16 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onOpenAiEngineModal}
               className="glass-button"
-              style={{ borderColor: '#38bdf8', background: 'rgba(56, 189, 248, 0.15)' }}
+              style={{
+                borderColor: isKataGoConnected ? '#22c55e' : '#38bdf8',
+                background: isKataGoConnected ? 'rgba(34, 197, 94, 0.22)' : 'rgba(56, 189, 248, 0.15)'
+              }}
               title="외부 전문 바둑 AI 엔진 연동 센터"
             >
-              <span style={{ fontSize: '1rem' }}>🤖</span>
-              <span style={{ fontWeight: 600, color: '#38bdf8' }}>전문 바둑 AI 연동</span>
+              <span style={{ fontSize: '1rem' }}>{isKataGoConnected ? '🟢' : '🤖'}</span>
+              <span style={{ fontWeight: 600, color: isKataGoConnected ? '#22c55e' : '#38bdf8' }}>
+                {isKataGoConnected ? 'AI 자동 연동됨 (최고수)' : '전문 바둑 AI 연동'}
+              </span>
             </button>
           </>
         )}
@@ -235,6 +252,25 @@ export const Header: React.FC<HeaderProps> = ({
             style={{ background: 'linear-gradient(135deg, #38bdf8, #0284c7)', color: '#fff', fontWeight: 700, borderColor: '#38bdf8' }}
           >
             <Globe size={16} /> 방 만들기 / 초대 코드 접속
+          </button>
+        )}
+
+        {onToggleBoardExpand && (
+          <button
+            onClick={onToggleBoardExpand}
+            className="glass-button"
+            style={{
+              borderColor: isBoardExpanded ? '#fbbf24' : 'rgba(56, 189, 248, 0.35)',
+              background: isBoardExpanded ? 'rgba(245, 158, 11, 0.22)' : 'var(--bg-glass)',
+              color: isBoardExpanded ? '#fbbf24' : '#fff',
+              fontWeight: 600,
+              gap: '0.4rem',
+              padding: '0.5rem 0.9rem'
+            }}
+            title={isBoardExpanded ? '기본 바둑판 크기로 복귀' : '한게임 스타일 바둑판 크게 보기 모드'}
+          >
+            {isBoardExpanded ? <Minimize2 size={16} color="#fbbf24" /> : <Maximize2 size={16} color="#38bdf8" />}
+            <span>{isBoardExpanded ? '기본 화면' : '바둑판 크게 보기'}</span>
           </button>
         )}
 

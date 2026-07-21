@@ -2,29 +2,117 @@ import type { Point, StoneColor, AiRecommendation, Move } from '../types/go';
 
 export interface KataGoConfig {
   enabled: boolean;
-  serverUrl: string; // e.g. "ws://localhost:63333" or REST API endpoint
-  modelName: string; // e.g. "kata1-b18c384nbt-s6981484800"
+  serverUrl: string; // e.g. "http://localhost:63333" or "ws://localhost:63333"
+  modelName: string; // e.g. "kata-pro-9d"
+  autoConnect?: boolean;
 }
 
 export class KataGoBridge {
   private static config: KataGoConfig = {
     enabled: false,
     serverUrl: 'http://localhost:63333',
-    modelName: 'kata-pro-9d'
+    modelName: 'kata-pro-9d',
+    autoConnect: true
   };
 
   private static socket: WebSocket | null = null;
+  private static listeners: Set<(enabled: boolean) => void> = new Set();
+  private static monitorInterval: any = null;
+  private static isInitialized = false;
+
+  private static loadSavedConfig() {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+    try {
+      const saved = localStorage.getItem('baduk-katago-config');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        this.config = { ...this.config, ...parsed };
+      }
+    } catch (e) {
+      console.error('KataGo 설정 로드 오류:', e);
+    }
+    this.startAutoConnectMonitor();
+  }
 
   static setConfig(newConfig: Partial<KataGoConfig>) {
+    this.loadSavedConfig();
     this.config = { ...this.config, ...newConfig };
     if (!this.config.enabled && this.socket) {
       this.socket.close();
       this.socket = null;
     }
+    try {
+      localStorage.setItem('baduk-katago-config', JSON.stringify(this.config));
+    } catch (e) {}
+    this.notifyListeners();
   }
 
   static getConfig(): KataGoConfig {
+    this.loadSavedConfig();
     return { ...this.config };
+  }
+
+  static onStatusChange(listener: (enabled: boolean) => void): () => void {
+    this.loadSavedConfig();
+    this.listeners.add(listener);
+    listener(this.config.enabled);
+    return () => this.listeners.delete(listener);
+  }
+
+  private static notifyListeners() {
+    this.listeners.forEach(fn => fn(this.config.enabled));
+  }
+
+  static startAutoConnectMonitor() {
+    if (this.monitorInterval) return;
+    // Check connection immediately on startup, then every 4 seconds
+    this.checkAndSyncConnection();
+    this.monitorInterval = setInterval(() => {
+      if (this.config.autoConnect !== false) {
+        this.checkAndSyncConnection();
+      }
+    }, 4000);
+  }
+
+  static async checkAndSyncConnection(): Promise<boolean> {
+    try {
+      let targetUrl = (this.config.serverUrl || 'http://localhost:63333').trim().replace(/\/$/, '');
+      if (targetUrl.startsWith('ws://')) targetUrl = targetUrl.replace('ws://', 'http://');
+      if (targetUrl.startsWith('wss://')) targetUrl = targetUrl.replace('wss://', 'https://');
+      if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+        targetUrl = 'http://' + targetUrl;
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(targetUrl, { method: 'GET', signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        if (!this.config.enabled) {
+          this.config.enabled = true;
+          try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
+          this.notifyListeners();
+          console.log(`🎉 [KataGo 자동 연동 성공] ${targetUrl} 엔진 연결이 감지되어 자동 활성화되었습니다!`);
+        }
+        return true;
+      } else {
+        if (this.config.enabled) {
+          this.config.enabled = false;
+          try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
+          this.notifyListeners();
+        }
+        return false;
+      }
+    } catch (e) {
+      if (this.config.enabled) {
+        this.config.enabled = false;
+        try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
+        this.notifyListeners();
+      }
+      return false;
+    }
   }
 
   // Convert board moves history into SGF or GTP coordinates (e.g. D4, Q16)

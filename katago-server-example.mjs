@@ -73,8 +73,8 @@ const server = http.createServer((req, res) => {
       }
     });
   } else {
-    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('KataGo Bridge Server is Running on port 63333');
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', engine: 'KataGo', port: PORT }));
   }
 });
 

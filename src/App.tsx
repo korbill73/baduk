@@ -55,6 +55,7 @@ export function App() {
   const [opponentProfile, setOpponentProfile] = useState<UserProfile | null>(null);
   const [onlineAssignedColor, setOnlineAssignedColor] = useState<'black' | 'white'>('black');
   const [, setOnlineRoomCode] = useState<string>('');
+  const [isBoardExpanded, setIsBoardExpanded] = useState(false);
 
   // Web Worker ref
   const workerRef = useRef<Worker | null>(null);
@@ -364,12 +365,14 @@ export function App() {
         onNewGame={() => handleNewGame()}
         soundEnabled={soundEnabled}
         setSoundEnabled={setSoundEnabled}
+        isBoardExpanded={isBoardExpanded}
+        onToggleBoardExpand={() => setIsBoardExpanded(prev => !prev)}
       />
 
       {/* Main Grid Area */}
       <main style={{
         display: 'grid',
-        gridTemplateColumns: mode === 'tsumego' ? '1fr' : 'minmax(480px, 1.2fr) minmax(340px, 0.8fr)',
+        gridTemplateColumns: mode === 'tsumego' ? '1fr' : (isBoardExpanded ? 'minmax(680px, 2.6fr) minmax(320px, 0.75fr)' : 'minmax(480px, 1.2fr) minmax(340px, 0.8fr)'),
         gap: '1.8rem',
         alignItems: 'start'
       }}>
@@ -393,6 +396,8 @@ export function App() {
                 territoryMap={territoryMap}
                 showTerritory={showTerritory}
                 isThinking={isThinking}
+                isExpanded={isBoardExpanded}
+                onToggleExpand={() => setIsBoardExpanded(prev => !prev)}
                 onPlaceStone={handlePlaceStone}
               />
             </div>
