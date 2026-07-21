@@ -162,44 +162,12 @@ let katagoReady = false;
 
 // 중계 서버 가동
 async function startServer() {
-  try {
-    await prepareKataGo();
-    console.log(`🚀 실제 KataGo Analysis 프로세스 가동 시도 중...`);
-    katagoProcess = spawn(KATAGO_EXE, ['analysis', '-model', MODEL_FILE, '-config', CONFIG_FILE], {
-      cwd: BIN_DIR
-    });
-    
-    katagoProcess.stdout.on('data', (data) => {
-      const str = data.toString();
-      if (str.includes('ready to begin handling requests') || str.includes('Started')) {
-        katagoReady = true;
-        console.log(`✅ [KataGo 실제 9단 엔진] 신경망 로딩 완료! 응답 대기 중.`);
-      }
-    });
-
-    katagoProcess.stderr.on('data', (data) => {
-      const str = data.toString();
-      if (str.includes('ready to begin handling requests') || str.includes('Started')) {
-        katagoReady = true;
-        console.log(`✅ [KataGo 실제 9단 엔진] 신경망 로딩 완료! 응답 대기 중.`);
-      }
-    });
-
-    katagoProcess.on('exit', (code) => {
-      console.warn(`⚠️ KataGo 프로세스가 종료되었습니다 (코드: ${code}). 하이브리드 엔진 모드로 자동 전환합니다.`);
-      katagoProcess = null;
-      katagoReady = false;
-    });
-  } catch (err) {
-    console.warn(`⚠️ KataGo 자동 다운로드/실행 중 문제 발생 (대체 고도화 중계 모드로 전환):`, err.message);
-  }
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Private-Network': 'true'
-};
+  const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Private-Network': 'true'
+  };
 
   const server = http.createServer((req, res) => {
     Object.entries(CORS_HEADERS).forEach(([k, v]) => res.setHeader(k, v));
@@ -277,12 +245,45 @@ const CORS_HEADERS = {
     }
   });
 
+  // 서버 포트를 가장 먼저 즉시 바인딩(0.0.0.0)하여 netstat/외부 커넥션 응답 보장
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`========================================================`);
-    console.log(`🤖 [KataGo 9단 원클릭 자동 설정 & 중계 서버] 정상 작동 중!`);
-    console.log(`📡 통신 주소: http://0.0.0.0:${PORT} (외부 IP 개방 완료)`);
+    console.log(`🤖 [KataGo 9단 원클릭 자동 설정 & 중계 서버] 즉시 구동 시작!`);
+    console.log(`📡 통신 주소: http://0.0.0.0:${PORT} (0.0.0.0 포트 63333 즉시 오픈 완료)`);
     console.log(`💡 웹 앱에서 [서버 연결 및 통신 테스트]를 눌러 바로 이용하세요!`);
     console.log(`========================================================`);
+
+    // 백그라운드에서 KataGo 바이너리/모델 준비 및 프로세스 가동 (포트 리스닝 차단하지 않음)
+    prepareKataGo().then(() => {
+      console.log(`🚀 실제 KataGo Analysis 프로세스 가동 시도 중...`);
+      katagoProcess = spawn(KATAGO_EXE, ['analysis', '-model', MODEL_FILE, '-config', CONFIG_FILE], {
+        cwd: BIN_DIR
+      });
+      
+      katagoProcess.stdout.on('data', (data) => {
+        const str = data.toString();
+        if (str.includes('ready to begin handling requests') || str.includes('Started')) {
+          katagoReady = true;
+          console.log(`✅ [KataGo 실제 9단 엔진] 신경망 로딩 완료! 응답 대기 중.`);
+        }
+      });
+
+      katagoProcess.stderr.on('data', (data) => {
+        const str = data.toString();
+        if (str.includes('ready to begin handling requests') || str.includes('Started')) {
+          katagoReady = true;
+          console.log(`✅ [KataGo 실제 9단 엔진] 신경망 로딩 완료! 응답 대기 중.`);
+        }
+      });
+
+      katagoProcess.on('exit', (code) => {
+        console.warn(`⚠️ KataGo 프로세스가 종료되었습니다 (코드: ${code}). 하이브리드 엔진 모드로 자동 전환합니다.`);
+        katagoProcess = null;
+        katagoReady = false;
+      });
+    }).catch(err => {
+      console.warn(`⚠️ KataGo 백그라운드 준비 중 오류 (하이브리드 모드로 계속 응답):`, err.message);
+    });
   });
 }
 
