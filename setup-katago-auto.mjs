@@ -277,10 +277,10 @@ const CORS_HEADERS = {
     }
   });
 
-  server.listen(PORT, () => {
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`========================================================`);
     console.log(`🤖 [KataGo 9단 원클릭 자동 설정 & 중계 서버] 정상 작동 중!`);
-    console.log(`📡 통신 주소: http://localhost:${PORT}`);
+    console.log(`📡 통신 주소: http://0.0.0.0:${PORT} (외부 IP 개방 완료)`);
     console.log(`💡 웹 앱에서 [서버 연결 및 통신 테스트]를 눌러 바로 이용하세요!`);
     console.log(`========================================================`);
   });
