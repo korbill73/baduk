@@ -6,76 +6,58 @@
 set -e
 
 echo "================================================================="
-echo "🐧 한게임 바둑 마스터 클래스 - 프로 9단 KataGo 리눅스 서버 구축 (CentOS/Ubuntu 호환)"
+echo "🐧 한게임 바둑 마스터 클래스 - 프로 9단 KataGo 리눅스 서버 구축"
 echo "================================================================="
 echo ""
 
-# 0. CentOS 7 EOL(수명 종료) 미러 오류 해결 (vault.centos.org 자동 변환)
-if [ -f /etc/redhat-release ] && grep -q "release 7" /etc/redhat-release 2>/dev/null; then
-  echo "🛠️ CentOS 7 환경이 감지되었습니다. EOL(수명 종료) 미러 오류를 방지하기 위해 vault.centos.org 저장소로 자동 복구합니다..."
+# 0. NodeSource의 glibc >= 2.28 요구 충돌 Repo 강제 제거 (스크린샷 에러 원천 차단)
+if ls /etc/yum.repos.d/nodesource* 1> /dev/null 2>&1; then
+  echo "🛠️ CentOS 7에서 glibc 에러를 일으키는 NodeSource 저장소 파일을 정리합니다..."
+  sudo rm -f /etc/yum.repos.d/nodesource*.repo 2>/dev/null || true
+fi
+
+# CentOS 7 EOL(수명 종료) 미러 오류 해결 (vault.centos.org 자동 변환)
+if [ -f /etc/redhat-release ] || [ -f /etc/centos-release ]; then
   sudo sed -i 's/mirror.centos.org/vault.centos.org/g' /etc/yum.repos.d/CentOS-*.repo 2>/dev/null || true
   sudo sed -i 's/^#.*baseurl=http/baseurl=http/g' /etc/yum.repos.d/CentOS-*.repo 2>/dev/null || true
   sudo sed -i 's/^mirrorlist=http/#mirrorlist=http/g' /etc/yum.repos.d/CentOS-*.repo 2>/dev/null || true
 fi
 
-# 1. Check Node.js & Install (CentOS 7 glibc 2.17 호환 및 최신 LTS 호환)
-NEED_NODE_INSTALL=true
+# 1. Check Node.js & Install (CentOS 7 glibc 2.17 완벽 호환 단독 바이너리 설치)
+NEED_NODE=true
 if command -v node >/dev/null 2>&1; then
-  # check node runs without glibc error
   if node -v >/dev/null 2>&1; then
-    NEED_NODE_INSTALL=false
-    echo "✅ 이미 설치된 작동 가능한 Node.js($(node -v))가 감지되었습니다."
+    NEED_NODE=false
+    echo "✅ 정상 작동하는 Node.js($(node -v))가 감지되었습니다."
   fi
 fi
 
-if [ "$NEED_NODE_INSTALL" = true ]; then
-  echo "📥 Node.js를 설치합니다 (운영체제 glibc 버전 자동 감지 호환 설치)..."
-  
-  # Check for glibc version < 2.28 (CentOS 7 / RHEL 7 / older Linux)
-  IS_OLD_GLIBC=false
-  if [ -f /etc/redhat-release ] && grep -q "release 7" /etc/redhat-release 2>/dev/null; then
-    IS_OLD_GLIBC=true
-  elif ldd --version 2>&1 | head -n 1 | grep -E "2\.(1[0-9]|2[0-7])(?![0-9])" >/dev/null 2>&1; then
-    IS_OLD_GLIBC=true
-  fi
+if [ "$NEED_NODE" = true ]; then
+  echo "📥 Node.js 단독 호환 바이너리를 직접 설치합니다 (yum/glibc 에러 원천 차단)..."
+  sudo mkdir -p /usr/local/lib/nodejs
 
-  if [ "$IS_OLD_GLIBC" = true ]; then
-    echo "⚠️ CentOS 7 / glibc < 2.28 환경 감지: 공식 glibc-2.17 호환 바이너리(v20.18.0)로 안전 설치합니다..."
-    NODE_TAR_URL="https://unofficial-builds.nodejs.org/download/release/v20.18.0/node-v20.18.0-linux-x64-glibc-217.tar.gz"
-    sudo mkdir -p /usr/local/lib/nodejs
-    curl -fsSL "$NODE_TAR_URL" -o /tmp/node-glibc217.tar.gz || curl -fsSL "https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.gz" -o /tmp/node-glibc217.tar.gz
-    sudo tar -xzf /tmp/node-glibc217.tar.gz -C /usr/local/lib/nodejs --strip-components=1
-    sudo ln -sf /usr/local/lib/nodejs/bin/node /usr/bin/node
-    sudo ln -sf /usr/local/lib/nodejs/bin/npm /usr/bin/npm
-    sudo ln -sf /usr/local/lib/nodejs/bin/npx /usr/bin/npx
-    rm -f /tmp/node-glibc217.tar.gz
-    echo "✅ glibc-2.17 호환 Node.js ($(node -v)) 설치 성공!"
-  else
-    if command -v apt-get >/dev/null 2>&1; then
-      curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-      sudo apt-get install -y nodejs
-    elif command -v yum >/dev/null 2>&1; then
-      curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo -E bash - || true
-      sudo yum install -y nodejs || {
-        echo "⚠️ yum 설치 실패 시 바이너리 직접 설치로 전환합니다..."
-        sudo mkdir -p /usr/local/lib/nodejs
-        curl -fsSL "https://nodejs.org/dist/v20.18.0/node-v20.18.0-linux-x64.tar.gz" -o /tmp/node.tar.gz
-        sudo tar -xzf /tmp/node.tar.gz -C /usr/local/lib/nodejs --strip-components=1
-        sudo ln -sf /usr/local/lib/nodejs/bin/node /usr/bin/node
-        sudo ln -sf /usr/local/lib/nodejs/bin/npm /usr/bin/npm
-        sudo ln -sf /usr/local/lib/nodejs/bin/npx /usr/bin/npx
-        rm -f /tmp/node.tar.gz
-      }
-    fi
-  fi
+  echo "⏳ Node.js 호환 패키지 다운로드 및 압축 해제 중..."
+  # 1순위: unofficial-builds Node 20 (glibc 2.17 전용), 2순위: Node 16 LTS 공식 바이너리
+  curl -fsSL "https://unofficial-builds.nodejs.org/download/release/v20.18.0/node-v20.18.0-linux-x64-glibc-217.tar.gz" -o /tmp/node-compat.tar.gz || \
+  curl -fsSL "https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.gz" -o /tmp/node-compat.tar.gz
+
+  sudo tar -xzf /tmp/node-compat.tar.gz -C /usr/local/lib/nodejs --strip-components=1
+  sudo ln -sf /usr/local/lib/nodejs/bin/node /usr/bin/node
+  sudo ln -sf /usr/local/lib/nodejs/bin/npm /usr/bin/npm
+  sudo ln -sf /usr/local/lib/nodejs/bin/npx /usr/bin/npx
+  sudo ln -sf /usr/local/lib/nodejs/bin/node /usr/local/bin/node
+  sudo ln -sf /usr/local/lib/nodejs/bin/npm /usr/local/bin/npm
+  sudo ln -sf /usr/local/lib/nodejs/bin/npx /usr/local/bin/npx
+  rm -f /tmp/node-compat.tar.gz
+
+  echo "✅ Node.js ($(node -v)) 설치 성공!"
 fi
 
 # 2. Check KataGo package installation (if Ubuntu/Debian)
-if ! command -v katago >/dev/null 2>&1; then
-  echo "🤖 KataGo 패키지 확인 중..."
-  if command -v apt-get >/dev/null 2>&1; then
+if command -v apt-get >/dev/null 2>&1; then
+  if ! command -v katago >/dev/null 2>&1; then
     sudo apt-get update || true
-    sudo apt-get install -y katago || echo "⚠️ 패키지 매니저에 katago가 없어 중계 스크립트가 자동 다운로드합니다."
+    sudo apt-get install -y katago || true
   fi
 fi
 
@@ -84,10 +66,11 @@ echo "📡 카타고 9단 자동 설치 및 중계 스크립트를 다운로드�
 curl -sSL https://raw.githubusercontent.com/korbill73/baduk/main/setup-katago-auto.mjs -o setup-katago-auto.mjs
 
 # 4. Install pm2 for 24/7 background execution
-if ! command -v pm2 >/dev/null 2>&1; then
+if ! command -v pm2 >/dev/null 2>&1 || ! pm2 -v >/dev/null 2>&1; then
   echo "⚙️ 24시간 백그라운드 무중단 실행을 위한 PM2 프로세스 관리자를 설치합니다..."
   sudo npm install -g pm2
-  sudo ln -sf $(which pm2 || echo /usr/local/lib/nodejs/bin/pm2) /usr/bin/pm2 2>/dev/null || true
+  sudo ln -sf /usr/local/lib/nodejs/bin/pm2 /usr/bin/pm2 2>/dev/null || true
+  sudo ln -sf /usr/local/lib/nodejs/bin/pm2 /usr/local/bin/pm2 2>/dev/null || true
 fi
 
 echo ""
