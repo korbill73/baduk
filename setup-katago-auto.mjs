@@ -107,7 +107,13 @@ async function prepareKataGo() {
     // Linux / Mac OS check
     try {
       const { execSync } = await import('child_process');
-      const systemKatago = execSync('which katago 2>/dev/null', { encoding: 'utf-8' }).trim();
+      let systemKatago = '';
+      try {
+        systemKatago = execSync('which katago 2>/dev/null', { encoding: 'utf-8' }).trim();
+      } catch (whichErr) {
+        systemKatago = ''; // katago 없음
+      }
+
       if (systemKatago) {
         KATAGO_EXE = systemKatago;
         console.log(`✅ [시스템 KataGo 엔진 감지] ${KATAGO_EXE} 사용`);
@@ -246,6 +252,10 @@ async function startServer() {
   });
 
   // 서버 포트를 가장 먼저 즉시 바인딩(0.0.0.0)하여 netstat/외부 커넥션 응답 보장
+  server.on('error', (err) => {
+    console.warn(`⚠️ 서버 포트 바인딩 알림: ${err.message}`);
+  });
+
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`========================================================`);
     console.log(`🤖 [KataGo 9단 원클릭 자동 설정 & 중계 서버] 즉시 구동 시작!`);
@@ -255,11 +265,17 @@ async function startServer() {
 
     // 백그라운드에서 KataGo 바이너리/모델 준비 및 프로세스 가동 (포트 리스닝 차단하지 않음)
     prepareKataGo().then(() => {
-      console.log(`🚀 실제 KataGo Analysis 프로세스 가동 시도 중...`);
+      console.log(`🚀 실제 KataGo Analysis 프로세스 가동 시도 중... (${KATAGO_EXE})`);
       katagoProcess = spawn(KATAGO_EXE, ['analysis', '-model', MODEL_FILE, '-config', CONFIG_FILE], {
         cwd: BIN_DIR
       });
       
+      katagoProcess.on('error', (err) => {
+        console.warn(`⚠️ KataGo 바이너리 실행 불가 알림 (하이브리드 모드로 24시간 안전 응답): ${err.message}`);
+        katagoProcess = null;
+        katagoReady = false;
+      });
+
       katagoProcess.stdout.on('data', (data) => {
         const str = data.toString();
         if (str.includes('ready to begin handling requests') || str.includes('Started')) {
