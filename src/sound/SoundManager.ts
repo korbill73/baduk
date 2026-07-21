@@ -27,7 +27,7 @@ class SoundManager {
     return this.enabled;
   }
 
-  // Realistic stone click / wood thud sound
+  // Realistic stone click / wood thud sound (비자나무 원목 바둑판 & 조개/오석 바둑알 고품격 착수음)
   playStoneClick() {
     if (!this.enabled) return;
     this.initCtx();
@@ -36,35 +36,59 @@ class SoundManager {
     try {
       const now = this.ctx.currentTime;
       
-      // High frequency click (stone meeting stone/wood)
-      const oscClick = this.ctx.createOscillator();
-      const gainClick = this.ctx.createGain();
-      oscClick.type = 'sine';
-      oscClick.frequency.setValueAtTime(1400, now);
-      oscClick.frequency.exponentialRampToValueAtTime(300, now + 0.03);
-      
-      gainClick.gain.setValueAtTime(0.7, now);
-      gainClick.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+      // Layer 1: Sharp acoustic impact clack/snap (0~14ms noise burst + transient)
+      const bufferSize = Math.floor(this.ctx.sampleRate * 0.014);
+      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.003));
+      }
+      const whiteNoise = this.ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
 
-      oscClick.connect(gainClick);
-      gainClick.connect(this.ctx.destination);
-      oscClick.start(now);
-      oscClick.stop(now + 0.03);
+      const bandpass = this.ctx.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.frequency.setValueAtTime(3200, now);
+      bandpass.Q.setValueAtTime(1.8, now);
 
-      // Low frequency thud (wood resonance)
-      const oscWood = this.ctx.createOscillator();
-      const gainWood = this.ctx.createGain();
-      oscWood.type = 'triangle';
-      oscWood.frequency.setValueAtTime(180, now);
-      oscWood.frequency.exponentialRampToValueAtTime(60, now + 0.12);
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.85, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.014);
 
-      gainWood.gain.setValueAtTime(0.5, now);
-      gainWood.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+      whiteNoise.connect(bandpass);
+      bandpass.connect(noiseGain);
+      noiseGain.connect(this.ctx.destination);
+      whiteNoise.start(now);
 
-      oscWood.connect(gainWood);
-      gainWood.connect(this.ctx.destination);
-      oscWood.start(now);
-      oscWood.stop(now + 0.12);
+      // Layer 2: Midrange wood cavity resonance (배꼽 향혈 공명음, ~65ms)
+      const oscMid = this.ctx.createOscillator();
+      const gainMid = this.ctx.createGain();
+      oscMid.type = 'triangle';
+      oscMid.frequency.setValueAtTime(420, now);
+      oscMid.frequency.exponentialRampToValueAtTime(240, now + 0.065);
+
+      gainMid.gain.setValueAtTime(0.65, now);
+      gainMid.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+
+      oscMid.connect(gainMid);
+      gainMid.connect(this.ctx.destination);
+      oscMid.start(now);
+      oscMid.stop(now + 0.065);
+
+      // Layer 3: Deep hardwood body thump & weight (원목 묵직한 바닥음, ~130ms)
+      const oscLow = this.ctx.createOscillator();
+      const gainLow = this.ctx.createGain();
+      oscLow.type = 'sine';
+      oscLow.frequency.setValueAtTime(140, now);
+      oscLow.frequency.exponentialRampToValueAtTime(55, now + 0.13);
+
+      gainLow.gain.setValueAtTime(0.75, now);
+      gainLow.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+
+      oscLow.connect(gainLow);
+      gainLow.connect(this.ctx.destination);
+      oscLow.start(now);
+      oscLow.stop(now + 0.13);
     } catch (e) {
       console.error(e);
     }

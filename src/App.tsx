@@ -380,14 +380,8 @@ export function App() {
       }}>
         {mode !== 'tsumego' ? (
           <>
-            {/* Left Column: Board Canvas & Territory Overlay */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <TerritoryOverlay
-                map={territoryMap}
-                showTerritory={showTerritory}
-                onToggleTerritory={() => setShowTerritory(!showTerritory)}
-              />
-
+            {/* Left Column: Board Canvas ONLY (prevents any vertical shifting when stones are placed) */}
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
               <BoardCanvas
                 size={boardSize}
                 grid={grid}
@@ -404,7 +398,7 @@ export function App() {
               />
             </div>
 
-            {/* Right Column: Game Status Controls, Chat & AI Coach Panel */}
+            {/* Right Column: Game Status Controls, Territory Evaluation Overlay, Chat & AI Coach Panel */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               {isBoardExpanded && (
                 <div className="glass-panel" style={{
@@ -430,6 +424,12 @@ export function App() {
                   </div>
                 </div>
               )}
+
+              <TerritoryOverlay
+                map={territoryMap}
+                showTerritory={showTerritory}
+                onToggleTerritory={() => setShowTerritory(!showTerritory)}
+              />
 
               <GameStatus
                 mode={mode}

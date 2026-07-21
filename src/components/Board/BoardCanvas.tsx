@@ -101,19 +101,42 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
 
     ctx.clearRect(0, 0, BOARD_DIM, BOARD_DIM);
 
-    // 1. Draw wood texture base & border line
-    ctx.fillStyle = '#d29d5b';
+    // 1. Luxury Japanese Kaya Wood (비자나무) base gradient
+    const baseGrad = ctx.createLinearGradient(0, 0, BOARD_DIM, BOARD_DIM);
+    baseGrad.addColorStop(0, '#e8be82');
+    baseGrad.addColorStop(0.5, '#deaf6d');
+    baseGrad.addColorStop(1, '#cd9954');
+    ctx.fillStyle = baseGrad;
     ctx.fillRect(0, 0, BOARD_DIM, BOARD_DIM);
 
-    // Subtle grain effect
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.025)';
-    for (let i = 0; i < BOARD_DIM; i += 12) {
-      ctx.fillRect(0, i, BOARD_DIM, 2);
+    // 1-1. Realistic Kaya wood grains across the board
+    ctx.save();
+    ctx.fillStyle = 'rgba(120, 68, 20, 0.045)';
+    for (let i = 8; i < BOARD_DIM; i += 7) {
+      const w = 1 + Math.sin(i * 0.1) * 1.5;
+      ctx.fillRect(0, i, BOARD_DIM, w > 0 ? w : 1);
     }
+    for (let i = 15; i < BOARD_DIM; i += 28) {
+      ctx.fillStyle = 'rgba(90, 48, 10, 0.035)';
+      ctx.fillRect(0, i, BOARD_DIM, 3 + Math.cos(i) * 2);
+    }
+    ctx.restore();
+
+    // 1-2. 3D Beveled Wooden Frame Edges
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(1.5, 1.5, BOARD_DIM - 3, BOARD_DIM - 3);
+    ctx.strokeStyle = 'rgba(60, 30, 5, 0.6)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, BOARD_DIM);
+    ctx.lineTo(BOARD_DIM, BOARD_DIM);
+    ctx.lineTo(BOARD_DIM, 0);
+    ctx.stroke();
 
     // 2. Draw coordinate labels (A~T skipping I, 1~19)
     ctx.font = 'bold 13px Outfit, Inter, sans-serif';
-    ctx.fillStyle = 'rgba(43, 27, 8, 0.8)';
+    ctx.fillStyle = 'rgba(45, 26, 8, 0.85)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -130,8 +153,8 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
     }
 
     // 3. Draw grid lines
-    ctx.strokeStyle = '#2b1b08';
-    ctx.lineWidth = 1.3;
+    ctx.strokeStyle = '#321e0a';
+    ctx.lineWidth = 1.35;
     ctx.beginPath();
     for (let i = 0; i < size; i++) {
       const { cx: x0, cy: y0 } = gridToCanvas(i, 0);
@@ -147,16 +170,16 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
     ctx.stroke();
 
     // Outer border slightly thicker
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2.6;
     ctx.strokeRect(PADDING, PADDING, BOARD_DIM - PADDING * 2, BOARD_DIM - PADDING * 2);
 
-    // 4. Draw Star points (Hoshi)
-    ctx.fillStyle = '#2b1b08';
+    // 4. Draw Star points (Hoshi) with subtle aura
     const starPoints = getStarPoints(size);
     for (const sp of starPoints) {
       const { cx, cy } = gridToCanvas(sp.x, sp.y);
+      ctx.fillStyle = 'rgba(50, 30, 10, 0.9)';
       ctx.beginPath();
-      ctx.arc(cx, cy, 4.2, 0, Math.PI * 2);
+      ctx.arc(cx, cy, 4.3, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -168,62 +191,102 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
           const isWhiteTerr = territoryMap.whiteTerritory.some(p => p.x === x && p.y === y);
           if (isBlackTerr || isWhiteTerr) {
             const { cx, cy } = gridToCanvas(x, y);
-            ctx.fillStyle = isBlackTerr ? 'rgba(0, 0, 0, 0.42)' : 'rgba(255, 255, 255, 0.58)';
+            ctx.fillStyle = isBlackTerr ? 'rgba(10, 15, 25, 0.48)' : 'rgba(255, 255, 255, 0.65)';
             ctx.beginPath();
             ctx.fillRect(cx - CELL_SIZE * 0.45, cy - CELL_SIZE * 0.45, CELL_SIZE * 0.9, CELL_SIZE * 0.9);
             
-            // Inner small dot
             ctx.fillStyle = isBlackTerr ? '#000' : '#fff';
             ctx.beginPath();
-            ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+            ctx.arc(cx, cy, 3.8, 0, Math.PI * 2);
             ctx.fill();
           }
         }
       }
     }
 
-    // 6. Draw Stones with 3D gradient and shadows
+    // 6. Draw Stones (3D Slate & Clam Shell photographic texture)
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
         const color = grid[y][x];
         if (color) {
           const { cx, cy } = gridToCanvas(x, y);
 
-          // Drop shadow
+          // Deep multi-layered drop shadow
           ctx.beginPath();
-          ctx.arc(cx + 2.5, cy + 3.5, STONE_RADIUS, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+          ctx.arc(cx + 3.2, cy + 4.2, STONE_RADIUS, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
           ctx.fill();
 
-          // Stone body
+          // Stone base body
           ctx.beginPath();
           ctx.arc(cx, cy, STONE_RADIUS, 0, Math.PI * 2);
           const grad = ctx.createRadialGradient(
             cx - STONE_RADIUS * 0.35,
             cy - STONE_RADIUS * 0.35,
-            STONE_RADIUS * 0.1,
-            cx,
-            cy,
-            STONE_RADIUS
+            STONE_RADIUS * 0.08,
+            cx + STONE_RADIUS * 0.1,
+            cy + STONE_RADIUS * 0.1,
+            STONE_RADIUS * 1.05
           );
 
           if (color === 'black') {
-            grad.addColorStop(0, '#525b68');
-            grad.addColorStop(0.3, '#242830');
-            grad.addColorStop(1, '#0e1013');
+            // Japanese Slate (오석 특유의 묵직하고 깊은 나전 광택)
+            grad.addColorStop(0, '#586578');
+            grad.addColorStop(0.25, '#28303d');
+            grad.addColorStop(0.7, '#11151c');
+            grad.addColorStop(1, '#05070a');
           } else {
+            // Japanese Clam Shell (조개바둑알 특유의 우아하고 영롱한 입체 질감)
             grad.addColorStop(0, '#ffffff');
-            grad.addColorStop(0.6, '#f1f5f9');
-            grad.addColorStop(1, '#cbd5e1');
+            grad.addColorStop(0.45, '#f6f8fb');
+            grad.addColorStop(0.85, '#dfe5ee');
+            grad.addColorStop(1, '#b6c2d1');
           }
 
           ctx.fillStyle = grad;
           ctx.fill();
 
+          // If White stone: delicate clam shell curvature stripes (조개바둑알 결)
+          if (color === 'white') {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, STONE_RADIUS * 0.96, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.strokeStyle = 'rgba(165, 180, 200, 0.18)';
+            ctx.lineWidth = 1;
+            for (let s = -STONE_RADIUS; s < STONE_RADIUS; s += 4.5) {
+              ctx.beginPath();
+              ctx.arc(cx - STONE_RADIUS * 0.4 + s, cy + STONE_RADIUS * 0.6, STONE_RADIUS * 1.1, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+
+          // Crisp specular reflection dot at top-left
+          ctx.beginPath();
+          ctx.arc(cx - STONE_RADIUS * 0.35, cy - STONE_RADIUS * 0.35, STONE_RADIUS * 0.22, 0, Math.PI * 2);
+          const specGrad = ctx.createRadialGradient(
+            cx - STONE_RADIUS * 0.38,
+            cy - STONE_RADIUS * 0.38,
+            1,
+            cx - STONE_RADIUS * 0.35,
+            cy - STONE_RADIUS * 0.35,
+            STONE_RADIUS * 0.22
+          );
+          if (color === 'black') {
+            specGrad.addColorStop(0, 'rgba(255, 255, 255, 0.32)');
+            specGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          } else {
+            specGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+            specGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          }
+          ctx.fillStyle = specGrad;
+          ctx.fill();
+
           // Last move highlight ring
           if (lastMove && lastMove.x === x && lastMove.y === y) {
             ctx.strokeStyle = color === 'black' ? '#38bdf8' : '#ef4444';
-            ctx.lineWidth = 2.8;
+            ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.arc(cx, cy, STONE_RADIUS * 0.55, 0, Math.PI * 2);
             ctx.stroke();
