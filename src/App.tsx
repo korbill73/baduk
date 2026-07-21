@@ -143,24 +143,40 @@ export function App() {
     handleNewGame(newSize);
   };
 
-  // Trigger AI turn automatically when it is AI's turn in play mode (Strictly enforces professional KataGo AI)
+  // Trigger AI turn automatically when it is AI's turn in play mode
   useEffect(() => {
     if (mode === 'play' && !boardRef.current.gameOver && turn !== userColor && !isThinking) {
       setIsThinking(true);
       const b = boardRef.current;
       setTimeout(async () => {
-        const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
-        const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, true);
-        if (extResult && extResult.move && b.canPlay(extResult.move.x, extResult.move.y, b.turn).valid) {
-          b.playMove(extResult.move.x, extResult.move.y, b.turn);
-          soundManager.playStoneClick();
-          if (extResult.recommendations) setRecommendations(extResult.recommendations);
-          updateStateFromBoard();
-          setIsThinking(false);
-        } else {
-          setIsThinking(false);
-          soundManager.playError();
-          setShowAiEngineModal(true);
+        try {
+          const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
+          const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false);
+          if (extResult && extResult.move && b.canPlay(extResult.move.x, extResult.move.y, b.turn).valid) {
+            b.playMove(extResult.move.x, extResult.move.y, b.turn);
+            soundManager.playStoneClick();
+            if (extResult.recommendations) setRecommendations(extResult.recommendations);
+            updateStateFromBoard();
+            setIsThinking(false);
+          } else {
+            console.log('📡 외부 KataGo 또는 프록시 응답 지연/실패 -> 내장 고도화 AI 엔진으로 즉시 착수 진행');
+            workerRef.current?.postMessage({
+              type: 'CALCULATE_MOVE',
+              boardSize: b.size,
+              grid: b.grid,
+              turn: b.turn,
+              rankId: aiRank.id
+            });
+          }
+        } catch (err) {
+          console.error('AI 계산 중 예외 발생, 내장 AI 워커 호출:', err);
+          workerRef.current?.postMessage({
+            type: 'CALCULATE_MOVE',
+            boardSize: b.size,
+            grid: b.grid,
+            turn: b.turn,
+            rankId: aiRank.id
+          });
         }
       }, 350);
     }
@@ -247,20 +263,34 @@ export function App() {
     }
   };
 
-  // Request hints manually (Strictly requires KataGo AI)
+  // Request hints manually
   const handleRequestHints = async () => {
     if (isThinking || boardRef.current.gameOver) return;
     setIsThinking(true);
     const b = boardRef.current;
-    const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
-    const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, true);
-    if (extResult && extResult.recommendations && extResult.recommendations.length > 0) {
-      setRecommendations(extResult.recommendations);
-      setIsThinking(false);
-    } else {
-      setIsThinking(false);
-      soundManager.playError();
-      setShowAiEngineModal(true);
+    try {
+      const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
+      const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false);
+      if (extResult && extResult.recommendations && extResult.recommendations.length > 0) {
+        setRecommendations(extResult.recommendations);
+        setIsThinking(false);
+      } else {
+        workerRef.current?.postMessage({
+          type: 'CALCULATE_HINTS',
+          boardSize: b.size,
+          grid: b.grid,
+          turn: b.turn,
+          rankId: aiRank.id
+        });
+      }
+    } catch (e) {
+      workerRef.current?.postMessage({
+        type: 'CALCULATE_HINTS',
+        boardSize: b.size,
+        grid: b.grid,
+        turn: b.turn,
+        rankId: aiRank.id
+      });
     }
   };
 

@@ -1,19 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
+      "source": "/api/katago/:path*",
+      "destination": "http://211.253.36.117:63333/:path*"
+    },
     {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "source": "/api/katago",
+      "destination": "http://211.253.36.117:63333"
     }
   ]
 }

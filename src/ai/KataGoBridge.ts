@@ -83,10 +83,14 @@ export class KataGoBridge {
   static async checkAndSyncConnection(): Promise<boolean> {
     try {
       let targetUrl = (this.config.serverUrl || 'http://211.253.36.117:63333').trim().replace(/\/$/, '');
-      if (targetUrl.startsWith('ws://')) targetUrl = targetUrl.replace('ws://', 'http://');
-      if (targetUrl.startsWith('wss://')) targetUrl = targetUrl.replace('wss://', 'https://');
-      if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-        targetUrl = 'http://' + targetUrl;
+      if (typeof window !== 'undefined' && window.location && window.location.protocol === 'https:' && targetUrl.includes('211.253.36.117:63333')) {
+        targetUrl = '/api/katago';
+      } else {
+        if (targetUrl.startsWith('ws://')) targetUrl = targetUrl.replace('ws://', 'http://');
+        if (targetUrl.startsWith('wss://')) targetUrl = targetUrl.replace('wss://', 'https://');
+        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://') && !targetUrl.startsWith('/')) {
+          targetUrl = 'http://' + targetUrl;
+        }
       }
 
       const controller = new AbortController();
@@ -103,9 +107,8 @@ export class KataGoBridge {
         }
         return true;
       } else {
-        // 접속 실패 시 사용자 경험을 위해 공식 KT Cloud 서버로 자동 폴백(Fallback) 시도
-        if (targetUrl !== 'http://211.253.36.117:63333') {
-          console.warn(`⏳ ${targetUrl} 응답 없음 -> 공식 KT Cloud 서버(http://211.253.36.117:63333)로 자동 전환합니다.`);
+        if (targetUrl !== 'http://211.253.36.117:63333' && targetUrl !== '/api/katago') {
+          console.warn(`⏳ ${targetUrl} 응답 없음 -> 공식 KT Cloud 서버로 자동 전환합니다.`);
           this.config.serverUrl = 'http://211.253.36.117:63333';
           this.config.enabled = true;
           try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
@@ -120,7 +123,7 @@ export class KataGoBridge {
         return false;
       }
     } catch (e) {
-      if (this.config.serverUrl !== 'http://211.253.36.117:63333') {
+      if (this.config.serverUrl !== 'http://211.253.36.117:63333' && this.config.serverUrl !== '/api/katago') {
         this.config.serverUrl = 'http://211.253.36.117:63333';
         this.config.enabled = true;
         try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
@@ -191,14 +194,17 @@ export class KataGoBridge {
       };
 
       let targetUrl = (this.config.serverUrl || 'http://211.253.36.117:63333').trim().replace(/\/$/, '');
-      // ws:// 나 wss:// 로 입력되어도 로컬/원격 HTTP REST API로 자동 전환하여 접속 안정성 극대화
-      if (targetUrl.startsWith('ws://')) {
-        targetUrl = targetUrl.replace('ws://', 'http://');
-      } else if (targetUrl.startsWith('wss://')) {
-        targetUrl = targetUrl.replace('wss://', 'https://');
-      }
-      if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-        targetUrl = 'http://' + targetUrl;
+      if (typeof window !== 'undefined' && window.location && window.location.protocol === 'https:' && targetUrl.includes('211.253.36.117:63333')) {
+        targetUrl = '/api/katago';
+      } else {
+        if (targetUrl.startsWith('ws://')) {
+          targetUrl = targetUrl.replace('ws://', 'http://');
+        } else if (targetUrl.startsWith('wss://')) {
+          targetUrl = targetUrl.replace('wss://', 'https://');
+        }
+        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://') && !targetUrl.startsWith('/')) {
+          targetUrl = 'http://' + targetUrl;
+        }
       }
 
       const controller = new AbortController();
@@ -221,16 +227,12 @@ export class KataGoBridge {
         return this.parseKataGoResponse(data, boardSize);
       } catch (err: any) {
         clearTimeout(timeoutId);
-        if (forceTest) {
-          console.error('[KataGo 통신 테스트 오류]:', err);
-          throw new Error(err.message || '서버 통신 실패');
+        if (forceTest && !err.name?.includes('AbortError')) {
+          console.warn('[KataGo 통신 오류, 내장 AI로 전환]:', err.message);
         }
         return null;
       }
     } catch (err: any) {
-      if (forceTest) {
-        throw new Error(err.message || '쿼리 생성 및 전송 실패');
-      }
       return null;
     }
   }
