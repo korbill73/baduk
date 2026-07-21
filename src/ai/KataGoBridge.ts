@@ -261,9 +261,8 @@ export class KataGoBridge {
       }
     }
 
-    // 만약 모든 추천수가 이미 놓여져 있다면 첫 번째 추천수의 좌표를 그대로 반환 (후속 검증 로직에 의해 폴백 처리)
     if (!bestPoint) {
-      bestPoint = this.gtpToPoint(data.moveInfos[0].move, boardSize);
+      return { move: null, recommendations: [], isExternal: true };
     }
 
     const recommendations: AiRecommendation[] = data.moveInfos.slice(0, 3).map((info: any, idx: number) => {

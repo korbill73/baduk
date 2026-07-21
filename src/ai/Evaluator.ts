@@ -58,7 +58,7 @@ export class Evaluator {
 
     // CRITICAL BASIC RULE 2.5: Dead Cage / prisoner feeding prohibition (`사석/죽은 돌 보태주기 절대 금지`)
     if (capturesCount === 0 && DeadGroupFilter.isDeadInCage(board, x, y, color)) {
-      return -3500.0;
+      return -50000.0;
     }
 
     // CRITICAL BASIC RULE 3: Cramped 2-liberty self-reduction during early/mid game

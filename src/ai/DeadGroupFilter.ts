@@ -1,5 +1,5 @@
 import { GoBoard } from '../core/GoBoard';
-import type { StoneColor } from '../types/go';
+import type { StoneColor, Point } from '../types/go';
 
 export class DeadGroupFilter {
   /**
@@ -15,11 +15,11 @@ export class DeadGroupFilter {
     // 1. Simulate the move first
     const sim = new GoBoard(size, false);
     sim.grid = board.cloneGrid(board.grid);
-    sim.playMove(x, y, color || 'black');
+    sim.playMove(x, y, color);
     const grp = sim.getGroupInfo(x, y);
     if (!grp) return true;
 
-    // If simulating this move instantly captures enemy stones, it's NOT a dead cage move (`반격/따내기/사활 승부`)!
+    // If simulating this move instantly captures enemy stones, it's a fight/capture, NOT a dead move!
     for (const nb of board.getNeighbors(x, y)) {
       if (grid[nb.y][nb.x] === enemyColor) {
         const eGrp = board.getGroupInfo(nb.x, nb.y);
@@ -29,41 +29,59 @@ export class DeadGroupFilter {
       }
     }
 
-    // 2. If the group has >= 5 liberties after placing, it has breath and room to run (`탈출/전투 가능`)
-    if (grp.liberties.length >= 5) {
-      return false;
+    // 2. Exact BFS Flood-Fill from our liberties to see if we can reach wide open board space or escape routes
+    const visited = new Set<string>();
+    const queue: Point[] = [...grp.liberties];
+    for (const lib of grp.liberties) {
+      visited.add(`${lib.x},${lib.y}`);
     }
 
-    // 3. Scan the surrounding area (radius 4 around our group) for open space or escape routes
-    let openSpaceCount = 0;
-    let enemySurroundingCount = 0;
-    let friendlySurroundingCount = 0;
+    let reachableEmptyPoints = 0;
+    let adjacentEnemyStones = 0;
+    let adjacentFriendlyStones = grp.stones.length;
 
-    for (const st of grp.stones) {
-      for (let dy = -3; dy <= 3; dy++) {
-        for (let dx = -3; dx <= 3; dx++) {
-          const nx = st.x + dx;
-          const ny = st.y + dy;
-          if (board.isValidPoint(nx, ny)) {
-            const c = grid[ny][nx];
-            if (c === null) {
-              openSpaceCount++;
-            } else if (c === enemyColor) {
-              enemySurroundingCount++;
-            } else if (c === color) {
-              friendlySurroundingCount++;
-            }
-          }
+    while (queue.length > 0 && reachableEmptyPoints < 18) {
+      const curr = queue.shift()!;
+      reachableEmptyPoints++;
+
+      for (const nb of board.getNeighbors(curr.x, curr.y)) {
+        const key = `${nb.x},${nb.y}`;
+        const c = grid[nb.y][nb.x];
+        if (c === null && !visited.has(key)) {
+          visited.add(key);
+          queue.push(nb);
+        } else if (c === enemyColor) {
+          adjacentEnemyStones++;
+        } else if (c === color) {
+          adjacentFriendlyStones++;
         }
       }
     }
 
-    // 4. Check if we can make two distinct eyes inside (`안형 2개 여부`)
-    // If liberties <= 3 and the ratio of surrounding enemy stones to open space is overwhelming (> 3:1)
-    // AND there is virtually no open territory nearby (openSpaceCount < 14 around all stones combined),
-    // then this group is entirely sealed inside an enemy cage (`완전 포위 사석`)!
-    if (grp.liberties.length <= 3 && openSpaceCount < 14 && enemySurroundingCount > friendlySurroundingCount * 1.5) {
-      // Check if any adjacent enemy stone has <= 2 liberties that we could break through
+    // If BFS reaches 18+ connected empty intersections, our group has wide open space to live or run
+    if (reachableEmptyPoints >= 18) {
+      return false;
+    }
+
+    // 3. If reachable empty space is small (< 18), check if enemy stones completely dominate the enclosure
+    // Check local 5x5 window around (x, y)
+    let localEnemy = 0;
+    let localFriendly = 0;
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (board.isValidPoint(nx, ny)) {
+          const c = grid[ny][nx];
+          if (c === enemyColor) localEnemy++;
+          else if (c === color) localFriendly++;
+        }
+      }
+    }
+
+    // If we are placing inside an enemy cage where local enemy stones >= 6 and we have no wide escape (< 18 space)
+    // AND we cannot capture any surrounding enemy stone (all adjacent enemy groups have >= 3 liberties)
+    if (localEnemy >= 6 && localEnemy > localFriendly * 1.5 && reachableEmptyPoints < 12) {
       let canBreakThrough = false;
       for (const st of grp.stones) {
         for (const nb of board.getNeighbors(st.x, st.y)) {
@@ -79,11 +97,27 @@ export class DeadGroupFilter {
       }
 
       if (!canBreakThrough) {
-        // This group is dead in a cage! Placing here simply adds dead prisoners (`보태주기 떡수`)
+        // Absolutely dead inside an enemy cage! Placing here is feeding dead stones (`사석 보태기/죽은 곳 착수`)
         return true;
       }
     }
 
+    // If our resulting group liberties <= 2 and localEnemy > localFriendly and can't capture, dead!
+    if (grp.liberties.length <= 2 && localEnemy >= 4 && capturesCount(board, x, y, enemyColor) === 0) {
+      return true;
+    }
+
     return false;
   }
+}
+
+function capturesCount(board: GoBoard, x: number, y: number, enemyColor: StoneColor): number {
+  let count = 0;
+  for (const nb of board.getNeighbors(x, y)) {
+    if (board.grid[nb.y][nb.x] === enemyColor) {
+      const eGrp = board.getGroupInfo(nb.x, nb.y);
+      if (eGrp && eGrp.liberties.length === 1) count += eGrp.stones.length;
+    }
+  }
+  return count;
 }

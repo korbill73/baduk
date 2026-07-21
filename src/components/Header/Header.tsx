@@ -316,7 +316,7 @@ export const Header: React.FC<HeaderProps> = ({
             backgroundColor: '#10b981',
             boxShadow: '0 0 8px #10b981'
           }} />
-          <span>업데이트: <strong style={{ color: '#f8fafc', fontWeight: 600 }}>2026.07.22 02:50 KST (KT Cloud KataGo 9단 500회 탐색 및 중복 착수 필터링/프로급 9단 수읽기 100% 가동)</strong></span>
+          <span>업데이트: <strong style={{ color: '#f8fafc', fontWeight: 600 }}>2026.07.22 02:56 KST (BFS 완전 탐색 사석 보태기/완전 포위 죽은 곳 착수 차단 및 KataGo 중복 스킵 완벽 적용)</strong></span>
         </div>
       </div>
     </header>
