@@ -159,30 +159,14 @@ export function App() {
             updateStateFromBoard();
             setIsThinking(false);
           } else {
-            console.log('📡 외부 KataGo 또는 프록시 응답 지연/실패 -> 내장 고도화 AI 엔진으로 즉시 착수 진행');
-            workerRef.current?.postMessage({
-              type: 'CALCULATE_MOVE',
-              size: b.size,
-              grid: b.grid,
-              turn: b.turn,
-              capturesBlack: b.capturesBlack,
-              capturesWhite: b.capturesWhite,
-              koPoint: b.koPoint,
-              rankInfo: aiRank
-            });
+            console.warn('⚠️ 외부 KataGo 서버에서 유효한 새로운 추천수를 반환하지 못했습니다.');
+            setIsThinking(false);
+            alert('⚠️ [외부 전문 KataGo 연결/응답 안내]\n\nKT Cloud KataGo 서버(211.253.36.117:63333)에서 현재 바둑판 상황에 맞는 새로운 추천수를 반환하지 못했거나 중복된 좌표만 반환되었습니다.\n\n(내장 AI로 임의 착수하지 않도록 설정되어 대국이 일시정지됩니다)\n\n👉 해결 방법:\nKT Cloud 서버의 KataGo HTTP 브릿지 코드에서 프론트엔드가 보내는 바둑 착수 내역(moves) 파라미터를 정확히 받아 KataGo 엔진으로 전달하고 있는지 점검해주세요.');
           }
-        } catch (err) {
-          console.error('AI 계산 중 예외 발생, 내장 AI 워커 호출:', err);
-          workerRef.current?.postMessage({
-            type: 'CALCULATE_MOVE',
-            size: b.size,
-            grid: b.grid,
-            turn: b.turn,
-            capturesBlack: b.capturesBlack,
-            capturesWhite: b.capturesWhite,
-            koPoint: b.koPoint,
-            rankInfo: aiRank
-          });
+        } catch (err: any) {
+          console.error('AI 계산 중 예외 발생:', err);
+          setIsThinking(false);
+          alert(`⚠️ [KataGo 통신 예외 발생]\n\n외부 KataGo 서버와 통신 중 오류가 발생했습니다: ${err.message || err}`);
         }
       }, 350);
     }
@@ -281,28 +265,12 @@ export function App() {
         setRecommendations(extResult.recommendations);
         setIsThinking(false);
       } else {
-        workerRef.current?.postMessage({
-          type: 'GET_HINTS',
-          size: b.size,
-          grid: b.grid,
-          turn: b.turn,
-          capturesBlack: b.capturesBlack,
-          capturesWhite: b.capturesWhite,
-          koPoint: b.koPoint,
-          rankInfo: aiRank
-        });
+        setIsThinking(false);
+        alert('⚠️ [KataGo 추천수 조회 실패]\n\nKT Cloud KataGo 서버에서 추천수를 반환하지 못했습니다. 서버가 실행 중이고 수신 파라미터를 정상 처리하는지 점검해주세요.');
       }
-    } catch (e) {
-      workerRef.current?.postMessage({
-        type: 'GET_HINTS',
-        size: b.size,
-        grid: b.grid,
-        turn: b.turn,
-        capturesBlack: b.capturesBlack,
-        capturesWhite: b.capturesWhite,
-        koPoint: b.koPoint,
-        rankInfo: aiRank
-      });
+    } catch (e: any) {
+      setIsThinking(false);
+      alert(`⚠️ [KataGo 추천수 통신 예외]: ${e.message || e}`);
     }
   };
 
