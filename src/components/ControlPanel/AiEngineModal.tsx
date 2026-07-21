@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { KataGoBridge } from '../../ai/KataGoBridge';
-import { Cpu, CheckCircle2, Sparkles, X, Wifi, Terminal } from 'lucide-react';
+import { Cpu, CheckCircle2, Sparkles, X, Wifi, Terminal, Download, ExternalLink } from 'lucide-react';
 
 interface AiEngineModalProps {
   onClose: () => void;
@@ -10,6 +10,51 @@ export const AiEngineModal: React.FC<AiEngineModalProps> = ({ onClose }) => {
   const [config, setConfig] = useState(KataGoBridge.getConfig());
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle');
   const [testMessage, setTestMessage] = useState('');
+
+  const handleDownloadBat = () => {
+    const batContent = `@echo off
+chcp 65001 > nul
+title 한게임 바둑 9단 카타고(KataGo) AI 원클릭 실행기
+echo ========================================================
+echo 🤖 한게임 바둑 9단 AI 로컬 엔진 자동 설치 및 구동을 시작합니다...
+echo ========================================================
+echo.
+
+where node >nul 2>nul
+if %errorlevel% neq 0 (
+  echo [⚠️ 중요 안내] PC에 Node.js 프로그램이 설치되어 있지 않습니다!
+  echo --------------------------------------------------------
+  echo 1. 웹 브라우저를 열고 https://nodejs.org 사이트에 접속하세요.
+  echo 2. 화면 중앙의 초록색 [LTS 버전 다운로드] 버튼을 눌러 설치해 주세요.
+  echo 3. Node.js 설치가 완료된 후, 이 파일(run-katago-ai.bat)을 다시 더블클릭해 주시면 완료됩니다!
+  echo --------------------------------------------------------
+  pause
+  exit /b
+)
+
+if not exist setup-katago-auto.mjs (
+  echo 📡 카타고 9단 자동 설치 및 중계 스크립트를 안전하게 다운로드하고 있습니다...
+  powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/korbill73/baduk/main/setup-katago-auto.mjs' -OutFile 'setup-katago-auto.mjs'"
+)
+
+echo 🚀 카타고(KataGo) 엔진 및 신경망 서버를 구동합니다...
+echo 이 창을 열어두신 상태로 웹 바둑에 접속하시면 자동으로 연동됩니다!
+echo.
+node setup-katago-auto.mjs
+pause
+`;
+    const blob = new Blob([batContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'run-katago-ai.bat';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadMjs = () => {
+    window.open('https://raw.githubusercontent.com/korbill73/baduk/main/setup-katago-auto.mjs', '_blank');
+  };
 
   const handleSave = () => {
     KataGoBridge.setConfig(config);
@@ -198,23 +243,89 @@ export const AiEngineModal: React.FC<AiEngineModalProps> = ({ onClose }) => {
           )}
         </div>
 
-        {/* Local Setup Guide */}
+        {/* Local Setup Guide & One-Click Downloader for Ordinary Users */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.5)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.9))',
+          border: '1px solid rgba(251, 191, 36, 0.35)',
           borderRadius: 'var(--radius-md)',
-          padding: '1.2rem',
-          fontSize: '0.82rem',
-          color: 'var(--text-muted)'
+          padding: '1.4rem',
+          fontSize: '0.85rem',
+          color: '#cbd5e1',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
         }}>
-          <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem' }}>
-            <Terminal size={16} color="var(--accent-gold)" /> 로컬 PC에서 KataGo 실행 가이드 (간편 3단계)
-          </h4>
-          <ol style={{ paddingLeft: '1.2rem', lineHeight: 1.6 }}>
-            <li>KataGo 공식 깃허브나 Lizzie / Sabaki 프로그램 폴더에서 <code>katago.exe</code>를 실행합니다.</li>
-            <li>터미널에서 <code>katago gtp -model g170e-b20c256x2-s5303129600-d122840192.bin.gz -config gtp_custom.cfg</code> 형태로 실행합니다.</li>
-            <li>WebSocket 또는 SGF 중계 서버를 포트 <code>63333</code>에 개방하면 웹 앱이 자동으로 연결하여 프로 9단 실력을 발휘합니다!</li>
-          </ol>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.9rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <h4 style={{ color: '#fbbf24', fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <Terminal size={18} color="#fbbf24" /> 👑 일반 방문자용 카타고 9단 AI 원클릭 설치 매뉴얼
+            </h4>
+            <span style={{ fontSize: '0.75rem', background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+              누구나 1분 완성이 가능한 초간편 가이드
+            </span>
+          </div>
+
+          <p style={{ color: '#e2e8f0', marginBottom: '1.1rem', lineHeight: 1.5 }}>
+            복잡한 명령어 입력이나 프로그램 설치 과정이 필요 없습니다! 아래 <strong>단 3단계</strong>만 따라 하시면 내 윈도우/맥 컴퓨터가 <strong>프로 9단을 이기는 세계 최강 AI 바둑 도장</strong>으로 즉시 변신합니다.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Step 1 */}
+            <div style={{ background: 'rgba(255,255,255,0.04)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid #38bdf8' }}>
+              <strong style={{ color: '#38bdf8', fontSize: '0.95rem', display: 'block', marginBottom: '0.4rem' }}>
+                1단계: Node.js 프로그램 설치 (이미 깔려 있다면 패스!)
+              </strong>
+              <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                카타고 엔진 자동 실행을 위해 컴퓨터에 <strong>Node.js</strong>가 필요합니다. 안 깔려 있다면 공식 홈페이지에서 초록색 [LTS 다운로드]를 눌러 10초 만에 설치하세요.
+              </span>
+              <div style={{ marginTop: '0.6rem' }}>
+                <a
+                  href="https://nodejs.org"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="glass-button"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', borderColor: '#38bdf8', color: '#38bdf8', padding: '0.4rem 0.8rem' }}
+                >
+                  <span>🔗 Node.js 공식 웹사이트 바로가기</span>
+                  <ExternalLink size={14} />
+                </a>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div style={{ background: 'rgba(255,255,255,0.04)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid #22c55e' }}>
+              <strong style={{ color: '#22c55e', fontSize: '0.95rem', display: 'block', marginBottom: '0.4rem' }}>
+                2단계: AI 자동 실행 파일 버튼 클릭하여 다운로드
+              </strong>
+              <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.7rem' }}>
+                아래 버튼을 클릭하시면 <strong>카타고 엔진 및 신경망 가중치 자동 설치기</strong>가 다운로드됩니다.
+              </span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+                <button
+                  onClick={handleDownloadBat}
+                  className="glass-button"
+                  style={{ background: 'rgba(34, 197, 94, 0.2)', borderColor: '#22c55e', color: '#22c55e', fontWeight: 700, gap: '0.5rem' }}
+                >
+                  <Download size={16} /> 📥 윈도우용 원클릭 자동 실행 파일(run-katago-ai.bat) 다운로드
+                </button>
+                <button
+                  onClick={handleDownloadMjs}
+                  className="glass-button"
+                  style={{ background: 'rgba(56, 189, 248, 0.15)', borderColor: '#38bdf8', color: '#38bdf8', fontWeight: 600, gap: '0.5rem' }}
+                >
+                  <ExternalLink size={16} /> 📥 맥 / 리눅스 / 원본 스크립트(setup-katago-auto.mjs) 보기
+                </button>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div style={{ background: 'rgba(255,255,255,0.04)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid #fbbf24' }}>
+              <strong style={{ color: '#fbbf24', fontSize: '0.95rem', display: 'block', marginBottom: '0.4rem' }}>
+                3단계: 다운로드 받은 파일 더블클릭 실행 ➔ 자동 연동 끝! 🎉
+              </strong>
+              <span style={{ fontSize: '0.82rem', color: '#e2e8f0' }}>
+                다운로드한 <code>run-katago-ai.bat</code> (또는 <code>node setup-katago-auto.mjs</code>) 파일을 더블클릭하면 검은 창이 열리며 AI 신경망을 자동으로 켜줍니다.<br />
+                창이 켜진 상태로 이 웹 바둑에 접속만 하시면, 상단 헤더가 <strong>[🟢 AI 자동 연동됨 (최고수)]</strong> 로 빛나면서 프로 9단과의 승부가 바로 시작됩니다!
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Actions */}

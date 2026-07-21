@@ -241,8 +241,8 @@ const CORS_HEADERS = {
         }
       });
     } else {
-      res.writeHead(200, { ...CORS_HEADERS, 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('KataGo Auto Setup Server is Running on port 63333');
+      res.writeHead(200, { ...CORS_HEADERS, 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', engine: 'KataGo', port: PORT }));
     }
   });
 
