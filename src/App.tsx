@@ -151,7 +151,7 @@ export function App() {
       setTimeout(async () => {
         try {
           const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
-          const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false);
+          const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false, aiRank);
           if (extResult && extResult.move && b.canPlay(extResult.move.x, extResult.move.y, b.turn).valid) {
             b.playMove(extResult.move.x, extResult.move.y, b.turn);
             soundManager.playStoneClick();
@@ -162,20 +162,26 @@ export function App() {
             console.log('📡 외부 KataGo 또는 프록시 응답 지연/실패 -> 내장 고도화 AI 엔진으로 즉시 착수 진행');
             workerRef.current?.postMessage({
               type: 'CALCULATE_MOVE',
-              boardSize: b.size,
+              size: b.size,
               grid: b.grid,
               turn: b.turn,
-              rankId: aiRank.id
+              capturesBlack: b.capturesBlack,
+              capturesWhite: b.capturesWhite,
+              koPoint: b.koPoint,
+              rankInfo: aiRank
             });
           }
         } catch (err) {
           console.error('AI 계산 중 예외 발생, 내장 AI 워커 호출:', err);
           workerRef.current?.postMessage({
             type: 'CALCULATE_MOVE',
-            boardSize: b.size,
+            size: b.size,
             grid: b.grid,
             turn: b.turn,
-            rankId: aiRank.id
+            capturesBlack: b.capturesBlack,
+            capturesWhite: b.capturesWhite,
+            koPoint: b.koPoint,
+            rankInfo: aiRank
           });
         }
       }, 350);
@@ -270,26 +276,32 @@ export function App() {
     const b = boardRef.current;
     try {
       const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
-      const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false);
+      const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false, aiRank);
       if (extResult && extResult.recommendations && extResult.recommendations.length > 0) {
         setRecommendations(extResult.recommendations);
         setIsThinking(false);
       } else {
         workerRef.current?.postMessage({
-          type: 'CALCULATE_HINTS',
-          boardSize: b.size,
+          type: 'GET_HINTS',
+          size: b.size,
           grid: b.grid,
           turn: b.turn,
-          rankId: aiRank.id
+          capturesBlack: b.capturesBlack,
+          capturesWhite: b.capturesWhite,
+          koPoint: b.koPoint,
+          rankInfo: aiRank
         });
       }
     } catch (e) {
       workerRef.current?.postMessage({
-        type: 'CALCULATE_HINTS',
-        boardSize: b.size,
+        type: 'GET_HINTS',
+        size: b.size,
         grid: b.grid,
         turn: b.turn,
-        rankId: aiRank.id
+        capturesBlack: b.capturesBlack,
+        capturesWhite: b.capturesWhite,
+        koPoint: b.koPoint,
+        rankInfo: aiRank
       });
     }
   };

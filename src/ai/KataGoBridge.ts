@@ -94,7 +94,7 @@ export class KataGoBridge {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6초 충분한 타임아웃
       const res = await fetch(targetUrl, { method: 'GET', signal: controller.signal });
       clearTimeout(timeoutId);
 
@@ -115,11 +115,7 @@ export class KataGoBridge {
           this.notifyListeners();
           return this.checkAndSyncConnection();
         }
-        if (this.config.enabled) {
-          this.config.enabled = false;
-          try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
-          this.notifyListeners();
-        }
+        // 일시적인 지연 시 localStorage에서 완전히 비활성화하지 않고 메모리 상태만 조정
         return false;
       }
     } catch (e) {
@@ -130,18 +126,13 @@ export class KataGoBridge {
         this.notifyListeners();
         return this.checkAndSyncConnection();
       }
-      if (this.config.enabled) {
-        this.config.enabled = false;
-        try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
-        this.notifyListeners();
-      }
       return false;
     }
   }
 
   // Convert board moves history into SGF or GTP coordinates (e.g. D4, Q16)
   static pointToGtp(point: Point, boardSize: number = 19): string {
-    const letters = 'ABCDEFGHJKLMNOPQRST'; // Note: I is omitted in GTP
+    const letters = 'ABCDEFGHJKLMNOPQRST';
     if (point.x < 0 || point.x >= boardSize || point.y < 0 || point.y >= boardSize) {
       return 'pass';
     }
@@ -170,17 +161,22 @@ export class KataGoBridge {
     boardSize: number,
     historyMoves: Move[],
     aiColor: StoneColor,
-    forceTest: boolean = false
+    forceTest: boolean = false,
+    rankInfo?: any
   ): Promise<{ move: Point | null; recommendations: AiRecommendation[]; isExternal: boolean } | null> {
-    if ((!this.config.enabled && !forceTest) || !aiColor) {
+    if (!aiColor) {
       return null;
     }
 
     try {
-      // Build KataGo query format (Analysis engine JSON format)
       const movesFormatted = historyMoves
         .filter(m => !m.isPass && !m.isResign)
         .map(m => [m.color === 'black' ? 'B' : 'W', this.pointToGtp({ x: m.x, y: m.y }, boardSize)]);
+
+      let visits = 200;
+      if (rankInfo?.id === 'pro-9d' || rankInfo?.name?.includes('9단')) visits = 500;
+      else if (rankInfo?.id?.includes('dan')) visits = 300;
+      else if (rankInfo?.id?.includes('kyu')) visits = 80;
 
       const queryPayload = {
         id: `query-${Date.now()}`,
@@ -190,7 +186,7 @@ export class KataGoBridge {
         komi: 6.5,
         boardXSize: boardSize,
         boardYSize: boardSize,
-        maxVisits: 120
+        maxVisits: visits
       };
 
       let targetUrl = (this.config.serverUrl || 'http://211.253.36.117:63333').trim().replace(/\/$/, '');
@@ -207,8 +203,13 @@ export class KataGoBridge {
         }
       }
 
+      // 만약 enabled가 false이더라도 공식 서버이거나 프록시 경로라면 쿼리를 항상 시도
+      if (!this.config.enabled && !forceTest && targetUrl !== '/api/katago' && targetUrl !== 'http://211.253.36.117:63333') {
+        return null;
+      }
+
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15초 최대 타임아웃
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 최대 타임아웃
       try {
         const response = await fetch(targetUrl, {
           method: 'POST',
@@ -223,6 +224,10 @@ export class KataGoBridge {
         const data = await response.json();
         if (data.error) {
           throw new Error(`KataGo 엔진 오류: ${data.error}`);
+        }
+        if (!this.config.enabled) {
+          this.config.enabled = true;
+          try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
         }
         return this.parseKataGoResponse(data, boardSize);
       } catch (err: any) {
