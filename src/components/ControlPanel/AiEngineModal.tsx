@@ -139,38 +139,42 @@ pause
           </strong>
           <span>
             웹 브라우저 내의 자바스크립트 엔진은 GPU 연산이 불가능하여, 19줄 바둑($10^{170}$ 경우의 수)에서 프로 9단 수준의 신경망 수읽기를 구사하는 데 물리적 한계가 있습니다.
-            <strong> 카타고(KataGo)</strong> 등 실제 세계 최강 오픈소스 바둑 엔진을 로컬 PC(`http://localhost:63333`)나 클라우드 서버에 띄워 연동하시면,
-            <strong> 단 0.05초 만에 세계대회 우승 프로 9단을 압도하는 진짜 AI 실력</strong>으로 대국을 펼칠 수 있습니다!
+            <strong> 회원님의 요청에 따라 초보 수준도 안 되는 내장 약한 AI 엔진은 전면 제외(폐기)되었습니다!</strong><br />
+            이제 모든 AI 대국은 <strong>카타고(KataGo) 프로 9단 엔진 연동 대국</strong>으로만 진행되며, 로컬 PC나 리눅스 서버 연결 시 <strong>세계 최강의 진짜 AI 실력</strong>으로 작동합니다.
           </span>
         </div>
 
-        {/* Mobile & Tablet AI Guide Box */}
+        {/* Linux Server & Remote Cloud 24/7 Guide Box */}
         <div style={{
           background: 'rgba(16, 185, 129, 0.1)',
           border: '1px solid rgba(16, 185, 129, 0.35)',
           borderRadius: 'var(--radius-md)',
-          padding: '1.1rem',
+          padding: '1.2rem',
           fontSize: '0.85rem',
           lineHeight: 1.5
         }}>
-          <strong style={{ color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
-            📱 모바일(스마트폰/태블릿)에서는 AI 대국을 어떻게 두나요?
+          <strong style={{ color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem', fontSize: '1rem' }}>
+            🐧 리눅스(Linux/VPS) 서버가 있다면 365일 24시간 연동이 가능한가요? (가장 추천!)
           </strong>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            <div>
-              <span style={{ color: '#fff', fontWeight: 600 }}>1. 기본 모바일 AI 대국 (설치 0%, 즉시 실행)</span>
-              <p style={{ margin: '0.2rem 0 0 0', color: 'var(--text-muted)' }}>
-                스마트폰 웹 브라우저 접속 직후, 별도 앱이나 서버 설치 없이 상단의 <strong>[AI 대국]</strong> 모드에서 즉시 두실 수 있습니다!
-                스마트폰 내부의 고성능 Web Worker(MCTS+휴리스틱 엔진)가 작동하여 지하철이나 카페에서도 빠른 속도로 응수합니다.
-              </p>
-            </div>
-            <div>
-              <span style={{ color: '#fff', fontWeight: 600 }}>2. 모바일에서 세계 최강 프로 9단 KataGo와 대국하는 법</span>
-              <p style={{ margin: '0.2rem 0 0 0', color: 'var(--text-muted)' }}>
-                • <strong>원격 클라우드 / 내 PC 중계 방식 (가장 강력 추천!)</strong>: 집의 PC에서 카타고를 켜고 무료 터널링 URL(`https://내주소.trycloudflare.com` 등)을 발급받아 아래 <strong>[서버 연결 주소]</strong>에 넣으면 스마트폰이 프로 9단 엔진으로 업그레이드됩니다.<br />
-                • <strong>안드로이드 로컬 구동</strong>: 안드로이드 기기 `Termux` 앱에서 로컬 서버를 구동하여 `http://localhost:63333` 연결도 가능합니다.
-              </p>
-            </div>
+          <p style={{ margin: '0 0 0.8rem 0', color: '#e2e8f0' }}>
+            <strong>네! 100% 완벽하게 가능하며 현업 최고 서비스 방식입니다.</strong> 회원님께서 리눅스 서버(Ubuntu, Debian, CentOS, AWS EC2, Oracle Cloud 등)를 보유하고 계시다면, 서버 터미널에서 아래 <strong>원클릭 명령어 한 줄</strong>만 실행하세요!
+          </p>
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.6)',
+            padding: '0.8rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            fontFamily: 'monospace',
+            color: '#38bdf8',
+            fontSize: '0.82rem',
+            wordBreak: 'break-all',
+            marginBottom: '0.8rem'
+          }}>
+            curl -sSL https://raw.githubusercontent.com/korbill73/baduk/main/setup-katago-linux.sh | bash
+          </div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+            • <strong>자동 구축 효과</strong>: Node.js, KataGo, PM2(무중단 백그라운드 관리자)가 자동 설치되며 365일 24시간 켜져 있습니다.<br />
+            • <strong>모바일/PC 접속 방법</strong>: 구축 후 서버 주소(예: <code style={{ color: '#fbbf24' }}>http://리눅스서버IP:63333</code>)를 아래 <strong>[서버 연결 주소]</strong>에 넣고 저장하시면, 스마트폰/태블릿/PC 사용자 누구나 내장 AI 없이 <strong>100% 프로 9단 카타고 연동 대국</strong>이 즉시 진행됩니다!
           </div>
         </div>
 

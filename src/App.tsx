@@ -143,34 +143,25 @@ export function App() {
     handleNewGame(newSize);
   };
 
-  // Trigger AI turn automatically when it is AI's turn in play mode
+  // Trigger AI turn automatically when it is AI's turn in play mode (Strictly enforces professional KataGo AI)
   useEffect(() => {
     if (mode === 'play' && !boardRef.current.gameOver && turn !== userColor && !isThinking) {
       setIsThinking(true);
       const b = boardRef.current;
       setTimeout(async () => {
-        if (KataGoBridge.getConfig().enabled) {
-          const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
-          const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn);
-          if (extResult && extResult.move && b.canPlay(extResult.move.x, extResult.move.y, b.turn).valid) {
-            b.playMove(extResult.move.x, extResult.move.y, b.turn);
-            soundManager.playStoneClick();
-            if (extResult.recommendations) setRecommendations(extResult.recommendations);
-            updateStateFromBoard();
-            setIsThinking(false);
-            return;
-          }
+        const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
+        const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, true);
+        if (extResult && extResult.move && b.canPlay(extResult.move.x, extResult.move.y, b.turn).valid) {
+          b.playMove(extResult.move.x, extResult.move.y, b.turn);
+          soundManager.playStoneClick();
+          if (extResult.recommendations) setRecommendations(extResult.recommendations);
+          updateStateFromBoard();
+          setIsThinking(false);
+        } else {
+          setIsThinking(false);
+          soundManager.playError();
+          setShowAiEngineModal(true);
         }
-        workerRef.current?.postMessage({
-          type: 'CALCULATE_MOVE',
-          size: b.size,
-          grid: b.grid,
-          turn: b.turn,
-          capturesBlack: b.capturesBlack,
-          capturesWhite: b.capturesWhite,
-          koPoint: b.koPoint,
-          rankInfo: aiRank
-        });
       }, 350);
     }
   }, [turn, mode, userColor, aiRank, isThinking]);
@@ -256,30 +247,21 @@ export function App() {
     }
   };
 
-  // Request hints manually
+  // Request hints manually (Strictly requires KataGo AI)
   const handleRequestHints = async () => {
     if (isThinking || boardRef.current.gameOver) return;
     setIsThinking(true);
     const b = boardRef.current;
-    if (KataGoBridge.getConfig().enabled) {
-      const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
-      const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn);
-      if (extResult && extResult.recommendations && extResult.recommendations.length > 0) {
-        setRecommendations(extResult.recommendations);
-        setIsThinking(false);
-        return;
-      }
+    const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
+    const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, true);
+    if (extResult && extResult.recommendations && extResult.recommendations.length > 0) {
+      setRecommendations(extResult.recommendations);
+      setIsThinking(false);
+    } else {
+      setIsThinking(false);
+      soundManager.playError();
+      setShowAiEngineModal(true);
     }
-    workerRef.current?.postMessage({
-      type: 'GET_HINTS',
-      size: b.size,
-      grid: b.grid,
-      turn: b.turn,
-      capturesBlack: b.capturesBlack,
-      capturesWhite: b.capturesWhite,
-      koPoint: b.koPoint,
-      rankInfo: aiRank
-    });
   };
 
   const handleUndo = () => {
