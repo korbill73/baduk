@@ -15,7 +15,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const BIN_DIR = path.join(__dirname, 'katago-bin');
-const KATAGO_EXE = path.join(BIN_DIR, 'katago.exe');
+const IS_WINDOWS = process.platform === 'win32';
+let KATAGO_EXE = IS_WINDOWS ? path.join(BIN_DIR, 'katago.exe') : 'katago';
 const MODEL_FILE = path.join(BIN_DIR, 'model.bin.gz');
 const CONFIG_FILE = path.join(BIN_DIR, 'analysis_config.cfg');
 
@@ -87,7 +88,7 @@ async function prepareKataGo() {
     console.log(`✅ 신경망 가중치 다운로드 완료!`);
   }
 
-  if (!fs.existsSync(KATAGO_EXE)) {
+  if (IS_WINDOWS && !fs.existsSync(KATAGO_EXE)) {
     console.log(`⏳ [2/2] 공식 KataGo Windows CPU 엔진 다운로드 중...`);
     const zipPath = path.join(BIN_DIR, 'katago.zip');
     await downloadFile(KATAGO_ZIP_URL, zipPath);
@@ -102,6 +103,20 @@ async function prepareKataGo() {
       });
     });
     console.log(`✅ KataGo 실행 파일 준비 완료!`);
+  } else if (!IS_WINDOWS) {
+    // Linux / Mac OS check
+    try {
+      const { execSync } = await import('child_process');
+      const systemKatago = execSync('which katago 2>/dev/null', { encoding: 'utf-8' }).trim();
+      if (systemKatago) {
+        KATAGO_EXE = systemKatago;
+        console.log(`✅ [시스템 KataGo 엔진 감지] ${KATAGO_EXE} 사용`);
+      } else {
+        console.warn(`⚠️ 시스템에 'katago' 패키지가 설치되어 있지 않습니다. 리눅스에서는 'sudo apt-get install -y katago' 를 실행해 주셔야 정상 구동됩니다.`);
+      }
+    } catch (e) {
+      console.warn(`⚠️ katago 경로 확인 중 알림: ${e.message}`);
+    }
   }
 
   // 항상 최신 config 유지 (numAnalysisThreads 보장)
