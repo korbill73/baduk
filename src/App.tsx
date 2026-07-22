@@ -31,7 +31,7 @@ export function App() {
   const [grid, setGrid] = useState<StoneColor[][]>(boardRef.current.grid);
   const [turn, setTurn] = useState<'black' | 'white'>('black');
   const [userColor] = useState<'black' | 'white'>('black');
-  const [aiRank, setAiRank] = useState<RankInfo>(RANKS_DATA[12]); // Default to 9단 (AI 신계 - 실력 구분 없는 최고 실력 통합 모드)
+  const [aiRank, setAiRank] = useState<RankInfo>(RANKS_DATA[0]); // 기본 난이도: 18급 (입문)
   const [capturesBlack, setCapturesBlack] = useState(0);
   const [capturesWhite, setCapturesWhite] = useState(0);
   const [komi] = useState<number>(6.5);

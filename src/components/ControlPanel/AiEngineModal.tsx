@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { KataGoBridge } from '../../ai/KataGoBridge';
-import { Cpu, CheckCircle2, X, Wifi, Terminal, Download, ExternalLink } from 'lucide-react';
+import { Cpu, CheckCircle2, X, Wifi, Terminal, Download, ExternalLink, BookOpen, Award, Sparkles, Sliders } from 'lucide-react';
 
 interface AiEngineModalProps {
   onClose: () => void;
@@ -11,6 +11,7 @@ export const AiEngineModal: React.FC<AiEngineModalProps> = ({ onClose }) => {
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle');
   const [testMessage, setTestMessage] = useState('');
   const [showManuals, setShowManuals] = useState(false);
+  const [showAdvancedConfig, setShowAdvancedConfig] = useState(false);
 
   const handleDownloadBat = () => {
     const batContent = `@echo off
@@ -113,11 +114,11 @@ pause
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-            <Cpu size={28} color="var(--accent-blue)" />
+            <BookOpen size={28} color="var(--accent-blue)" />
             <div>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>외부 전문 바둑 AI 엔진 연동 센터</h2>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>KataGo AI 및 바둑 마스터클래스 안내</h2>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                세계 최고수 딥러닝 인공지능(KataGo, GnuGo, Pachi)을 웹 앱과 직접 연결합니다.
+                세계 최고 수준 딥러닝 인공지능과 함께하는 맞춤형 바둑 대국 및 훈련 가이드
               </p>
             </div>
           </div>
@@ -136,109 +137,177 @@ pause
           lineHeight: 1.6
         }}>
           <strong style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '1.05rem' }}>
-            🎉 100% 무설치 · 자동 연동 완료: KT Cloud 24시간 프로 9단 KataGo 1.16.4 공식 AI 서버 가동 중
+            🎉 100% 무설치 · 실시간 접속 완료: 24시간 고성능 프로 9단 KataGo AI 가동 중
           </strong>
           <span style={{ color: '#e2e8f0', display: 'block' }}>
-            일반 사용자 및 방문자님께서는 <strong>별도의 프로그램(Node.js, 파이썬 등) 설치나 복잡한 서버 설정이 전혀 필요 없습니다!</strong><br />
-            스마트폰, 태블릿, PC 어디서든 접속만 하시면 <strong>365일 24시간 켜져 있는 KT Cloud 공식 서버(`http://211.253.36.117:63333`)</strong>와 즉시 자동 연결되어 세계 최고 수준 프로 9단 KataGo 엔진과 대국하실 수 있습니다.<br />
-            <em style={{ color: '#38bdf8' }}>💡 [🏆 AI 난이도 선택] 버튼을 통해 단급(18급~9단)을 선택하시면, 서버에서 수읽기 깊이(1회~300회)와 연산 속도가 실시간으로 정밀 차등 제어됩니다.</em>
+            일반 사용자 및 방문자님께서는 <strong>별도의 프로그램 설치나 복잡한 서버 설정이 전혀 필요 없습니다!</strong><br />
+            스마트폰, 태블릿, PC 어디서든 접속만 하시면 실시간으로 최고 수준 프로 9단 엔진과 대국 및 복기를 진행할 수 있습니다.<br />
+            <em style={{ color: '#38bdf8' }}>💡 기본 대국 난이도는 입문자도 부담 없는 <strong>18급(입문)</strong>으로 설정되어 있으며, 상단 [🏆 AI 난이도 선택] 버튼을 통해 단급(18급~9단)을 자유롭게 조절할 수 있습니다.</em>
           </span>
         </div>
 
-        {/* Engine Selection / Toggle */}
+        {/* User Friendly Manual Sections */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: 'var(--radius-md)',
+            padding: '1.2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.6rem'
+          }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <Sparkles size={18} /> KataGo(카타고) AI 인공지능이란?
+            </h3>
+            <p style={{ fontSize: '0.88rem', color: '#cbd5e1', margin: 0, lineHeight: 1.6 }}>
+              <strong>KataGo</strong>는 알파고(AlphaGo Zero)의 최신 논문을 바탕으로 한층 더 진화한 오픈소스 딥러닝 바둑 인공지능입니다. 단순히 승패만 가리는 것을 넘어, <strong>실시간 승률 변화, 형세 판단, 집 차이 예측, 그리고 4수 앞서보기 코칭</strong>을 통해 사용자의 기력 향상을 돕는 최고의 파트너입니다.
+            </p>
+          </div>
+
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: 'var(--radius-md)',
+            padding: '1.2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.6rem'
+          }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#a855f7', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <Award size={18} /> 바둑 마스터클래스 핵심 기능 안내
+            </h3>
+            <ul style={{ fontSize: '0.88rem', color: '#cbd5e1', margin: 0, paddingLeft: '1.2rem', lineHeight: 1.7 }}>
+              <li><strong>18급 ~ 9단 맞춤 난이도</strong>: AI가 선택된 단급에 맞춰 수읽기 탐색 횟수(1회~300회)와 실력을 정밀 차등 제어합니다.</li>
+              <li><strong>단계별 사활 문제은행 (Tsumego)</strong>: 입문부터 최고수까지 단계별 실전 사활 풀이 및 실시간 오답 노트 지원.</li>
+              <li><strong>일본식 / 중국식 실리 계가</strong>: 사석과 공배를 자동 계산하여 실시간으로 정확한 형세를 진단합니다.</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Advanced Server Configuration Section (Collapsible) */}
         <div style={{
-          background: 'rgba(255, 255, 255, 0.03)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'rgba(15, 23, 42, 0.6)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
           borderRadius: 'var(--radius-md)',
           padding: '1.2rem',
           display: 'flex',
           flexDirection: 'column',
           gap: '1rem'
         }}>
-          <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.6rem' }}>
             <div>
-              <span style={{ fontSize: '1.05rem', fontWeight: 600, color: '#f8fafc', display: 'block' }}>
-                🚀 외부 신경망 엔진 (KataGo / GTP API) 자동 연동
-              </span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                현재 KT Cloud 공식 24시간 KataGo 서버가 연동되어 있으며, 필요 시 나만의 커스텀 서버 주소로 변경할 수 있습니다.
+              <strong style={{ color: '#f8fafc', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Sliders size={18} color="var(--accent-blue)" /> [고급 설정] 커스텀 AI 서버 주소 변경 및 테스트
+              </strong>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginTop: '3px' }}>
+                일반 사용자는 설정할 필요가 없습니다. 외부 커스텀 서버 연결이 필요한 경우에만 펼쳐보세요.
               </span>
             </div>
-            <input
-              type="checkbox"
-              checked={config.enabled}
-              onChange={(e) => setConfig({ ...config, enabled: e.target.checked })}
-              style={{ width: '22px', height: '22px', cursor: 'pointer' }}
-            />
-          </label>
+            <button
+              onClick={() => setShowAdvancedConfig(!showAdvancedConfig)}
+              className="glass-button"
+              style={{
+                background: showAdvancedConfig ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                borderColor: showAdvancedConfig ? '#38bdf8' : 'rgba(255,255,255,0.15)',
+                color: showAdvancedConfig ? '#38bdf8' : '#e2e8f0',
+                fontWeight: 600,
+                fontSize: '0.82rem',
+                padding: '0.45rem 0.85rem'
+              }}
+            >
+              {showAdvancedConfig ? '➖ 고급 설정 접기' : '➕ 서버 주소 변경 보기'}
+            </button>
+          </div>
 
-          {config.enabled && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
-              <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                  <span>서버 연결 주소 (REST API 또는 HTTP 중계)</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)', fontWeight: 500 }}>✨ 24시간 공식 서버 자동 연동 중</span>
-                </label>
+          {showAdvancedConfig && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                <div>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#f8fafc', display: 'block' }}>
+                    🚀 외부 신경망 엔진 (KataGo / GTP API) 사용
+                  </span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    현재 공식 자동 연동이 활성화되어 있습니다.
+                  </span>
+                </div>
                 <input
-                  type="text"
-                  value={config.serverUrl}
-                  onChange={(e) => setConfig({ ...config, serverUrl: e.target.value })}
-                  placeholder="예: http://211.253.36.117:63333 (기본값)"
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.9rem',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'rgba(15, 23, 42, 0.8)',
-                    border: '1px solid var(--border-glass)',
-                    color: '#fff',
-                    fontSize: '0.9rem'
-                  }}
+                  type="checkbox"
+                  checked={config.enabled}
+                  onChange={(e) => setConfig({ ...config, enabled: e.target.checked })}
+                  style={{ width: '22px', height: '22px', cursor: 'pointer' }}
                 />
-              </div>
+              </label>
 
-              <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', display: 'block', marginBottom: '0.4rem' }}>
-                  AI 신경망 모델명
-                </label>
-                <input
-                  type="text"
-                  value={config.modelName}
-                  onChange={(e) => setConfig({ ...config, modelName: e.target.value })}
-                  placeholder="예: kata1-b18c384nbt-s6981484800 (기본: kata-pro-9d)"
-                  style={{
-                    width: '100%',
-                    padding: '0.65rem 0.9rem',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'rgba(15, 23, 42, 0.8)',
-                    border: '1px solid var(--border-glass)',
-                    color: '#fff',
-                    fontSize: '0.9rem'
-                  }}
-                />
-              </div>
+              {config.enabled && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <div>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                      <span>서버 연결 주소 (REST API 또는 HTTP 중계)</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)', fontWeight: 500 }}>✨ 24시간 공식 서버 자동 연동 중</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={config.serverUrl}
+                      onChange={(e) => setConfig({ ...config, serverUrl: e.target.value })}
+                      placeholder="예: http://211.253.36.117:63333 (기본값)"
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem 0.9rem',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'rgba(15, 23, 42, 0.8)',
+                        border: '1px solid var(--border-glass)',
+                        color: '#fff',
+                        fontSize: '0.9rem'
+                      }}
+                    />
+                  </div>
 
-              <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.4rem' }}>
-                <button
-                  onClick={handleTestConnection}
-                  disabled={testStatus === 'testing'}
-                  className="glass-button"
-                  style={{ flex: 1, justifyContent: 'center', borderColor: 'var(--accent-blue)' }}
-                >
-                  <Wifi size={16} />
-                  {testStatus === 'testing' ? '서버 통신 확인 중...' : '서버 연결 및 통신 테스트'}
-                </button>
-              </div>
+                  <div>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#e2e8f0', display: 'block', marginBottom: '0.4rem' }}>
+                      AI 신경망 모델명
+                    </label>
+                    <input
+                      type="text"
+                      value={config.modelName}
+                      onChange={(e) => setConfig({ ...config, modelName: e.target.value })}
+                      placeholder="예: kata1-b18c384nbt-s6981484800 (기본: kata-pro-9d)"
+                      style={{
+                        width: '100%',
+                        padding: '0.65rem 0.9rem',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'rgba(15, 23, 42, 0.8)',
+                        border: '1px solid var(--border-glass)',
+                        color: '#fff',
+                        fontSize: '0.9rem'
+                      }}
+                    />
+                  </div>
 
-              {testMessage && (
-                <div style={{
-                  padding: '0.8rem',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.85rem',
-                  background: testStatus === 'success' ? 'rgba(16, 185, 129, 0.15)' : testStatus === 'failed' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                  color: testStatus === 'success' ? '#10b981' : testStatus === 'failed' ? '#ef4444' : '#fff',
-                  border: `1px solid ${testStatus === 'success' ? '#10b981' : testStatus === 'failed' ? '#ef4444' : 'rgba(255,255,255,0.1)'}`
-                }}>
-                  {testMessage}
+                  <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.4rem' }}>
+                    <button
+                      onClick={handleTestConnection}
+                      disabled={testStatus === 'testing'}
+                      className="glass-button"
+                      style={{ flex: 1, justifyContent: 'center', borderColor: 'var(--accent-blue)' }}
+                    >
+                      <Wifi size={16} />
+                      {testStatus === 'testing' ? '서버 통신 확인 중...' : '서버 연결 및 통신 테스트'}
+                    </button>
+                  </div>
+
+                  {testMessage && (
+                    <div style={{
+                      padding: '0.8rem',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.85rem',
+                      background: testStatus === 'success' ? 'rgba(16, 185, 129, 0.15)' : testStatus === 'failed' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                      color: testStatus === 'success' ? '#10b981' : testStatus === 'failed' ? '#ef4444' : '#fff',
+                      border: `1px solid ${testStatus === 'success' ? '#10b981' : testStatus === 'failed' ? '#ef4444' : 'rgba(255,255,255,0.1)'}`
+                    }}>
+                      {testMessage}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

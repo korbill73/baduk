@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
             Baduk AI Master Class
           </h1>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            6급부터 9단까지 함께 성장하는 맞춤 AI 바둑 도장
+            18급부터 9단까지 함께 성장하는 맞춤 AI 바둑 도장
           </p>
         </div>
       </div>
@@ -238,11 +238,11 @@ export const Header: React.FC<HeaderProps> = ({
                 borderColor: isKataGoConnected ? '#22c55e' : '#38bdf8',
                 background: isKataGoConnected ? 'rgba(34, 197, 94, 0.22)' : 'rgba(56, 189, 248, 0.15)'
               }}
-              title="외부 전문 바둑 AI 엔진 연동 센터"
+              title="KataGo AI 엔진 소개 및 바둑 마스터클래스 안내"
             >
-              <span style={{ fontSize: '1rem' }}>{isKataGoConnected ? '🟢' : '🤖'}</span>
+              <span style={{ fontSize: '1rem' }}>{isKataGoConnected ? '🟢' : '📖'}</span>
               <span style={{ fontWeight: 600, color: isKataGoConnected ? '#22c55e' : '#38bdf8' }}>
-                {isKataGoConnected ? 'AI 자동 연동됨 (최고수)' : '전문 바둑 AI 연동'}
+                {isKataGoConnected ? 'KataGo AI 및 바둑 안내' : 'KataGo AI 소개 매뉴얼'}
               </span>
             </button>
           </>
