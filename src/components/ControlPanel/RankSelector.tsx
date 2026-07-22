@@ -42,9 +42,9 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Award size={26} color="var(--accent-gold)" />
             <div>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>AI 단급 (난이도 & 수읽기 속도) 선택</h2>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>AI 수읽기 수준 (내다보는 수) 선택</h2>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                선택하신 단급에 맞춰 KT Cloud KataGo 1.16.4 서버의 탐색 깊이와 응답 속도가 정밀하게 자동 동기화됩니다.
+                선택하신 수읽기 단계(3수~300수)에 맞춰 KataGo AI의 탐색 깊이와 연산 속도가 자동 동기화됩니다.
               </p>
             </div>
           </div>
@@ -71,13 +71,13 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
           <Sparkles size={24} color="#38bdf8" style={{ flexShrink: 0 }} />
           <div style={{ fontSize: '0.85rem', lineHeight: 1.4 }}>
             <strong style={{ color: '#38bdf8', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>
-              ✨ 급수별 맞춤 행마(후보수 선택) & MCTS 수읽기 속도 연동 시스템
+              ✨ 수읽기 단계별 내다보는 수 & MCTS 탐색 수 연동 시스템
             </strong>
             <span style={{ display: 'block', marginBottom: '4px' }}>
-              • <strong>18급 ~ 10급 (초/중급 입문)</strong>: 초고속(`0.2~0.6초`) 응답과 함께 KataGo의 3~4번째 여유 있는 후보수를 착수하여 사람이 실력 차이를 느끼고 이길 수 있도록 난이도가 차등화되었습니다.
+              • <strong>3수 ~ 15수 읽기 (입문/초급)</strong>: 초고속(`0.2~0.6초`) 응답과 함께 AI가 3~15수 앞을 계산하며 가벼운 대국에 적합합니다.
             </span>
             <span>
-              • <strong>6급 ~ 9단 (정밀 승부 모드)</strong>: 프로 9단의 제1감 최선수와 정밀 MCTS 수읽기(`30~300회 탐색`)가 작동하여 깊은 사활과 끝내기까지 완벽히 응수합니다.
+              • <strong>20수 ~ 300수 읽기 (중급~AI신계)</strong>: AI가 최대 300수 깊이까지 정밀 연산하여 사활과 승부처에서 완벽히 수읽기를 진행합니다.
             </span>
           </div>
         </div>

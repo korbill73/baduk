@@ -24,20 +24,7 @@ export interface GameHistoryItem {
   koPoint: Point | null;
 }
 
-export type RankLevel = 
-  | '18급 (입문)'
-  | '15급 (기초)'
-  | '12급 (초급)'
-  | '10급 (초급+) '
-  | '8급 (중급)'
-  | '6급 (현재 실력)'
-  | '4급 (도약)'
-  | '2급 (고급)'
-  | '1단 (유단자)'
-  | '3단 (강자)'
-  | '5단 (사범)'
-  | '7단 (정상급)'
-  | '9단 (AI 신계)';
+export type RankLevel = string;
 
 export interface RankInfo {
   id: string;

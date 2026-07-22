@@ -128,13 +128,86 @@ export function App() {
     setTerritoryMap(map);
   }, [komi]);
 
-  const handleNewGame = useCallback((newSize: BoardSize = boardSize) => {
+  // 대국 진행 중인지 체크하고, 진행 중일 경우 기권 패로 무조건 전적/기보 저장 후 다음 동작 진행
+  const checkAndRecordAbandonIfInProgress = useCallback(async (): Promise<boolean> => {
+    const b = boardRef.current;
+    // 돌이 1수 이상 놓였고 게임이 아직 안 끝난 진행 중 상태
+    if (b.historyIndex > 0 && !b.gameOver) {
+      const confirmResign = window.confirm(
+        '⚔️ 현재 대국이 진행 중입니다.\n\n확인을 누르시면 현재 대국이 [기권 패]로 전적 및 클라우드 DB에 100% 저장된 후 요청하신 작업이 진행됩니다.'
+      );
+      if (!confirmResign) return false; // 취소
+
+      const safeMode = (mode === 'play' || mode === 'pvp' || mode === 'online') ? mode : 'play';
+      const oppName = mode === 'play' ? aiRank.name : (mode === 'online' ? (opponentProfile?.nickname || '온라인 상대') : '1:1 상대');
+      
+      // 기권패 처리 및 Firestore/Local 100% 동기화
+      const myCol = mode === 'online' ? onlineAssignedColor : turn;
+      const { profile: localUpdated } = UserProfileService.recordGameResult(safeMode, 'loss', oppName, myCol);
+      setUserProfile(localUpdated);
+
+      if (currentUser) {
+        try {
+          const cloudStats = await firebaseBridge.recordGameInCloud(
+            currentUser.uid,
+            safeMode,
+            'loss',
+            oppName,
+            myCol,
+            undefined,
+            aiRank.name
+          );
+          if (cloudStats) {
+            setUserProfile(prev => ({ ...prev, stats: cloudStats }));
+          }
+        } catch (e) {
+          console.error('Abandon game recording error:', e);
+        }
+      }
+
+      b.resign(turn);
+      updateStateFromBoard();
+      return true;
+    }
+    return true;
+  }, [mode, aiRank, opponentProfile, onlineAssignedColor, turn, currentUser, updateStateFromBoard]);
+
+  const handleNewGame = useCallback(async (newSize: BoardSize = boardSize) => {
+    const canProceed = await checkAndRecordAbandonIfInProgress();
+    if (!canProceed) return;
+
     boardRef.current = new GoBoard(newSize);
     setRecommendations([]);
     setLastMove(null);
     setIsThinking(false);
     updateStateFromBoard();
-  }, [boardSize, updateStateFromBoard]);
+  }, [boardSize, updateStateFromBoard, checkAndRecordAbandonIfInProgress]);
+
+  const handleBoardSizeChange = async (newSize: BoardSize) => {
+    if (newSize === boardSize) return;
+    const canProceed = await checkAndRecordAbandonIfInProgress();
+    if (!canProceed) return;
+
+    setBoardSize(newSize);
+    boardRef.current = new GoBoard(newSize);
+    setRecommendations([]);
+    setLastMove(null);
+    setIsThinking(false);
+    updateStateFromBoard();
+  };
+
+  const handleModeChange = async (newMode: GameMode) => {
+    if (newMode === mode) return;
+    const canProceed = await checkAndRecordAbandonIfInProgress();
+    if (!canProceed) return;
+
+    setMode(newMode);
+    boardRef.current = new GoBoard(boardSize);
+    setRecommendations([]);
+    setLastMove(null);
+    setIsThinking(false);
+    updateStateFromBoard();
+  };
 
   // Initialize and clean up Web Worker
   useEffect(() => {
@@ -177,12 +250,6 @@ export function App() {
       workerRef.current?.terminate();
     };
   }, [updateStateFromBoard]);
-
-  // Handle board size change
-  const handleBoardSizeChange = (newSize: BoardSize) => {
-    setBoardSize(newSize);
-    handleNewGame(newSize);
-  };
 
   // Trigger AI turn automatically when it is AI's turn in play mode
   useEffect(() => {
@@ -441,7 +508,7 @@ export function App() {
       {!isBoardExpanded && (
         <Header
           mode={mode}
-          setMode={setMode}
+          setMode={handleModeChange}
           boardSize={boardSize}
           setBoardSize={handleBoardSizeChange}
           aiRank={aiRank}

@@ -257,7 +257,7 @@ export const Header: React.FC<HeaderProps> = ({
               style={{ borderColor: aiRank.badgeColor, padding: '0.52rem 0.95rem' }}
             >
               <Award size={18} style={{ color: aiRank.badgeColor }} />
-              <span>AI 난이도: <strong style={{ color: aiRank.badgeColor }}>{aiRank.name}</strong></span>
+              <span>AI 수읽기: <strong style={{ color: aiRank.badgeColor }}>{aiRank.name}</strong></span>
             </button>
           </>
         )}
