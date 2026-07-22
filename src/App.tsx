@@ -445,6 +445,12 @@ export function App() {
     }
   };
 
+  const handleOpenScoring = () => {
+    soundManager.playStoneClick();
+    updateStateFromBoard();
+    setIsScoringOpen(true);
+  };
+
   const recordAndSyncGame = async (
     targetMode: 'play' | 'pvp' | 'online',
     myResult: 'win' | 'loss' | 'draw',
@@ -636,7 +642,7 @@ export function App() {
             onRedo={handleRedo}
             onPass={handlePass}
             onResign={handleResign}
-            onOpenScoring={() => setIsScoringOpen(true)}
+            onOpenScoring={handleOpenScoring}
             canUndo={boardRef.current.historyIndex > 0}
             canRedo={boardRef.current.historyIndex < boardRef.current.history.length - 1}
             myNickname={userProfile.nickname}

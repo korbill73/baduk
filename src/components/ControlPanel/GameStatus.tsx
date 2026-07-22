@@ -390,7 +390,7 @@ export const GameStatus: React.FC<GameStatusProps> = ({
               <SkipForward size={14} /> 통과
             </button>
             <button
-              onClick={onOpenScoring} disabled={gameOver}
+              onClick={onOpenScoring}
               style={{
                 padding: '0.55rem 0.4rem',
                 borderRadius: 'var(--radius-md)',
@@ -398,7 +398,8 @@ export const GameStatus: React.FC<GameStatusProps> = ({
                 background: 'linear-gradient(135deg, rgba(56,189,248,0.2), rgba(37,99,235,0.25))',
                 color: '#38bdf8', fontWeight: 700, cursor: 'pointer',
                 fontSize: '0.82rem', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', gap: '4px', transition: 'all 0.15s',
+                justifyContent: 'center', gap: '4px',
+                transition: 'all 0.15s',
               }}
             >
               <PieChart size={14} /> 계가
