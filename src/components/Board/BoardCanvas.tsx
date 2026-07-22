@@ -380,57 +380,45 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
   };
 
   return (
-    <div className="board-frame" style={{
-      width: '100%',
-      maxWidth: isExpanded ? 'min(940px, calc(100vh - 28px))' : '640px',
-      maxHeight: isExpanded ? 'calc(100vh - 28px)' : 'none',
-      aspectRatio: '1/1',
-      margin: '0 auto',
-      position: 'relative',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-    }}>
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {onToggleExpand && (
-        <button
-          onClick={onToggleExpand}
-          style={{
-            position: 'absolute',
-            top: '14px',
-            right: '14px',
-            zIndex: 20,
-            background: 'rgba(15, 23, 42, 0.85)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(56, 189, 248, 0.5)',
-            color: '#38bdf8',
-            padding: '6px 14px',
-            borderRadius: '24px',
-            fontSize: '0.82rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
-            transition: 'all 0.2s'
-          }}
-          title="한게임 바둑 스타일 바둑판 크기 전환"
-        >
-          <span>{isExpanded ? '↙ 기본 크기로 축소' : '⛶ 바둑판 크게 보기'}</span>
-        </button>
+        <div className="board-expand-bar" style={{
+          maxWidth: isExpanded ? 'min(940px, calc(100vh - 28px))' : '640px',
+        }}>
+          <button
+            onClick={onToggleExpand}
+            className="expand-toggle-btn"
+            title="PC 화면 바둑판 크기 전환"
+          >
+            <span>{isExpanded ? '↙ 기본 화면으로 축소' : '⛶ 바둑판 크게 보기'}</span>
+          </button>
+        </div>
       )}
-      <div className="board-inner" style={{ width: '100%', height: '100%', display: 'flex' }}>
-        <canvas
-          ref={canvasRef}
-          width={BOARD_DIM}
-          height={BOARD_DIM}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          onClick={handleClick}
-          style={{
-            width: '100%',
-            height: '100%',
-            cursor: isThinking ? 'wait' : 'pointer'
-          }}
-        />
+
+      <div className="board-frame" style={{
+        width: '100%',
+        maxWidth: isExpanded ? 'min(940px, calc(100vh - 28px))' : '640px',
+        maxHeight: isExpanded ? 'calc(100vh - 28px)' : 'none',
+        aspectRatio: '1/1',
+        margin: '0 auto',
+        position: 'relative',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      }}>
+        <div className="board-inner" style={{ width: '100%', height: '100%', display: 'flex' }}>
+          <canvas
+            ref={canvasRef}
+            width={BOARD_DIM}
+            height={BOARD_DIM}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onClick={handleClick}
+            style={{
+              width: '100%',
+              height: '100%',
+              cursor: isThinking ? 'wait' : 'pointer'
+            }}
+          />
+        </div>
       </div>
     </div>
   );
