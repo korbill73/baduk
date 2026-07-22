@@ -180,16 +180,22 @@ export function App() {
     return true;
   }, [mode, aiRank, opponentProfile, onlineAssignedColor, turn, currentUser, updateStateFromBoard]);
 
+  const startFreshGame = useCallback((newSize: BoardSize = boardSize) => {
+    boardRef.current = new GoBoard(newSize);
+    setRecommendations([]);
+    setTerritoryMap(null);
+    setShowTerritory(false);
+    setLastMove(null);
+    setIsThinking(false);
+    updateStateFromBoard();
+  }, [boardSize, updateStateFromBoard]);
+
   const handleNewGame = useCallback(async (newSize: BoardSize = boardSize) => {
     const canProceed = await checkAndRecordAbandonIfInProgress();
     if (!canProceed) return;
 
-    boardRef.current = new GoBoard(newSize);
-    setRecommendations([]);
-    setLastMove(null);
-    setIsThinking(false);
-    updateStateFromBoard();
-  }, [boardSize, updateStateFromBoard, checkAndRecordAbandonIfInProgress]);
+    startFreshGame(newSize);
+  }, [boardSize, startFreshGame, checkAndRecordAbandonIfInProgress]);
 
   const handleBoardSizeChange = async (newSize: BoardSize) => {
     if (newSize === boardSize) return;
@@ -682,7 +688,7 @@ export function App() {
             const oppName = mode === 'online' ? opponentProfile?.nickname || '온라인 상대' : mode === 'play' ? aiRank.name : '1:1 상대';
             await recordAndSyncGame(safeMode, myResult, oppName, amIBlack ? 'black' : 'white', scoreDiff);
             setIsScoringOpen(false);
-            handleNewGame();
+            startFreshGame();
           }}
         />
       )}
