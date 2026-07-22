@@ -675,17 +675,12 @@ export function App() {
           board={boardRef.current}
           komi={komi}
           onClose={() => setIsScoringOpen(false)}
-          onRestartGame={async () => {
-            if (boardRef.current.gameOver) {
-              const res = ScoringEngine.estimateTerritoryAndScore(boardRef.current, komi);
-              const winnerColor = res.blackScore > res.whiteScore ? 'black' : 'white';
-              const scoreDiff = Math.abs(res.blackScore - res.whiteScore);
-              const amIBlack = (mode === 'online') ? onlineAssignedColor === 'black' : userColor === 'black';
-              const myResult = winnerColor === (amIBlack ? 'black' : 'white') ? 'win' : 'loss';
-              const safeMode = (mode === 'play' || mode === 'pvp' || mode === 'online') ? mode : 'play';
-              const oppName = mode === 'online' ? opponentProfile?.nickname || '온라인 친구' : mode === 'play' ? aiRank.name : '1:1 상대';
-              await recordAndSyncGame(safeMode, myResult, oppName, amIBlack ? 'black' : 'white', scoreDiff);
-            }
+          onConfirmScoring={async (winner, scoreDiff) => {
+            const amIBlack = (mode === 'online') ? onlineAssignedColor === 'black' : userColor === 'black';
+            const myResult = winner === 'draw' ? 'draw' : (winner === (amIBlack ? 'black' : 'white') ? 'win' : 'loss');
+            const safeMode = (mode === 'play' || mode === 'pvp' || mode === 'online') ? mode : 'play';
+            const oppName = mode === 'online' ? opponentProfile?.nickname || '온라인 상대' : mode === 'play' ? aiRank.name : '1:1 상대';
+            await recordAndSyncGame(safeMode, myResult, oppName, amIBlack ? 'black' : 'white', scoreDiff);
             setIsScoringOpen(false);
             handleNewGame();
           }}
