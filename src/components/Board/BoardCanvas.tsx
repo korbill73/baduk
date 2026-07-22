@@ -211,76 +211,104 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
         if (color) {
           const { cx, cy } = gridToCanvas(x, y);
 
-          // Deep multi-layered drop shadow
+          // 1. Double-layered 3D shadow (soft diffuse ambient + sharp contact shadow)
           ctx.beginPath();
-          ctx.arc(cx + 3.2, cy + 4.2, STONE_RADIUS, 0, Math.PI * 2);
+          ctx.arc(cx + 4.0, cy + 5.0, STONE_RADIUS * 1.02, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(cx + 2.2, cy + 3.0, STONE_RADIUS * 0.98, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
           ctx.fill();
 
-          // Stone base body
+          // 2. High-definition 3D Stone body
           ctx.beginPath();
           ctx.arc(cx, cy, STONE_RADIUS, 0, Math.PI * 2);
           const grad = ctx.createRadialGradient(
-            cx - STONE_RADIUS * 0.35,
-            cy - STONE_RADIUS * 0.35,
-            STONE_RADIUS * 0.08,
+            cx - STONE_RADIUS * 0.38,
+            cy - STONE_RADIUS * 0.38,
+            STONE_RADIUS * 0.06,
             cx + STONE_RADIUS * 0.1,
             cy + STONE_RADIUS * 0.1,
             STONE_RADIUS * 1.05
           );
 
           if (color === 'black') {
-            // Japanese Slate (오석 특유의 묵직하고 깊은 나전 광택)
-            grad.addColorStop(0, '#586578');
-            grad.addColorStop(0.25, '#28303d');
-            grad.addColorStop(0.7, '#11151c');
-            grad.addColorStop(1, '#05070a');
+            // Japanese Slate (최고급 오석 특유의 묵직하고 깊은 나전 광택)
+            grad.addColorStop(0, '#627288');
+            grad.addColorStop(0.22, '#2c3644');
+            grad.addColorStop(0.65, '#12161f');
+            grad.addColorStop(0.92, '#07090d');
+            grad.addColorStop(1, '#020305');
           } else {
-            // Japanese Clam Shell (조개바둑알 특유의 우아하고 영롱한 입체 질감)
+            // Japanese Clam Shell (최고급 조개바둑알 백합패 입체 질감)
             grad.addColorStop(0, '#ffffff');
-            grad.addColorStop(0.45, '#f6f8fb');
-            grad.addColorStop(0.85, '#dfe5ee');
-            grad.addColorStop(1, '#b6c2d1');
+            grad.addColorStop(0.38, '#f7f9fc');
+            grad.addColorStop(0.78, '#e2e8f0');
+            grad.addColorStop(0.95, '#c5d1e0');
+            grad.addColorStop(1, '#a6b5c7');
           }
 
           ctx.fillStyle = grad;
           ctx.fill();
 
-          // If White stone: delicate clam shell curvature stripes (조개바둑알 결)
+          // 3. Clam shell natural curvature stripes for White stone (천연 조개바둑알 결)
           if (color === 'white') {
             ctx.save();
             ctx.beginPath();
-            ctx.arc(cx, cy, STONE_RADIUS * 0.96, 0, Math.PI * 2);
+            ctx.arc(cx, cy, STONE_RADIUS * 0.95, 0, Math.PI * 2);
             ctx.clip();
-            ctx.strokeStyle = 'rgba(165, 180, 200, 0.18)';
-            ctx.lineWidth = 1;
-            for (let s = -STONE_RADIUS; s < STONE_RADIUS; s += 4.5) {
+            ctx.strokeStyle = 'rgba(175, 190, 210, 0.24)';
+            ctx.lineWidth = 1.1;
+            for (let s = -STONE_RADIUS; s < STONE_RADIUS; s += 4.2) {
               ctx.beginPath();
-              ctx.arc(cx - STONE_RADIUS * 0.4 + s, cy + STONE_RADIUS * 0.6, STONE_RADIUS * 1.1, 0, Math.PI * 2);
+              ctx.arc(cx - STONE_RADIUS * 0.42 + s, cy + STONE_RADIUS * 0.65, STONE_RADIUS * 1.15, 0, Math.PI * 2);
               ctx.stroke();
             }
             ctx.restore();
           }
 
-          // Crisp specular reflection dot at top-left
+          // 4. Ultra-crisp Specular Reflection dot at top-left
           ctx.beginPath();
-          ctx.arc(cx - STONE_RADIUS * 0.35, cy - STONE_RADIUS * 0.35, STONE_RADIUS * 0.22, 0, Math.PI * 2);
+          ctx.arc(cx - STONE_RADIUS * 0.36, cy - STONE_RADIUS * 0.36, STONE_RADIUS * 0.25, 0, Math.PI * 2);
           const specGrad = ctx.createRadialGradient(
-            cx - STONE_RADIUS * 0.38,
-            cy - STONE_RADIUS * 0.38,
+            cx - STONE_RADIUS * 0.39,
+            cy - STONE_RADIUS * 0.39,
             1,
-            cx - STONE_RADIUS * 0.35,
-            cy - STONE_RADIUS * 0.35,
-            STONE_RADIUS * 0.22
+            cx - STONE_RADIUS * 0.36,
+            cy - STONE_RADIUS * 0.36,
+            STONE_RADIUS * 0.25
           );
           if (color === 'black') {
-            specGrad.addColorStop(0, 'rgba(255, 255, 255, 0.32)');
+            specGrad.addColorStop(0, 'rgba(255, 255, 255, 0.38)');
             specGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
           } else {
-            specGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+            specGrad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
             specGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
           }
           ctx.fillStyle = specGrad;
+          ctx.fill();
+
+          // 5. Bottom-right ambient rim light reflection (바둑판 나무 반사광)
+          ctx.beginPath();
+          ctx.arc(cx + STONE_RADIUS * 0.42, cy + STONE_RADIUS * 0.42, STONE_RADIUS * 0.38, 0, Math.PI * 2);
+          const rimGrad = ctx.createRadialGradient(
+            cx + STONE_RADIUS * 0.5,
+            cy + STONE_RADIUS * 0.5,
+            STONE_RADIUS * 0.05,
+            cx + STONE_RADIUS * 0.42,
+            cy + STONE_RADIUS * 0.42,
+            STONE_RADIUS * 0.38
+          );
+          if (color === 'black') {
+            rimGrad.addColorStop(0, 'rgba(180, 140, 90, 0.12)');
+            rimGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          } else {
+            rimGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+            rimGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          }
+          ctx.fillStyle = rimGrad;
           ctx.fill();
 
           // Last move highlight ring

@@ -386,7 +386,35 @@ export function App() {
         {mode !== 'tsumego' ? (
           <>
             {/* Left Column: Board Canvas ONLY (prevents any vertical shifting when stones are placed) */}
-            <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%', position: 'relative' }}>
+              {isThinking && (
+                <div style={{
+                  position: 'absolute',
+                  top: '14px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 200,
+                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.96))',
+                  border: `2px solid ${aiRank.badgeColor || '#38bdf8'}`,
+                  borderRadius: '35px',
+                  padding: '0.5rem 1.4rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.65rem',
+                  boxShadow: `0 8px 30px rgba(0, 0, 0, 0.7), 0 0 20px ${aiRank.badgeColor || '#38bdf8'}55`,
+                  backdropFilter: 'blur(12px)',
+                  animation: 'pulse 1.6s infinite ease-in-out',
+                  pointerEvents: 'none'
+                }}>
+                  <span style={{ fontSize: '1.2rem', animation: 'bounce 1s infinite' }}>🤖</span>
+                  <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.95rem', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span>KataGo AI 생각 중...</span>
+                    <strong style={{ color: aiRank.badgeColor || '#38bdf8', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                      {aiRank.name} 수읽기
+                    </strong>
+                  </span>
+                </div>
+              )}
               <BoardCanvas
                 size={boardSize}
                 grid={grid}

@@ -1,5 +1,5 @@
 import type { GameMode } from '../../types/go';
-import { Flag, SkipForward, Undo2, Redo2, Trophy, Loader2, PieChart } from 'lucide-react';
+import { Flag, SkipForward, Undo2, Redo2, Trophy, PieChart } from 'lucide-react';
 
 interface GameStatusProps {
   mode: GameMode;
@@ -70,9 +70,19 @@ export const GameStatus: React.FC<GameStatusProps> = ({
         </div>
 
         {isThinking && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-blue)', fontWeight: 600, fontSize: '0.82rem' }}>
-            <Loader2 className="animate-spin" size={15} />
-            <span>AI 수읽기 중...</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            background: 'rgba(56, 189, 248, 0.15)',
+            border: '1px solid #38bdf8',
+            padding: '0.2rem 0.6rem',
+            borderRadius: '12px',
+            color: '#38bdf8',
+            fontWeight: 700,
+            fontSize: '0.78rem'
+          }}>
+            <span>🤖 KataGo 수읽기 중</span>
           </div>
         )}
       </div>

@@ -43,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleBoardExpand,
 }) => {
   const [isKataGoConnected, setIsKataGoConnected] = useState(KataGoBridge.getConfig().enabled);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     return KataGoBridge.onStatusChange((enabled) => {
@@ -88,102 +89,172 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Mode navigation */}
-      <div className="header-nav-group" style={{ background: 'var(--bg-glass)', padding: '4px', borderRadius: 'var(--radius-md)' }}>
+      {/* Mode navigation (Top-Down Dropdown Menu for clean UI) */}
+      <div style={{ position: 'relative' }}>
         <button
-          onClick={() => setMode('play')}
+          onClick={() => setIsDropdownOpen(prev => !prev)}
+          className="glass-button"
           style={{
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-sm)',
-            border: 'none',
-            background: mode === 'play' ? 'var(--accent-blue)' : 'transparent',
+            padding: '0.55rem 1.15rem',
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9))',
+            borderColor: '#38bdf8',
             color: '#fff',
-            fontWeight: mode === 'play' ? 600 : 400,
-            cursor: 'pointer',
+            fontWeight: 700,
+            fontSize: '0.94rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
+            gap: '0.6rem',
+            boxShadow: '0 4px 15px rgba(56, 189, 248, 0.25)',
             transition: 'all 0.2s'
           }}
         >
-          <Play size={16} /> AI 대국 (vs AI)
+          {mode === 'play' && <><Play size={18} color="#38bdf8" /> <span>🎮 대국 모드: <strong>AI 대국 (vs AI)</strong></span></>}
+          {mode === 'pvp' && <><Users size={18} color="#a855f7" /> <span>🎮 대국 모드: <strong>1:1 대국 (로컬)</strong></span></>}
+          {mode === 'online' && <><Globe size={18} color="#38bdf8" /> <span>🎮 대국 모드: <strong>온라인 1:1 (P2P)</strong></span></>}
+          {mode === 'review' && <><BookOpen size={18} color="#10b981" /> <span>🎮 대국 모드: <strong>AI 복기 (Review)</strong></span></>}
+          {mode === 'tsumego' && <><HelpCircle size={18} color="#fbbf24" /> <span>🎮 대국 모드: <strong>사활 문제 (Tsumego)</strong></span></>}
+          <span style={{ fontSize: '0.75rem', color: '#38bdf8', marginLeft: '4px', transition: 'transform 0.2s', transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
         </button>
-        <button
-          onClick={() => setMode('pvp')}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-sm)',
-            border: 'none',
-            background: mode === 'pvp' ? '#a855f7' : 'transparent',
-            color: '#fff',
-            fontWeight: mode === 'pvp' ? 600 : 400,
-            cursor: 'pointer',
+
+        {isDropdownOpen && (
+          <div style={{
+            position: 'absolute',
+            top: 'calc(100% + 8px)',
+            left: 0,
+            zIndex: 1000,
+            minWidth: '260px',
+            background: 'rgba(15, 23, 42, 0.98)',
+            border: '1px solid rgba(56, 189, 248, 0.4)',
+            borderRadius: 'var(--radius-md)',
+            boxShadow: '0 12px 35px rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(16px)',
+            padding: '0.5rem',
             display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            transition: 'all 0.2s'
-          }}
-        >
-          <Users size={16} /> 1:1 대국 (로컬)
-        </button>
-        <button
-          onClick={() => {
-            setMode('online');
-            onOpenOnlineModal();
-          }}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-sm)',
-            border: 'none',
-            background: mode === 'online' ? 'linear-gradient(135deg, #38bdf8, #0284c7)' : 'transparent',
-            color: '#fff',
-            fontWeight: mode === 'online' ? 700 : 400,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            transition: 'all 0.2s',
-            boxShadow: mode === 'online' ? '0 0 12px rgba(56, 189, 248, 0.4)' : 'none'
-          }}
-        >
-          <Globe size={16} /> 온라인 1:1 (P2P 방만들기)
-        </button>
-        <button
-          onClick={() => setMode('review')}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-sm)',
-            border: 'none',
-            background: mode === 'review' ? 'var(--accent-emerald)' : 'transparent',
-            color: '#fff',
-            fontWeight: mode === 'review' ? 600 : 400,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            transition: 'all 0.2s'
-          }}
-        >
-          <BookOpen size={16} /> AI 복기 (Review)
-        </button>
-        <button
-          onClick={() => setMode('tsumego')}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: 'var(--radius-sm)',
-            border: 'none',
-            background: mode === 'tsumego' ? 'var(--accent-gold)' : 'transparent',
-            color: '#fff',
-            fontWeight: mode === 'tsumego' ? 600 : 400,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            transition: 'all 0.2s'
-          }}
-        >
-          <HelpCircle size={16} /> 사활 문제 (Tsumego)
-        </button>
+            flexDirection: 'column',
+            gap: '0.35rem',
+            animation: 'fadeIn 0.15s ease-out'
+          }}>
+            <button
+              onClick={() => { setMode('play'); setIsDropdownOpen(false); }}
+              style={{
+                padding: '0.6rem 0.8rem',
+                borderRadius: 'var(--radius-sm)',
+                border: 'none',
+                background: mode === 'play' ? 'rgba(56, 189, 248, 0.25)' : 'transparent',
+                color: mode === 'play' ? '#38bdf8' : '#e2e8f0',
+                fontWeight: mode === 'play' ? 700 : 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                textAlign: 'left',
+                transition: 'all 0.15s'
+              }}
+            >
+              <Play size={18} color="#38bdf8" />
+              <div>
+                <div style={{ fontSize: '0.92rem' }}>AI 대국 (vs AI)</div>
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>KataGo AI와 맞춤형 지도 대국</div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { setMode('pvp'); setIsDropdownOpen(false); }}
+              style={{
+                padding: '0.6rem 0.8rem',
+                borderRadius: 'var(--radius-sm)',
+                border: 'none',
+                background: mode === 'pvp' ? 'rgba(168, 85, 247, 0.25)' : 'transparent',
+                color: mode === 'pvp' ? '#c084fc' : '#e2e8f0',
+                fontWeight: mode === 'pvp' ? 700 : 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                textAlign: 'left',
+                transition: 'all 0.15s'
+              }}
+            >
+              <Users size={18} color="#a855f7" />
+              <div>
+                <div style={{ fontSize: '0.92rem' }}>1:1 대국 (로컬)</div>
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>한 기기에서 친구와 함께 두기</div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { setMode('online'); onOpenOnlineModal(); setIsDropdownOpen(false); }}
+              style={{
+                padding: '0.6rem 0.8rem',
+                borderRadius: 'var(--radius-sm)',
+                border: 'none',
+                background: mode === 'online' ? 'rgba(14, 165, 233, 0.3)' : 'transparent',
+                color: mode === 'online' ? '#38bdf8' : '#e2e8f0',
+                fontWeight: mode === 'online' ? 700 : 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                textAlign: 'left',
+                transition: 'all 0.15s'
+              }}
+            >
+              <Globe size={18} color="#38bdf8" />
+              <div>
+                <div style={{ fontSize: '0.92rem' }}>온라인 1:1 (P2P 방만들기)</div>
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>초대 링크로 실시간 원격 대국</div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { setMode('review'); setIsDropdownOpen(false); }}
+              style={{
+                padding: '0.6rem 0.8rem',
+                borderRadius: 'var(--radius-sm)',
+                border: 'none',
+                background: mode === 'review' ? 'rgba(16, 185, 129, 0.25)' : 'transparent',
+                color: mode === 'review' ? '#34d399' : '#e2e8f0',
+                fontWeight: mode === 'review' ? 700 : 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                textAlign: 'left',
+                transition: 'all 0.15s'
+              }}
+            >
+              <BookOpen size={18} color="#10b981" />
+              <div>
+                <div style={{ fontSize: '0.92rem' }}>AI 복기 (Review)</div>
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>지난 대국 기보 복기 및 형세 검토</div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { setMode('tsumego'); setIsDropdownOpen(false); }}
+              style={{
+                padding: '0.6rem 0.8rem',
+                borderRadius: 'var(--radius-sm)',
+                border: 'none',
+                background: mode === 'tsumego' ? 'rgba(245, 158, 11, 0.25)' : 'transparent',
+                color: mode === 'tsumego' ? '#fbbf24' : '#e2e8f0',
+                fontWeight: mode === 'tsumego' ? 700 : 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                textAlign: 'left',
+                transition: 'all 0.15s'
+              }}
+            >
+              <HelpCircle size={18} color="#fbbf24" />
+              <div>
+                <div style={{ fontSize: '0.92rem' }}>사활 문제 (Tsumego)</div>
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>단계별 실전 사활 문제은행 풀이</div>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Controls */}
