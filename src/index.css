@@ -51,68 +51,78 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Glassmorphism utility */
+/* Glassmorphism utility with refined modern dark aesthetic */
 .glass-panel {
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-glass);
+  background: linear-gradient(135deg, rgba(26, 36, 56, 0.78), rgba(15, 23, 42, 0.88));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: var(--radius-lg);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-panel:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
 }
 
 .glass-button {
-  background: var(--bg-glass);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--text-main);
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 1.1rem;
   border-radius: var(--radius-md);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.45rem;
 }
 
 .glass-button:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
   border-color: var(--text-accent);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.2);
 }
 
 .glass-button:active {
   transform: translateY(0);
 }
 
+.glass-button:disabled {
+  opacity: 0.38 !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 .glass-button.primary {
   background: linear-gradient(135deg, var(--accent-blue), #2563eb);
-  border: none;
-  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
 }
 
 .glass-button.primary:hover {
   background: linear-gradient(135deg, #38bdf8, #1d4ed8);
-  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
+  box-shadow: 0 6px 22px rgba(14, 165, 233, 0.55);
 }
 
 .glass-button.gold {
   background: linear-gradient(135deg, var(--accent-gold), #d97706);
-  border: none;
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
 }
 
 .glass-button.gold:hover {
   background: linear-gradient(135deg, #fbbf24, #b45309);
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.55);
 }
 
 /* Wood Board Texture & Frame */

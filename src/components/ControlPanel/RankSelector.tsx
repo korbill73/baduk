@@ -70,11 +70,14 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
         }}>
           <Sparkles size={24} color="#38bdf8" style={{ flexShrink: 0 }} />
           <div style={{ fontSize: '0.85rem', lineHeight: 1.4 }}>
-            <strong style={{ color: '#38bdf8', display: 'block', fontSize: '0.95rem', marginBottom: '3px' }}>
-              ✨ KT Cloud KataGo 실시간 난이도 & 수읽기 연동 시스템 가동 중
+            <strong style={{ color: '#38bdf8', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>
+              ✨ 급수별 맞춤 행마(후보수 선택) & MCTS 수읽기 속도 연동 시스템
             </strong>
+            <span style={{ display: 'block', marginBottom: '4px' }}>
+              • <strong>18급 ~ 10급 (초/중급 입문)</strong>: 초고속(`0.2~0.6초`) 응답과 함께 KataGo의 3~4번째 여유 있는 후보수를 착수하여 사람이 실력 차이를 느끼고 이길 수 있도록 난이도가 차등화되었습니다.
+            </span>
             <span>
-              기존 내장 AI가 완전히 제거됨에 따라, 이제 선택하시는 단급에 따라 **KataGo 9단 엔진의 MCTS 수읽기 방문 탐색 횟수(`1회~300회`) 및 연산 속도(`0.2초~9초`)가 실시간으로 자동 조절**되어 맞춤형 난이도를 구사합니다.
+              • <strong>6급 ~ 9단 (정밀 승부 모드)</strong>: 프로 9단의 제1감 최선수와 정밀 MCTS 수읽기(`30~300회 탐색`)가 작동하여 깊은 사활과 끝내기까지 완벽히 응수합니다.
             </span>
           </div>
         </div>
@@ -94,14 +97,14 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
             const isTopDan = rank.name.includes('9단');
             const isDan = rank.name.includes('단');
 
-            let visitsText = '30회 탐색';
+            let visitsText = '30회 탐색 (호각)';
             let speedText = '약 1.5초';
-            if (rank.id.includes('18k')) { visitsText = '1회 탐색'; speedText = '초고속 0.2초'; }
-            else if (rank.id.includes('15k')) { visitsText = '2회 탐색'; speedText = '초고속 0.3초'; }
-            else if (rank.id.includes('12k')) { visitsText = '5회 탐색'; speedText = '쾌속 0.5초'; }
-            else if (rank.id.includes('10k')) { visitsText = '10회 탐색'; speedText = '쾌속 0.7초'; }
+            if (rank.id.includes('18k')) { visitsText = '4회 탐색 (여유행마)'; speedText = '초고속 0.2초'; }
+            else if (rank.id.includes('15k')) { visitsText = '5회 탐색 (아마행마)'; speedText = '초고속 0.3초'; }
+            else if (rank.id.includes('12k')) { visitsText = '7회 탐색 (초급)'; speedText = '쾌속 0.4초'; }
+            else if (rank.id.includes('10k')) { visitsText = '10회 탐색 (초/중급)'; speedText = '쾌속 0.6초'; }
             else if (rank.id.includes('8k')) { visitsText = '18회 탐색'; speedText = '약 1.0초'; }
-            else if (rank.id.includes('6k')) { visitsText = '30회 탐색'; speedText = '약 1.5초 (호각)'; }
+            else if (rank.id.includes('6k')) { visitsText = '30회 탐색 (권장)'; speedText = '약 1.5초 (호각)'; }
             else if (rank.id.includes('4k')) { visitsText = '45회 탐색'; speedText = '약 2.0초'; }
             else if (rank.id.includes('2k')) { visitsText = '65회 탐색'; speedText = '약 2.6초'; }
             else if (rank.id.includes('1d')) { visitsText = '90회 탐색'; speedText = '약 3.3초'; }

@@ -178,9 +178,9 @@ export class KataGoBridge {
       if (rankInfo) {
         const idStr = (rankInfo.id || '').toLowerCase();
         const nameStr = (rankInfo.name || '').toLowerCase();
-        if (idStr.includes('18k') || nameStr.includes('18급')) visits = 1;
-        else if (idStr.includes('15k') || nameStr.includes('15급')) visits = 2;
-        else if (idStr.includes('12k') || nameStr.includes('12급')) visits = 5;
+        if (idStr.includes('18k') || nameStr.includes('18급')) visits = 4;
+        else if (idStr.includes('15k') || nameStr.includes('15급')) visits = 5;
+        else if (idStr.includes('12k') || nameStr.includes('12급')) visits = 7;
         else if (idStr.includes('10k') || nameStr.includes('10급')) visits = 10;
         else if (idStr.includes('8k') || nameStr.includes('8급')) visits = 18;
         else if (idStr.includes('6k') || nameStr.includes('6급')) visits = 30;
@@ -201,7 +201,7 @@ export class KataGoBridge {
         komi: 6.5,
         boardXSize: boardSize,
         boardYSize: boardSize,
-        maxVisits: visits
+        maxVisits: Math.max(visits, 4) // 후보군 다양성을 위해 최소 4회 이상 탐색 보장
       };
 
       let targetUrl = (this.config.serverUrl || 'http://211.253.36.117:63333').trim().replace(/\/$/, '');
@@ -244,7 +244,7 @@ export class KataGoBridge {
           this.config.enabled = true;
           try { localStorage.setItem('baduk-katago-config', JSON.stringify(this.config)); } catch (e) {}
         }
-        return this.parseKataGoResponse(data, boardSize, grid);
+        return this.parseKataGoResponse(data, boardSize, grid, rankInfo);
       } catch (err: any) {
         clearTimeout(timeoutId);
         if (forceTest && !err.name?.includes('AbortError')) {
@@ -257,13 +257,37 @@ export class KataGoBridge {
     }
   }
 
-  private static parseKataGoResponse(data: any, boardSize: number, grid?: StoneColor[][]): { move: Point | null; recommendations: AiRecommendation[]; isExternal: boolean } {
+  private static parseKataGoResponse(data: any, boardSize: number, grid?: StoneColor[][], rankInfo?: any): { move: Point | null; recommendations: AiRecommendation[]; isExternal: boolean } {
     if (!data || !data.moveInfos || data.moveInfos.length === 0) {
       return { move: null, recommendations: [], isExternal: true };
     }
 
+    // 단급에 따라 선택할 착수 후보 인덱스(난이도 조절) 결정
+    let targetIndex = 0; // 기본은 최선수 (order 0)
+    if (rankInfo) {
+      const idStr = (rankInfo.id || '').toLowerCase();
+      const nameStr = (rankInfo.name || '').toLowerCase();
+      if (idStr.includes('18k') || nameStr.includes('18급')) {
+        targetIndex = Math.min(data.moveInfos.length - 1, 3); // 4번째 후보수 (여유 있는 행마)
+      } else if (idStr.includes('15k') || nameStr.includes('15급')) {
+        targetIndex = Math.min(data.moveInfos.length - 1, 2); // 3번째 후보수
+      } else if (idStr.includes('12k') || nameStr.includes('12급')) {
+        targetIndex = Math.min(data.moveInfos.length - 1, 1); // 2번째 후보수
+      } else if (idStr.includes('10k') || nameStr.includes('10급')) {
+        targetIndex = Math.random() < 0.6 ? Math.min(data.moveInfos.length - 1, 1) : 0;
+      }
+    }
+
     let bestPoint: Point | null = null;
-    for (const info of data.moveInfos) {
+    // targetIndex부터 검사하여 이미 놓여진 자리나 중복 착수를 피하고 유효한 수를 찾음
+    const searchOrder = [
+      targetIndex,
+      ...Array.from({ length: data.moveInfos.length }, (_, i) => i).filter(i => i !== targetIndex)
+    ];
+
+    for (const idx of searchOrder) {
+      const info = data.moveInfos[idx];
+      if (!info) continue;
       const pt = this.gtpToPoint(info.move, boardSize);
       if (pt) {
         // 만약 해당 위치에 이미 돌이 놓여져 있다면 중복 착수이므로 다음 추천수를 선택
