@@ -1,4 +1,4 @@
-import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
+import { initializeApp, getApps, deleteApp, type FirebaseApp } from 'firebase/app';
 import { 
   getAuth, 
   signInWithPopup, 
@@ -26,15 +26,26 @@ import {
 import type { UserProfile } from '../types/pvp';
 import type { StoneColor } from '../types/go';
 
-// Try to load from environment or fallback to default production config (ignoring invalid localStorage strings)
+// Force production Firebase config and ignore/clear any old invalid localStorage strings
 const getFirebaseConfig = () => {
-  const localKey = localStorage.getItem('baduk_fb_api_key');
-  const validKey = (localKey && localKey.startsWith('AIzaSy') && localKey.length > 30) ? localKey : null;
-  
+  const targetApiKey = 'AIzaSyBTILF88F3pxJB4AnsJICNw1i81BJpt37I';
+  const targetProjectId = 'baduk-58092';
+  const targetAuthDomain = 'baduk-58092.firebaseapp.com';
+
+  // If localStorage has something different or old, clean it up
+  if (typeof localStorage !== 'undefined') {
+    const cached = localStorage.getItem('baduk_fb_api_key');
+    if (cached && cached !== targetApiKey) {
+      localStorage.removeItem('baduk_fb_api_key');
+      localStorage.removeItem('baduk_fb_auth_domain');
+      localStorage.removeItem('baduk_fb_project_id');
+    }
+  }
+
   const envConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || validKey || 'AIzaSyBTILF88F3pxJB4AnsJICNw1i81BJpt37I',
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || localStorage.getItem('baduk_fb_auth_domain') || 'baduk-58092.firebaseapp.com',
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || localStorage.getItem('baduk_fb_project_id') || 'baduk-58092',
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || targetApiKey,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || targetAuthDomain,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || targetProjectId,
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'baduk-58092.firebasestorage.app',
     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '1038381931338',
     appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:1038381931338:web:ad910831bf0dd32eb5bfb3'
@@ -61,7 +72,13 @@ class FirebaseBridgeService {
       if (!getApps().length) {
         this.app = initializeApp(config);
       } else {
-        this.app = getApps()[0];
+        const existingApp = getApps()[0];
+        if (existingApp.options.apiKey !== config.apiKey) {
+          deleteApp(existingApp).catch(() => {});
+          this.app = initializeApp(config);
+        } else {
+          this.app = existingApp;
+        }
       }
       this.authInstance = getAuth(this.app);
       this.dbInstance = getFirestore(this.app);
