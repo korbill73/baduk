@@ -26,15 +26,15 @@ import {
 import type { UserProfile } from '../types/pvp';
 import type { StoneColor } from '../types/go';
 
-// Try to load from environment or fallback to localStorage config if entered via setup UI
+// Try to load from environment or fallback to localStorage or default production config
 const getFirebaseConfig = () => {
   const envConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || localStorage.getItem('baduk_fb_api_key') || '',
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || localStorage.getItem('baduk_fb_auth_domain') || '',
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || localStorage.getItem('baduk_fb_project_id') || '',
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || ''
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || localStorage.getItem('baduk_fb_api_key') || 'AIzaSyBTILF88F3pxJB4AnsJICNw1i81BJpt37I',
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || localStorage.getItem('baduk_fb_auth_domain') || 'baduk-58092.firebaseapp.com',
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || localStorage.getItem('baduk_fb_project_id') || 'baduk-58092',
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'baduk-58092.firebasestorage.app',
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '1038381931338',
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:1038381931338:web:ad910831bf0dd32eb5bfb3'
   };
   return envConfig;
 };

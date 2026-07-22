@@ -16,9 +16,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onClose, onLoginSuccess 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Firebase Config Fields
-  const [apiKey, setApiKey] = useState(localStorage.getItem('baduk_fb_api_key') || '');
-  const [authDomain, setAuthDomain] = useState(localStorage.getItem('baduk_fb_auth_domain') || '');
-  const [projectId, setProjectId] = useState(localStorage.getItem('baduk_fb_project_id') || '');
+  const [apiKey, setApiKey] = useState(localStorage.getItem('baduk_fb_api_key') || 'AIzaSyBTILF88F3pxJB4AnsJICNw1i81BJpt37I');
+  const [authDomain, setAuthDomain] = useState(localStorage.getItem('baduk_fb_auth_domain') || 'baduk-58092.firebaseapp.com');
+  const [projectId, setProjectId] = useState(localStorage.getItem('baduk_fb_project_id') || 'baduk-58092');
   const [isConfigured, setIsConfigured] = useState(firebaseBridge.isConfigured());
 
   useEffect(() => {
