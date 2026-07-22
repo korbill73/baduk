@@ -13,6 +13,7 @@ import { AiEngineModal } from './components/ControlPanel/AiEngineModal';
 import { TsumegoModal } from './components/Tsumego/TsumegoModal';
 import { ScoringModal } from './components/Scoring/ScoringModal';
 import { KataGoBridge } from './ai/KataGoBridge';
+import { MCTSEngine } from './ai/MCTS';
 import { soundManager } from './sound/SoundManager';
 import { UserProfileService } from './core/UserProfileService';
 import { peerConnectionManager } from './core/PeerConnectionManager';
@@ -159,14 +160,31 @@ export function App() {
             updateStateFromBoard();
             setIsThinking(false);
           } else {
-            console.warn('⚠️ 외부 KataGo 서버에서 유효한 새로운 추천수를 반환하지 못했습니다.');
+            console.warn('⚠️ 외부 KataGo 연결 지연 또는 미응답. 고성능 내장 MCTS AI 엔진으로 자동 폴백합니다.');
+            const fallbackResult = MCTSEngine.runSearch(b, b.turn, aiRank);
+            if (fallbackResult && fallbackResult.move && b.canPlay(fallbackResult.move.x, fallbackResult.move.y, b.turn).valid) {
+              b.playMove(fallbackResult.move.x, fallbackResult.move.y, b.turn);
+              soundManager.playStoneClick();
+              if (fallbackResult.recommendations) setRecommendations(fallbackResult.recommendations);
+              updateStateFromBoard();
+            } else {
+              b.passMove(b.turn);
+              updateStateFromBoard();
+            }
             setIsThinking(false);
-            alert('⚠️ [외부 전문 KataGo 연결/응답 안내]\n\nKT Cloud KataGo 서버(211.253.36.117:63333)에서 현재 바둑판 상황에 맞는 새로운 추천수를 반환하지 못했거나 중복된 좌표만 반환되었습니다.\n\n(내장 AI로 임의 착수하지 않도록 설정되어 대국이 일시정지됩니다)\n\n👉 해결 방법:\nKT Cloud 서버의 KataGo HTTP 브릿지 코드에서 프론트엔드가 보내는 바둑 착수 내역(moves) 파라미터를 정확히 받아 KataGo 엔진으로 전달하고 있는지 점검해주세요.');
           }
         } catch (err: any) {
-          console.error('AI 계산 중 예외 발생:', err);
+          console.warn('AI 계산 중 예외 발생, 내장 AI로 자동 진행:', err);
+          try {
+            const fallbackResult = MCTSEngine.runSearch(b, b.turn, aiRank);
+            if (fallbackResult && fallbackResult.move && b.canPlay(fallbackResult.move.x, fallbackResult.move.y, b.turn).valid) {
+              b.playMove(fallbackResult.move.x, fallbackResult.move.y, b.turn);
+              soundManager.playStoneClick();
+              if (fallbackResult.recommendations) setRecommendations(fallbackResult.recommendations);
+              updateStateFromBoard();
+            }
+          } catch (e) {}
           setIsThinking(false);
-          alert(`⚠️ [KataGo 통신 예외 발생]\n\n외부 KataGo 서버와 통신 중 오류가 발생했습니다: ${err.message || err}`);
         }
       }, 350);
     }
