@@ -316,7 +316,7 @@ export const Header: React.FC<HeaderProps> = ({
             backgroundColor: '#10b981',
             boxShadow: '0 0 8px #10b981'
           }} />
-          <span>업데이트: <strong style={{ color: '#f8fafc', fontWeight: 600 }}>2026.07.22 03:05 KST (내장 AI 착수 기능 100% 제거 완료 / 순수 외부 KT Cloud KataGo 9단 전용 대국 시스템)</strong></span>
+          <span>업데이트: <strong style={{ color: '#f8fafc', fontWeight: 600 }}>2026.07.22 03:40 KST (KT Cloud 프로 9단 KataGo 1.16.4 엔진 완벽 연동 / 내장 및 임의 AI 착수 100% 제거 & 카톡 브라우저 탈출 및 홈 화면 아이콘 설치 완비)</strong></span>
         </div>
       </div>
     </header>

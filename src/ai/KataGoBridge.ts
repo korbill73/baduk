@@ -174,10 +174,24 @@ export class KataGoBridge {
         .filter(m => !m.isPass && !m.isResign)
         .map(m => [m.color === 'black' ? 'B' : 'W', this.pointToGtp({ x: m.x, y: m.y }, boardSize)]);
 
-      let visits = 200;
-      if (rankInfo?.id === 'pro-9d' || rankInfo?.name?.includes('9단')) visits = 500;
-      else if (rankInfo?.id?.includes('dan')) visits = 300;
-      else if (rankInfo?.id?.includes('kyu')) visits = 80;
+      let visits = 120;
+      if (rankInfo) {
+        const idStr = (rankInfo.id || '').toLowerCase();
+        const nameStr = (rankInfo.name || '').toLowerCase();
+        if (idStr.includes('18k') || nameStr.includes('18급')) visits = 1;
+        else if (idStr.includes('15k') || nameStr.includes('15급')) visits = 2;
+        else if (idStr.includes('12k') || nameStr.includes('12급')) visits = 5;
+        else if (idStr.includes('10k') || nameStr.includes('10급')) visits = 10;
+        else if (idStr.includes('8k') || nameStr.includes('8급')) visits = 18;
+        else if (idStr.includes('6k') || nameStr.includes('6급')) visits = 30;
+        else if (idStr.includes('4k') || nameStr.includes('4급')) visits = 45;
+        else if (idStr.includes('2k') || nameStr.includes('2급')) visits = 65;
+        else if (idStr.includes('1d') || nameStr.includes('1단')) visits = 90;
+        else if (idStr.includes('3d') || nameStr.includes('3단')) visits = 130;
+        else if (idStr.includes('5d') || nameStr.includes('5단')) visits = 180;
+        else if (idStr.includes('7d') || nameStr.includes('7단')) visits = 230;
+        else if (idStr.includes('9d') || nameStr.includes('9단') || idStr.includes('pro')) visits = 300;
+      }
 
       const queryPayload = {
         id: `query-${Date.now()}`,

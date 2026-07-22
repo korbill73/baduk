@@ -42,9 +42,9 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Award size={26} color="var(--accent-gold)" />
             <div>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>AI 단급 (난이도) 설정 안내</h2>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>AI 단급 (난이도 & 수읽기 속도) 선택</h2>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                사용자님의 요청에 맞춰 실력 구분 없이 상시 최고 수준의 AI로 구동됩니다.
+                선택하신 단급에 맞춰 KT Cloud KataGo 1.16.4 서버의 탐색 깊이와 응답 속도가 정밀하게 자동 동기화됩니다.
               </p>
             </div>
           </div>
@@ -57,10 +57,10 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
           </button>
         </div>
 
-        {/* User Request Notice Banner */}
+        {/* KataGo Dynamic Scaling Banner */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.15))',
-          border: '1px solid rgba(239, 68, 68, 0.4)',
+          background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(16, 185, 129, 0.15))',
+          border: '1px solid rgba(56, 189, 248, 0.4)',
           borderRadius: 'var(--radius-md)',
           padding: '1rem',
           marginBottom: '1.2rem',
@@ -68,13 +68,13 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
           alignItems: 'center',
           gap: '0.8rem'
         }}>
-          <Sparkles size={24} color="#ef4444" style={{ flexShrink: 0 }} />
+          <Sparkles size={24} color="#38bdf8" style={{ flexShrink: 0 }} />
           <div style={{ fontSize: '0.85rem', lineHeight: 1.4 }}>
-            <strong style={{ color: '#ef4444', display: 'block', fontSize: '0.95rem', marginBottom: '3px' }}>
-              👑 실력 구분 없는 '최고 실력 통합 가동 모드' 작동 중
+            <strong style={{ color: '#38bdf8', display: 'block', fontSize: '0.95rem', marginBottom: '3px' }}>
+              ✨ KT Cloud KataGo 실시간 난이도 & 수읽기 연동 시스템 가동 중
             </strong>
             <span>
-              <em>"단계별 차이는 나중에 하겠습니다. 최고의 ai 실력을 구사해 주세요"</em> 요청에 따라, 현재 어떤 단급을 선택하더라도 <strong>초고속 0.15초 2-Ply Minimax 수읽기와 36수 정석이 적용된 최고 실력(`9단 AI 신계`)</strong>으로 응수합니다. (단계별 난이도 분리 기능은 추후 활성화됩니다.)
+              기존 내장 AI가 완전히 제거됨에 따라, 이제 선택하시는 단급에 따라 **KataGo 9단 엔진의 MCTS 수읽기 방문 탐색 횟수(`1회~300회`) 및 연산 속도(`0.2초~9초`)가 실시간으로 자동 조절**되어 맞춤형 난이도를 구사합니다.
             </span>
           </div>
         </div>
@@ -93,6 +93,22 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
             const isCurrentLevel = rank.name.includes('6급');
             const isTopDan = rank.name.includes('9단');
             const isDan = rank.name.includes('단');
+
+            let visitsText = '30회 탐색';
+            let speedText = '약 1.5초';
+            if (rank.id.includes('18k')) { visitsText = '1회 탐색'; speedText = '초고속 0.2초'; }
+            else if (rank.id.includes('15k')) { visitsText = '2회 탐색'; speedText = '초고속 0.3초'; }
+            else if (rank.id.includes('12k')) { visitsText = '5회 탐색'; speedText = '쾌속 0.5초'; }
+            else if (rank.id.includes('10k')) { visitsText = '10회 탐색'; speedText = '쾌속 0.7초'; }
+            else if (rank.id.includes('8k')) { visitsText = '18회 탐색'; speedText = '약 1.0초'; }
+            else if (rank.id.includes('6k')) { visitsText = '30회 탐색'; speedText = '약 1.5초 (호각)'; }
+            else if (rank.id.includes('4k')) { visitsText = '45회 탐색'; speedText = '약 2.0초'; }
+            else if (rank.id.includes('2k')) { visitsText = '65회 탐색'; speedText = '약 2.6초'; }
+            else if (rank.id.includes('1d')) { visitsText = '90회 탐색'; speedText = '약 3.3초'; }
+            else if (rank.id.includes('3d')) { visitsText = '130회 탐색'; speedText = '약 4.5초'; }
+            else if (rank.id.includes('5d')) { visitsText = '180회 탐색'; speedText = '약 6.0초'; }
+            else if (rank.id.includes('7d')) { visitsText = '230회 탐색'; speedText = '약 7.5초'; }
+            else if (rank.id.includes('9d')) { visitsText = '300회 심층탐색'; speedText = '약 9.5초 (최고수)'; }
 
             return (
               <div
@@ -127,7 +143,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                     borderRadius: '12px',
                     boxShadow: '0 2px 6px rgba(239, 68, 68, 0.5)'
                   }}>
-                    👑 상시 최고 실력 가동
+                    👑 신계 300회 탐색
                   </div>
                 )}
                 {isCurrentLevel && !isTopDan && (
@@ -143,7 +159,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                     borderRadius: '12px',
                     boxShadow: '0 2px 6px rgba(236, 72, 153, 0.5)'
                   }}>
-                    6급 도약 출발점
+                    6급 맞춤 추천
                   </div>
                 )}
 
@@ -176,9 +192,9 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                   color: 'var(--text-muted)'
                 }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Zap size={13} color="var(--accent-gold)" /> 2-Ply Minimax: <strong>초고속 가동</strong>
+                    <Zap size={13} color="var(--accent-gold)" /> KataGo: <strong style={{ color: '#fff' }}>{visitsText}</strong>
                   </span>
-                  <span>최고 실력</span>
+                  <span style={{ color: rank.badgeColor, fontWeight: 600 }}>{speedText}</span>
                 </div>
               </div>
             );

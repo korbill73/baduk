@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { KataGoBridge } from '../../ai/KataGoBridge';
-import { Cpu, CheckCircle2, Sparkles, X, Wifi, Terminal, Download, ExternalLink } from 'lucide-react';
+import { Cpu, CheckCircle2, X, Wifi, Terminal, Download, ExternalLink } from 'lucide-react';
 
 interface AiEngineModalProps {
   onClose: () => void;
@@ -10,6 +10,7 @@ export const AiEngineModal: React.FC<AiEngineModalProps> = ({ onClose }) => {
   const [config, setConfig] = useState(KataGoBridge.getConfig());
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle');
   const [testMessage, setTestMessage] = useState('');
+  const [showManuals, setShowManuals] = useState(false);
 
   const handleDownloadBat = () => {
     const batContent = `@echo off
@@ -125,57 +126,23 @@ pause
           </button>
         </div>
 
-        {/* Notice Info Box */}
+        {/* Zero-Installation Automatic Connection Notice Box */}
         <div style={{
-          background: 'rgba(56, 189, 248, 0.1)',
-          border: '1px solid rgba(56, 189, 248, 0.3)',
-          borderRadius: 'var(--radius-md)',
-          padding: '1.1rem',
-          fontSize: '0.85rem',
-          lineHeight: 1.5
-        }}>
-          <strong style={{ color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.95rem' }}>
-            <Sparkles size={16} /> 왜 외부 AI 엔진 연결이 필요한가요?
-          </strong>
-          <span>
-            웹 브라우저 내의 자바스크립트 엔진은 GPU 연산이 불가능하여, 19줄 바둑($10^{170}$ 경우의 수)에서 프로 9단 수준의 신경망 수읽기를 구사하는 데 물리적 한계가 있습니다.
-            <strong> 회원님의 요청에 따라 초보 수준도 안 되는 내장 약한 AI 엔진은 전면 제외(폐기)되었습니다!</strong><br />
-            이제 모든 AI 대국은 <strong>카타고(KataGo) 프로 9단 엔진 연동 대국</strong>으로만 진행되며, 로컬 PC나 리눅스 서버 연결 시 <strong>세계 최강의 진짜 AI 실력</strong>으로 작동합니다.
-          </span>
-        </div>
-
-        {/* Linux Server & Remote Cloud 24/7 Guide Box */}
-        <div style={{
-          background: 'rgba(16, 185, 129, 0.1)',
-          border: '1px solid rgba(16, 185, 129, 0.35)',
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(56, 189, 248, 0.15))',
+          border: '1px solid rgba(16, 185, 129, 0.45)',
           borderRadius: 'var(--radius-md)',
           padding: '1.2rem',
-          fontSize: '0.85rem',
-          lineHeight: 1.5
+          fontSize: '0.88rem',
+          lineHeight: 1.6
         }}>
-          <strong style={{ color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem', fontSize: '1rem' }}>
-            🐧 리눅스(Linux/VPS) 서버가 있다면 365일 24시간 연동이 가능한가요? (가장 추천!)
+          <strong style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '1.05rem' }}>
+            🎉 100% 무설치 · 자동 연동 완료: KT Cloud 24시간 프로 9단 KataGo 1.16.4 공식 AI 서버 가동 중
           </strong>
-          <p style={{ margin: '0 0 0.8rem 0', color: '#e2e8f0' }}>
-            <strong>네! 100% 완벽하게 가능하며 현업 최고 서비스 방식입니다.</strong> 회원님께서 리눅스 서버(Ubuntu, Debian, CentOS, AWS EC2, Oracle Cloud 등)를 보유하고 계시다면, 서버 터미널에서 아래 <strong>원클릭 명령어 한 줄</strong>만 실행하세요!
-          </p>
-          <div style={{
-            background: 'rgba(0, 0, 0, 0.6)',
-            padding: '0.8rem 1rem',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            fontFamily: 'monospace',
-            color: '#38bdf8',
-            fontSize: '0.82rem',
-            wordBreak: 'break-all',
-            marginBottom: '0.8rem'
-          }}>
-            curl -sSL https://raw.githubusercontent.com/korbill73/baduk/main/setup-katago-linux.sh | bash
-          </div>
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-            • <strong>자동 구축 효과</strong>: Node.js, KataGo, PM2(무중단 백그라운드 관리자)가 자동 설치되며 365일 24시간 켜져 있습니다.<br />
-            • <strong>모바일/PC 접속 방법</strong>: 구축 후 서버 주소(예: <code style={{ color: '#fbbf24' }}>http://리눅스서버IP:63333</code>)를 아래 <strong>[서버 연결 주소]</strong>에 넣고 저장하시면, 스마트폰/태블릿/PC 사용자 누구나 내장 AI 없이 <strong>100% 프로 9단 카타고 연동 대국</strong>이 즉시 진행됩니다!
-          </div>
+          <span style={{ color: '#e2e8f0', display: 'block' }}>
+            일반 사용자 및 방문자님께서는 <strong>별도의 프로그램(Node.js, 파이썬 등) 설치나 복잡한 서버 설정이 전혀 필요 없습니다!</strong><br />
+            스마트폰, 태블릿, PC 어디서든 접속만 하시면 <strong>365일 24시간 켜져 있는 KT Cloud 공식 서버(`http://211.253.36.117:63333`)</strong>와 즉시 자동 연결되어 세계 최고 수준 프로 9단 KataGo 엔진과 대국하실 수 있습니다.<br />
+            <em style={{ color: '#38bdf8' }}>💡 [🏆 AI 난이도 선택] 버튼을 통해 단급(18급~9단)을 선택하시면, 서버에서 수읽기 깊이(1회~300회)와 연산 속도가 실시간으로 정밀 차등 제어됩니다.</em>
+          </span>
         </div>
 
         {/* Engine Selection / Toggle */}
@@ -191,10 +158,10 @@ pause
           <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
             <div>
               <span style={{ fontSize: '1.05rem', fontWeight: 600, color: '#f8fafc', display: 'block' }}>
-                🚀 외부 신경망 엔진 (KataGo / GTP API) 활성화
+                🚀 외부 신경망 엔진 (KataGo / GTP API) 자동 연동
               </span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                비활성화 시 혹은 연결 실패 시 자동으로 내장 고도화 하이브리드 엔진이 안전하게 작동합니다.
+                현재 KT Cloud 공식 24시간 KataGo 서버가 연동되어 있으며, 필요 시 나만의 커스텀 서버 주소로 변경할 수 있습니다.
               </span>
             </div>
             <input
@@ -278,89 +245,109 @@ pause
           )}
         </div>
 
-        {/* Local Setup Guide & One-Click Downloader for Ordinary Users */}
+        {/* Advanced Custom Server Manuals (Collapsible for Power Users) */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.9))',
-          border: '1px solid rgba(251, 191, 36, 0.35)',
+          background: 'rgba(15, 23, 42, 0.6)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
           borderRadius: 'var(--radius-md)',
-          padding: '1.4rem',
-          fontSize: '0.85rem',
-          color: '#cbd5e1',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
+          padding: '1.2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.9rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <h4 style={{ color: '#fbbf24', fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-              <Terminal size={18} color="#fbbf24" /> 👑 일반 방문자용 카타고 9단 AI 원클릭 설치 매뉴얼
-            </h4>
-            <span style={{ fontSize: '0.75rem', background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
-              누구나 1분 완성이 가능한 초간편 가이드
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.6rem' }}>
+            <div>
+              <strong style={{ color: '#f8fafc', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Terminal size={18} color="var(--accent-gold)" /> [고급 옵션] 나만의 커스텀 AI 서버 직접 구축 매뉴얼
+              </strong>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginTop: '3px' }}>
+                일반 방문자는 불필요! 내 PC나 클라우드(VPS)에 직접 카타고 서버를 띄우고 싶으신 분만 펼쳐보세요.
+              </span>
+            </div>
+            <button
+              onClick={() => setShowManuals(!showManuals)}
+              className="glass-button"
+              style={{
+                background: showManuals ? 'rgba(239, 68, 68, 0.15)' : 'rgba(251, 191, 36, 0.15)',
+                borderColor: showManuals ? '#ef4444' : '#fbbf24',
+                color: showManuals ? '#ef4444' : '#fbbf24',
+                fontWeight: 600,
+                fontSize: '0.82rem',
+                padding: '0.45rem 0.85rem'
+              }}
+            >
+              {showManuals ? '➖ 매뉴얼 접기' : '➕ 직접 구축 가이드 보기'}
+            </button>
           </div>
 
-          <p style={{ color: '#e2e8f0', marginBottom: '1.1rem', lineHeight: 1.5 }}>
-            복잡한 명령어 입력이나 프로그램 설치 과정이 필요 없습니다! 아래 <strong>단 3단계</strong>만 따라 하시면 내 윈도우/맥 컴퓨터가 <strong>프로 9단을 이기는 세계 최강 AI 바둑 도장</strong>으로 즉시 변신합니다.
-          </p>
+          {showManuals && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem', marginTop: '0.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              {/* Linux / Cloud 24/7 Setup Guide */}
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.08)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '1.1rem'
+              }}>
+                <strong style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
+                  🐧 1. 리눅스(VPS/클라우드) 서버 24시간 원클릭 구축 명령어
+                </strong>
+                <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: '0 0 0.6rem 0' }}>
+                  Ubuntu, Debian, CentOS, AWS EC2 등의 서버 터미널에서 아래 명령어 한 줄만 입력하시면 Node.js + KataGo + PM2가 무중단 자동 구동됩니다.
+                </p>
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  padding: '0.7rem 0.9rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontFamily: 'monospace',
+                  color: '#38bdf8',
+                  fontSize: '0.8rem',
+                  wordBreak: 'break-all',
+                  marginBottom: '0.5rem'
+                }}>
+                  curl -sSL https://raw.githubusercontent.com/korbill73/baduk/main/setup-katago-linux.sh | bash
+                </div>
+              </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Step 1 */}
-            <div style={{ background: 'rgba(255,255,255,0.04)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid #38bdf8' }}>
-              <strong style={{ color: '#38bdf8', fontSize: '0.95rem', display: 'block', marginBottom: '0.4rem' }}>
-                1단계: Node.js 프로그램 설치 (이미 깔려 있다면 패스!)
-              </strong>
-              <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                카타고 엔진 자동 실행을 위해 컴퓨터에 <strong>Node.js</strong>가 필요합니다. 안 깔려 있다면 공식 홈페이지에서 초록색 [LTS 다운로드]를 눌러 10초 만에 설치하세요.
-              </span>
-              <div style={{ marginTop: '0.6rem' }}>
-                <a
-                  href="https://nodejs.org"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="glass-button"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', borderColor: '#38bdf8', color: '#38bdf8', padding: '0.4rem 0.8rem' }}
-                >
-                  <span>🔗 Node.js 공식 웹사이트 바로가기</span>
-                  <ExternalLink size={14} />
-                </a>
+              {/* Windows / Mac PC Local Setup Guide */}
+              <div style={{
+                background: 'rgba(56, 189, 248, 0.08)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '1.1rem'
+              }}>
+                <strong style={{ color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
+                  💻 2. 내 PC(윈도우/맥) 로컬 카타고 원클릭 실행 가이드
+                </strong>
+                <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: '0 0 0.8rem 0' }}>
+                  공식 서버 대신 회원님의 개인 윈도우/맥 컴퓨터의 연산력을 직접 사용하시려면 아래 3단계로 구동하세요.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                  <div style={{ fontSize: '0.82rem', color: '#e2e8f0', background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: 'var(--radius-sm)' }}>
+                    <strong>1단계: Node.js 설치</strong> — <a href="https://nodejs.org" target="_blank" rel="noreferrer" style={{ color: '#38bdf8', textDecoration: 'underline' }}>nodejs.org</a>에서 초록색 [LTS 다운로드]를 눌러 설치합니다.<br />
+                    <strong>2단계: 실행기 다운로드</strong> — 아래 버튼을 눌러 <code>run-katago-ai.bat</code> 자동 실행기를 다운로드합니다.<br />
+                    <strong>3단계: 더블클릭 실행</strong> — 다운로드한 파일을 더블클릭하면 창이 열리며 로컬 PC AI가 구동됩니다.
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+                    <button
+                      onClick={handleDownloadBat}
+                      className="glass-button"
+                      style={{ background: 'rgba(34, 197, 94, 0.2)', borderColor: '#22c55e', color: '#22c55e', fontWeight: 700, gap: '0.5rem', fontSize: '0.82rem' }}
+                    >
+                      <Download size={15} /> 📥 윈도우용 원클릭 실행 파일(run-katago-ai.bat) 다운로드
+                    </button>
+                    <button
+                      onClick={handleDownloadMjs}
+                      className="glass-button"
+                      style={{ background: 'rgba(56, 189, 248, 0.15)', borderColor: '#38bdf8', color: '#38bdf8', fontWeight: 600, gap: '0.5rem', fontSize: '0.82rem' }}
+                    >
+                      <ExternalLink size={15} /> 📥 원본 스크립트(setup-katago-auto.mjs) 보기
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* Step 2 */}
-            <div style={{ background: 'rgba(255,255,255,0.04)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid #22c55e' }}>
-              <strong style={{ color: '#22c55e', fontSize: '0.95rem', display: 'block', marginBottom: '0.4rem' }}>
-                2단계: AI 자동 실행 파일 버튼 클릭하여 다운로드
-              </strong>
-              <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.7rem' }}>
-                아래 버튼을 클릭하시면 <strong>카타고 엔진 및 신경망 가중치 자동 설치기</strong>가 다운로드됩니다.
-              </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
-                <button
-                  onClick={handleDownloadBat}
-                  className="glass-button"
-                  style={{ background: 'rgba(34, 197, 94, 0.2)', borderColor: '#22c55e', color: '#22c55e', fontWeight: 700, gap: '0.5rem' }}
-                >
-                  <Download size={16} /> 📥 윈도우용 원클릭 자동 실행 파일(run-katago-ai.bat) 다운로드
-                </button>
-                <button
-                  onClick={handleDownloadMjs}
-                  className="glass-button"
-                  style={{ background: 'rgba(56, 189, 248, 0.15)', borderColor: '#38bdf8', color: '#38bdf8', fontWeight: 600, gap: '0.5rem' }}
-                >
-                  <ExternalLink size={16} /> 📥 맥 / 리눅스 / 원본 스크립트(setup-katago-auto.mjs) 보기
-                </button>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div style={{ background: 'rgba(255,255,255,0.04)', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid #fbbf24' }}>
-              <strong style={{ color: '#fbbf24', fontSize: '0.95rem', display: 'block', marginBottom: '0.4rem' }}>
-                3단계: 다운로드 받은 파일 더블클릭 실행 ➔ 자동 연동 끝! 🎉
-              </strong>
-              <span style={{ fontSize: '0.82rem', color: '#e2e8f0' }}>
-                다운로드한 <code>run-katago-ai.bat</code> (또는 <code>node setup-katago-auto.mjs</code>) 파일을 더블클릭하면 검은 창이 열리며 AI 신경망을 자동으로 켜줍니다.<br />
-                창이 켜진 상태로 이 웹 바둑에 접속만 하시면, 상단 헤더가 <strong>[🟢 AI 자동 연동됨 (최고수)]</strong> 로 빛나면서 프로 9단과의 승부가 바로 시작됩니다!
-              </span>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Actions */}
