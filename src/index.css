@@ -194,7 +194,7 @@ body {
 .main-grid-layout {
   display: grid;
   grid-template-columns: var(--grid-cols, minmax(480px, 1.2fr) minmax(340px, 0.8fr));
-  gap: 1.8rem;
+  gap: 1.2rem;
   align-items: start;
 }
 
@@ -204,6 +204,23 @@ body {
 
 .main-grid-layout.tsumego {
   grid-template-columns: 1fr;
+}
+
+@media (min-width: 961px) {
+  body {
+    overflow-y: hidden;
+  }
+  .app-main-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .main-grid-layout {
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
 }
 
 .header-nav-group,

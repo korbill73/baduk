@@ -341,7 +341,7 @@ export function App() {
   };
 
   return (
-    <div className="app-main-container" style={{ maxWidth: '1440px', margin: '0 auto', padding: isBoardExpanded ? '0.4rem 1.5rem 1rem 1.5rem' : '1rem 1.5rem 3rem 1.5rem', transition: 'padding 0.3s' }}>
+    <div className="app-main-container" style={{ maxWidth: '1440px', margin: '0 auto', padding: isBoardExpanded ? '0.3rem 1.2rem 0.5rem 1.2rem' : '0.5rem 1.2rem 0.6rem 1.2rem', transition: 'padding 0.3s' }}>
       {!isBoardExpanded && (
         <Header
           mode={mode}
@@ -386,26 +386,26 @@ export function App() {
             </div>
 
             {/* Right Column: Game Status Controls, Territory Evaluation Overlay, Chat & AI Coach Panel */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: isBoardExpanded ? 'calc(100vh - 40px)' : 'calc(100vh - 90px)', overflowY: 'auto', paddingRight: '2px' }}>
               {isBoardExpanded && (
                 <div className="glass-panel" style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '0.65rem 1rem',
+                  padding: '0.55rem 0.85rem',
                   background: 'rgba(15, 23, 42, 0.95)',
                   border: '1px solid #fbbf24',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-sm)',
                   boxShadow: '0 4px 15px rgba(0,0,0,0.4)'
                 }}>
-                  <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                     ⛶ 크게 보기 모드
                   </span>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button onClick={() => handleNewGame()} className="glass-button primary" style={{ padding: '0.38rem 0.75rem', fontSize: '0.8rem' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <button onClick={() => handleNewGame()} className="glass-button primary" style={{ padding: '0.32rem 0.65rem', fontSize: '0.78rem' }}>
                       새 대국
                     </button>
-                    <button onClick={() => setIsBoardExpanded(false)} className="glass-button" style={{ padding: '0.38rem 0.75rem', fontSize: '0.8rem', borderColor: '#fbbf24', color: '#fbbf24' }}>
+                    <button onClick={() => setIsBoardExpanded(false)} className="glass-button" style={{ padding: '0.32rem 0.65rem', fontSize: '0.78rem', borderColor: '#fbbf24', color: '#fbbf24' }}>
                       ↙ 기본 화면
                     </button>
                   </div>

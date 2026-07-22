@@ -56,13 +56,13 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="glass-panel" style={{
-      padding: '0.8rem 1.5rem',
-      marginBottom: '1.5rem',
+      padding: '0.55rem 1.2rem',
+      marginBottom: '0.75rem',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       flexWrap: 'wrap',
-      gap: '1rem'
+      gap: '0.8rem'
     }}>
       {/* Brand & Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
