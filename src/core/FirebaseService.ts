@@ -26,10 +26,13 @@ import {
 import type { UserProfile } from '../types/pvp';
 import type { StoneColor } from '../types/go';
 
-// Try to load from environment or fallback to localStorage or default production config
+// Try to load from environment or fallback to default production config (ignoring invalid localStorage strings)
 const getFirebaseConfig = () => {
+  const localKey = localStorage.getItem('baduk_fb_api_key');
+  const validKey = (localKey && localKey.startsWith('AIzaSy') && localKey.length > 30) ? localKey : null;
+  
   const envConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || localStorage.getItem('baduk_fb_api_key') || 'AIzaSyBTILF88F3pxJB4AnsJICNw1i81BJpt37I',
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || validKey || 'AIzaSyBTILF88F3pxJB4AnsJICNw1i81BJpt37I',
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || localStorage.getItem('baduk_fb_auth_domain') || 'baduk-58092.firebaseapp.com',
     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || localStorage.getItem('baduk_fb_project_id') || 'baduk-58092',
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'baduk-58092.firebasestorage.app',
