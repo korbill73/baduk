@@ -13,9 +13,14 @@
     <meta name="description" content="6급 실력에서 9단 최고수 수준까지 단계별 AI와 대국하고 실시간 훈수 및 복기로 배우는 프리미엄 웹 바둑 도장 플랫폼입니다." />
     <title>Baduk AI Master Class | AI 바둑 도장</title>
 
-    <!-- 카카오톡/네이버 인앱브라우저 → 외부 브라우저(Chrome/Safari) 강제 리다이렉트 -->
+    <!-- 카카오톡/네이버 인앱브라우저 → 외부 브라우저 리다이렉트 (1회만 실행) -->
     <script>
       (function() {
+        // 이미 리다이렉트를 시도했으면 절대 재실행하지 않음
+        try {
+          if (sessionStorage.getItem('_ext_redirect_done') === '1') return;
+        } catch(e) {}
+
         var ua = navigator.userAgent || '';
         var isKakaoTalk = /KAKAOTALK/i.test(ua);
         var isNaverApp  = /NAVER\(inapp/i.test(ua) || /NaverApp/i.test(ua);
@@ -24,31 +29,26 @@
 
         if (!isInApp) return;
 
+        // 리다이렉트 시도 표시 (무한루프 방지)
+        try { sessionStorage.setItem('_ext_redirect_done', '1'); } catch(e) {}
+
         var targetUrl = location.href;
 
-        // iOS: intent 스킴으로 Safari 강제 열기
+        // iOS
         if (/iP(hone|od|ad)/i.test(ua)) {
-          // KakaoTalk iOS: kakaotalk://web/openExternal
           if (isKakaoTalk) {
+            // KakaoTalk iOS: 외부 브라우저(Safari)로 강제 열기
             location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(targetUrl);
-            return;
           }
-          // 그 외 iOS 인앱: 직접 Safari로 열기 시도
-          location.href = targetUrl.replace(/^https?:\/\//, 'x-safari-');
-          setTimeout(function() { location.href = targetUrl; }, 100);
+          // 나머지 iOS 인앱: 아무것도 안 함 (Safari에서 이미 열린 것)
           return;
         }
 
-        // Android: intent URL로 Chrome 강제 실행
+        // Android: Chrome intent로 외부 열기
         var intentUrl = 'intent://' + targetUrl.replace(/^https?:\/\//, '')
           + '#Intent;scheme=' + (targetUrl.startsWith('https') ? 'https' : 'http')
           + ';package=com.android.chrome;end;';
         location.href = intentUrl;
-
-        // 크롬이 없으면 기본 브라우저로 fallback
-        setTimeout(function() {
-          location.href = targetUrl;
-        }, 800);
       })();
     </script>
   </head>
