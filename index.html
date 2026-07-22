@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -9,12 +9,52 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="AI 바둑 도장" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="description" content="6급 실력에서 9단 최고수 수준까지 단계별 AI와 대국하고 실시간 훈수 및 복기로 배우는 프리미엄 웹 바둑 도장 플랫폼입니다." />
-    <title>Baduk AI Master Class | 6급에서 9단까지 함께하는 AI 바둑 도장</title>
+    <title>Baduk AI Master Class | AI 바둑 도장</title>
+
+    <!-- 카카오톡/네이버 인앱브라우저 → 외부 브라우저(Chrome/Safari) 강제 리다이렉트 -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        var isKakaoTalk = /KAKAOTALK/i.test(ua);
+        var isNaverApp  = /NAVER\(inapp/i.test(ua) || /NaverApp/i.test(ua);
+        var isLine      = /Line\//i.test(ua);
+        var isInApp     = isKakaoTalk || isNaverApp || isLine;
+
+        if (!isInApp) return;
+
+        var targetUrl = location.href;
+
+        // iOS: intent 스킴으로 Safari 강제 열기
+        if (/iP(hone|od|ad)/i.test(ua)) {
+          // KakaoTalk iOS: kakaotalk://web/openExternal
+          if (isKakaoTalk) {
+            location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(targetUrl);
+            return;
+          }
+          // 그 외 iOS 인앱: 직접 Safari로 열기 시도
+          location.href = targetUrl.replace(/^https?:\/\//, 'x-safari-');
+          setTimeout(function() { location.href = targetUrl; }, 100);
+          return;
+        }
+
+        // Android: intent URL로 Chrome 강제 실행
+        var intentUrl = 'intent://' + targetUrl.replace(/^https?:\/\//, '')
+          + '#Intent;scheme=' + (targetUrl.startsWith('https') ? 'https' : 'http')
+          + ';package=com.android.chrome;end;';
+        location.href = intentUrl;
+
+        // 크롬이 없으면 기본 브라우저로 fallback
+        setTimeout(function() {
+          location.href = targetUrl;
+        }, 800);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+

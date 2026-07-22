@@ -112,20 +112,20 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="glass-panel" style={{
-      padding: '0.65rem 1.4rem',
-      marginBottom: '0.85rem',
+      padding: '0.55rem 1rem',
+      marginBottom: '0.65rem',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       flexWrap: 'wrap',
-      gap: '1rem',
+      gap: '0.6rem',
       boxShadow: '0 8px 30px rgba(0,0,0,0.4)'
     }}>
       {/* Brand & Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.9rem' }}>
-        <div style={{
-          width: '44px',
-          height: '44px',
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
+        <div className="header-brand-icon" style={{
+          width: '40px',
+          height: '40px',
           borderRadius: '50%',
           background: 'linear-gradient(135deg, #1e2025 50%, #f8fafc 50%)',
           border: '2px solid #38bdf8',
@@ -137,10 +137,10 @@ export const Header: React.FC<HeaderProps> = ({
           flexShrink: 0
         }} />
         <div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.5px', background: 'linear-gradient(90deg, #f8fafc, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>
+          <h1 className="header-brand-title" style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.5px', background: 'linear-gradient(90deg, #f8fafc, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0, whiteSpace: 'nowrap' }}>
             Baduk AI Master Class
           </h1>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '2px 0 0 0', fontWeight: 500 }}>
+          <p className="header-brand-subtitle" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: '1px 0 0 0', fontWeight: 500, whiteSpace: 'nowrap' }}>
             18급부터 9단까지 함께 성장하는 맞춤 AI 바둑 도장
           </p>
         </div>
@@ -306,9 +306,11 @@ export const Header: React.FC<HeaderProps> = ({
             <div style={{
               position: 'absolute',
               top: 'calc(100% + 8px)',
-              right: 0,
+              left: 0,
+              right: 'auto',
               zIndex: 2000,
               minWidth: '260px',
+              maxWidth: 'calc(100vw - 20px)',
               background: 'rgba(15, 23, 42, 0.98)',
               border: '1px solid rgba(56, 189, 248, 0.45)',
               borderRadius: 'var(--radius-md)',
@@ -493,9 +495,11 @@ export const Header: React.FC<HeaderProps> = ({
             <div style={{
               position: 'absolute',
               top: 'calc(100% + 8px)',
-              right: 0,
+              left: 0,
+              right: 'auto',
               zIndex: 2000,
               minWidth: '240px',
+              maxWidth: 'calc(100vw - 20px)',
               background: 'rgba(15, 23, 42, 0.98)',
               border: '1px solid rgba(56, 189, 248, 0.45)',
               borderRadius: 'var(--radius-md)',

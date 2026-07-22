@@ -516,7 +516,7 @@ export function App() {
             </div>
 
             {/* Right Column: Game Status Controls, Territory Evaluation Overlay, Chat & AI Coach Panel */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: isBoardExpanded ? 'calc(100vh - 40px)' : 'calc(100vh - 90px)', overflowY: 'auto', paddingRight: '2px' }}>
+            <div className="right-panel-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '2px' }}>
               {isBoardExpanded && (
                 <div className="glass-panel" style={{
                   display: 'flex',
