@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { KataGoBridge } from '../../ai/KataGoBridge';
-import { Cpu, CheckCircle2, X, Wifi, Terminal, Download, ExternalLink, BookOpen, Award, Sparkles, Sliders } from 'lucide-react';
+import { CheckCircle2, X, Wifi, Terminal, Download, ExternalLink, BookOpen, Award, Sparkles, Sliders } from 'lucide-react';
 
 interface AiEngineModalProps {
   onClose: () => void;
