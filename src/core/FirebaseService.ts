@@ -26,26 +26,29 @@ import {
 import type { UserProfile } from '../types/pvp';
 import type { StoneColor } from '../types/go';
 
-// Force production Firebase config and ignore/clear any old invalid localStorage strings
+// Check valid local key from localStorage first, fallback to target production config
 const getFirebaseConfig = () => {
   const targetApiKey = 'AIzaSyBTILF88F3pxJB4AnsJICNw1i81BJpt37I';
   const targetProjectId = 'baduk-58092';
   const targetAuthDomain = 'baduk-58092.firebaseapp.com';
 
-  // If localStorage has something different or old, clean it up
+  let customApiKey = null;
+  let customAuthDomain = null;
+  let customProjectId = null;
+
   if (typeof localStorage !== 'undefined') {
     const cached = localStorage.getItem('baduk_fb_api_key');
-    if (cached && cached !== targetApiKey) {
-      localStorage.removeItem('baduk_fb_api_key');
-      localStorage.removeItem('baduk_fb_auth_domain');
-      localStorage.removeItem('baduk_fb_project_id');
+    if (cached && cached.startsWith('AIzaSy') && cached.length > 30) {
+      customApiKey = cached;
+      customAuthDomain = localStorage.getItem('baduk_fb_auth_domain');
+      customProjectId = localStorage.getItem('baduk_fb_project_id');
     }
   }
 
   const envConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || targetApiKey,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || targetAuthDomain,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || targetProjectId,
+    apiKey: customApiKey || import.meta.env.VITE_FIREBASE_API_KEY || targetApiKey,
+    authDomain: customAuthDomain || import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || targetAuthDomain,
+    projectId: customProjectId || import.meta.env.VITE_FIREBASE_PROJECT_ID || targetProjectId,
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'baduk-58092.firebasestorage.app',
     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '1038381931338',
     appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:1038381931338:web:ad910831bf0dd32eb5bfb3'

@@ -154,7 +154,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onClose, onLoginSuccess 
         {/* Tab Selection Bar */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isConfigured ? '1fr 1fr' : '1fr 1fr 1fr',
+          gridTemplateColumns: '1fr 1fr 1fr',
           gap: '0.4rem',
           background: 'rgba(15, 23, 42, 0.8)',
           padding: '5px',
@@ -163,7 +163,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onClose, onLoginSuccess 
           border: '1px solid rgba(255,255,255,0.08)'
         }}>
           <button
-            onClick={() => { if (isConfigured) setTab('login'); }}
+            onClick={() => setTab('login')}
             style={{
               padding: '0.55rem',
               borderRadius: 'var(--radius-sm)',
@@ -172,15 +172,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onClose, onLoginSuccess 
               color: tab === 'login' ? '#fff' : 'var(--text-muted)',
               fontWeight: 700,
               fontSize: '0.85rem',
-              cursor: isConfigured ? 'pointer' : 'not-allowed',
-              opacity: isConfigured ? 1 : 0.5,
+              cursor: 'pointer',
               transition: 'all 0.2s'
             }}
           >
             로그인
           </button>
           <button
-            onClick={() => { if (isConfigured) setTab('signup'); }}
+            onClick={() => setTab('signup')}
             style={{
               padding: '0.55rem',
               borderRadius: 'var(--radius-sm)',
@@ -189,35 +188,32 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onClose, onLoginSuccess 
               color: tab === 'signup' ? '#fff' : 'var(--text-muted)',
               fontWeight: 700,
               fontSize: '0.85rem',
-              cursor: isConfigured ? 'pointer' : 'not-allowed',
-              opacity: isConfigured ? 1 : 0.5,
+              cursor: 'pointer',
               transition: 'all 0.2s'
             }}
           >
             회원가입
           </button>
-          {!isConfigured && (
-            <button
-              onClick={() => setTab('config')}
-              style={{
-                padding: '0.55rem',
-                borderRadius: 'var(--radius-sm)',
-                border: 'none',
-                background: tab === 'config' ? '#f59e0b' : 'transparent',
-                color: tab === 'config' ? '#000' : '#fbbf24',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '4px',
-                transition: 'all 0.2s'
-              }}
-            >
-              <Key size={14} /> 키 설정
-            </button>
-          )}
+          <button
+            onClick={() => setTab('config')}
+            style={{
+              padding: '0.55rem',
+              borderRadius: 'var(--radius-sm)',
+              border: 'none',
+              background: tab === 'config' ? '#f59e0b' : 'transparent',
+              color: tab === 'config' ? '#000' : '#fbbf24',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Key size={14} /> 키 설정
+          </button>
         </div>
 
         {/* Error Alert */}
