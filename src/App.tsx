@@ -87,6 +87,17 @@ export function App() {
   const [, setOnlineRoomCode] = useState<string>('');
   const [isBoardExpanded, setIsBoardExpanded] = useState(false);
 
+  const handleLogout = async () => {
+    try {
+      await firebaseBridge.logout();
+      setCurrentUser(null);
+      setIsAdmin(false);
+      setUserProfile(UserProfileService.getProfile());
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
+  };
+
   // Web Worker ref
   const workerRef = useRef<Worker | null>(null);
 
@@ -413,6 +424,7 @@ export function App() {
           isAdmin={isAdmin}
           myNickname={userProfile.nickname}
           myRankTitle={userProfile.rankTitle}
+          onLogout={handleLogout}
           onNewGame={() => handleNewGame()}
           soundEnabled={soundEnabled}
           setSoundEnabled={setSoundEnabled}
@@ -588,6 +600,7 @@ export function App() {
         <UserProfileModal
           onClose={() => setIsProfileModalOpen(false)}
           onProfileUpdated={(updated) => setUserProfile(updated)}
+          onLogout={handleLogout}
         />
       )}
 

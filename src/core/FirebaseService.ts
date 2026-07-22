@@ -1,4 +1,4 @@
-import { initializeApp, getApps, deleteApp, type FirebaseApp } from 'firebase/app';
+import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { 
   getAuth, 
   signInWithPopup, 
@@ -28,27 +28,23 @@ import type { StoneColor } from '../types/go';
 
 // Check valid local key from localStorage first, fallback to target production config
 const getFirebaseConfig = () => {
-  const targetApiKey = 'AIzaSyBTILF88F3pxJB4AnsJICNw1i81BJpt37I';
+  const targetApiKey = 'AIzaSyBTILFB8F3pxJB4AnaJIcNW1i81BJpt37I';
   const targetProjectId = 'baduk-58092';
   const targetAuthDomain = 'baduk-58092.firebaseapp.com';
 
-  let customApiKey = null;
-  let customAuthDomain = null;
-  let customProjectId = null;
-
   if (typeof localStorage !== 'undefined') {
     const cached = localStorage.getItem('baduk_fb_api_key');
-    if (cached && cached.startsWith('AIzaSy') && cached.length > 30) {
-      customApiKey = cached;
-      customAuthDomain = localStorage.getItem('baduk_fb_auth_domain');
-      customProjectId = localStorage.getItem('baduk_fb_project_id');
+    if (cached && cached !== targetApiKey) {
+      localStorage.removeItem('baduk_fb_api_key');
+      localStorage.removeItem('baduk_fb_auth_domain');
+      localStorage.removeItem('baduk_fb_project_id');
     }
   }
 
   const envConfig = {
-    apiKey: customApiKey || import.meta.env.VITE_FIREBASE_API_KEY || targetApiKey,
-    authDomain: customAuthDomain || import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || targetAuthDomain,
-    projectId: customProjectId || import.meta.env.VITE_FIREBASE_PROJECT_ID || targetProjectId,
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || targetApiKey,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || targetAuthDomain,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || targetProjectId,
     storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'baduk-58092.firebasestorage.app',
     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '1038381931338',
     appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:1038381931338:web:ad910831bf0dd32eb5bfb3'
@@ -72,15 +68,16 @@ class FirebaseBridgeService {
       return false;
     }
     try {
-      if (!getApps().length) {
-        this.app = initializeApp(config);
+      const appName = 'baduk-master-class-app';
+      const existingApps = getApps();
+      const match = existingApps.find(a => a.name === appName || (a.name === '[DEFAULT]' && a.options.apiKey === config.apiKey));
+      if (match && match.options.apiKey === config.apiKey) {
+        this.app = match;
       } else {
-        const existingApp = getApps()[0];
-        if (existingApp.options.apiKey !== config.apiKey) {
-          deleteApp(existingApp).catch(() => {});
-          this.app = initializeApp(config);
+        if (existingApps.some(a => a.name === '[DEFAULT]')) {
+          this.app = initializeApp(config, appName);
         } else {
-          this.app = existingApp;
+          this.app = initializeApp(config);
         }
       }
       this.authInstance = getAuth(this.app);

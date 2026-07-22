@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import type { UserProfile, GameRecordEntry } from '../../types/pvp';
 import { UserProfileService } from '../../core/UserProfileService';
-import { User, X, Save, Edit3, Shield, Swords } from 'lucide-react';
+import { User, X, Save, Edit3, Shield, Swords, LogOut } from 'lucide-react';
 import { soundManager } from '../../sound/SoundManager';
 
 interface UserProfileModalProps {
   onClose: () => void;
   onProfileUpdated: (profile: UserProfile) => void;
+  onLogout?: () => void;
 }
 
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   onClose,
   onProfileUpdated,
+  onLogout,
 }) => {
   const [profile, setProfile] = useState<UserProfile>(() => UserProfileService.getProfile());
   const [history] = useState<GameRecordEntry[]>(() => UserProfileService.getHistory());
@@ -273,7 +275,31 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
+          <div>
+            {onLogout && (
+              <button
+                onClick={() => {
+                  if (window.confirm('바둑 마스터클래스 계정에서 로그아웃 하시겠습니까?')) {
+                    onLogout();
+                    onClose();
+                  }
+                }}
+                className="glass-button"
+                style={{
+                  borderColor: 'rgba(244, 63, 94, 0.6)',
+                  background: 'rgba(244, 63, 94, 0.18)',
+                  color: '#fda4af',
+                  fontWeight: 700,
+                  padding: '0.6rem 1.2rem',
+                  gap: '0.45rem'
+                }}
+              >
+                <LogOut size={18} />
+                <span>계정 안전 로그아웃</span>
+              </button>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="glass-button"

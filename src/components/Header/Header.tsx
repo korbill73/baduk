@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { GameMode, BoardSize, RankInfo } from '../../types/go';
-import { Volume2, VolumeX, Award, BookOpen, Play, RotateCcw, HelpCircle, Users, Globe, User, Maximize2, Minimize2, LogIn, ShieldCheck, Menu, Download, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, Award, BookOpen, Play, RotateCcw, HelpCircle, Users, Globe, User, Maximize2, Minimize2, LogIn, LogOut, ShieldCheck, Menu, Download, Sparkles } from 'lucide-react';
 import { soundManager } from '../../sound/SoundManager';
 import { KataGoBridge } from '../../ai/KataGoBridge';
 
@@ -20,6 +20,7 @@ interface HeaderProps {
   isAdmin?: boolean;
   myNickname: string;
   myRankTitle: string;
+  onLogout?: () => void;
   onNewGame: () => void;
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
@@ -43,6 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
   isAdmin,
   myNickname,
   myRankTitle,
+  onLogout,
   onNewGame,
   soundEnabled,
   setSoundEnabled,
@@ -161,16 +163,40 @@ export const Header: React.FC<HeaderProps> = ({
             <span style={{ fontWeight: 800, color: '#fbbf24' }}>로그인 / 가입</span>
           </button>
         ) : (
-          <button
-            onClick={onOpenProfileModal}
-            className="glass-button"
-            style={{ borderColor: '#38bdf8', background: 'rgba(56, 189, 248, 0.15)', gap: '0.45rem', padding: '0.52rem 1rem' }}
-            title="내 기사 ID 및 대국 전적 조회"
-          >
-            <User size={16} color="#38bdf8" />
-            <span style={{ fontWeight: 700, color: '#fff' }}>{myNickname}</span>
-            <span style={{ fontSize: '0.78rem', color: '#fbbf24', background: 'rgba(245,158,11,0.22)', padding: '2px 7px', borderRadius: '8px', fontWeight: 700 }}>{myRankTitle}</span>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <button
+              onClick={onOpenProfileModal}
+              className="glass-button"
+              style={{ borderColor: '#38bdf8', background: 'rgba(56, 189, 248, 0.18)', gap: '0.45rem', padding: '0.52rem 1rem' }}
+              title="내 기사 ID 및 대국 전적 조회"
+            >
+              <User size={16} color="#38bdf8" />
+              <span style={{ fontWeight: 700, color: '#fff' }}>{myNickname}</span>
+              <span style={{ fontSize: '0.78rem', color: '#fbbf24', background: 'rgba(245,158,11,0.22)', padding: '2px 7px', borderRadius: '8px', fontWeight: 700 }}>{myRankTitle}</span>
+            </button>
+            {onLogout && (
+              <button
+                onClick={() => {
+                  if (window.confirm('바둑 마스터클래스 계정에서 로그아웃 하시겠습니까?')) {
+                    onLogout();
+                  }
+                }}
+                className="glass-button"
+                style={{
+                  borderColor: 'rgba(244, 63, 94, 0.6)',
+                  background: 'rgba(244, 63, 94, 0.16)',
+                  color: '#fda4af',
+                  fontWeight: 700,
+                  padding: '0.52rem 0.85rem',
+                  gap: '0.35rem'
+                }}
+                title="계정 안전 로그아웃"
+              >
+                <LogOut size={15} color="#fda4af" />
+                <span>로그아웃</span>
+              </button>
+            )}
+          </div>
         )}
 
         {/* Admin Dashboard Button */}
