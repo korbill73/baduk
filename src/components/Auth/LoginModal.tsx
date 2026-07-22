@@ -153,7 +153,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onClose, onLoginSuccess 
         {/* Tab Selection Bar */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
+          gridTemplateColumns: isConfigured ? '1fr 1fr' : '1fr 1fr 1fr',
           gap: '0.4rem',
           background: 'rgba(15, 23, 42, 0.8)',
           padding: '5px',
@@ -195,26 +195,28 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onClose, onLoginSuccess 
           >
             회원가입
           </button>
-          <button
-            onClick={() => setTab('config')}
-            style={{
-              padding: '0.55rem',
-              borderRadius: 'var(--radius-sm)',
-              border: 'none',
-              background: tab === 'config' ? '#f59e0b' : 'transparent',
-              color: tab === 'config' ? '#000' : '#fbbf24',
-              fontWeight: 700,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Key size={14} /> 키 설정 {isConfigured && '✓'}
-          </button>
+          {!isConfigured && (
+            <button
+              onClick={() => setTab('config')}
+              style={{
+                padding: '0.55rem',
+                borderRadius: 'var(--radius-sm)',
+                border: 'none',
+                background: tab === 'config' ? '#f59e0b' : 'transparent',
+                color: tab === 'config' ? '#000' : '#fbbf24',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Key size={14} /> 키 설정
+            </button>
+          )}
         </div>
 
         {/* Error Alert */}
