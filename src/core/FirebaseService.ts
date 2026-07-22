@@ -235,9 +235,9 @@ class FirebaseBridgeService {
     playerColor: StoneColor,
     scoreDiff?: number,
     aiRankName?: string
-  ) {
+  ): Promise<any> {
     const db = this.getDb();
-    if (!db) return;
+    if (!db) return null;
 
     // 1. Add game log
     try {
@@ -252,25 +252,28 @@ class FirebaseBridgeService {
         playedAt: serverTimestamp()
       });
 
-      // 2. Update user stats
+      // 2. Update user stats reliably
       const userRef = doc(db, 'users', userId);
       const snap = await getDoc(userRef);
+      let stats = { vsAiWins: 0, vsAiLosses: 0, onlineWins: 0, onlineLosses: 0, pvpWins: 0, pvpLosses: 0 };
       if (snap.exists()) {
         const data = snap.data();
-        const stats = { ...(data.stats || { vsAiWins: 0, vsAiLosses: 0, onlineWins: 0, onlineLosses: 0, pvpWins: 0, pvpLosses: 0 }) };
-        if (result === 'win') {
-          if (mode === 'play') stats.vsAiWins++;
-          else if (mode === 'online') stats.onlineWins++;
-          else stats.pvpWins++;
-        } else if (result === 'loss') {
-          if (mode === 'play') stats.vsAiLosses++;
-          else if (mode === 'online') stats.onlineLosses++;
-          else stats.pvpLosses++;
-        }
-        await updateDoc(userRef, { stats, lastPlayedAt: serverTimestamp() });
+        stats = { ...stats, ...(data.stats || {}) };
       }
+      if (result === 'win') {
+        if (mode === 'play') stats.vsAiWins = (stats.vsAiWins || 0) + 1;
+        else if (mode === 'online') stats.onlineWins = (stats.onlineWins || 0) + 1;
+        else stats.pvpWins = (stats.pvpWins || 0) + 1;
+      } else if (result === 'loss') {
+        if (mode === 'play') stats.vsAiLosses = (stats.vsAiLosses || 0) + 1;
+        else if (mode === 'online') stats.onlineLosses = (stats.onlineLosses || 0) + 1;
+        else stats.pvpLosses = (stats.pvpLosses || 0) + 1;
+      }
+      await setDoc(userRef, { stats, lastPlayedAt: serverTimestamp() }, { merge: true });
+      return stats;
     } catch (e) {
       console.error('[FirebaseBridge] Failed to record game in cloud:', e);
+      return null;
     }
   }
 

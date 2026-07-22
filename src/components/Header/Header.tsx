@@ -20,6 +20,7 @@ interface HeaderProps {
   isAdmin?: boolean;
   myNickname: string;
   myRankTitle: string;
+  myStats?: { vsAiWins?: number; vsAiLosses?: number; onlineWins?: number; onlineLosses?: number; pvpWins?: number; pvpLosses?: number };
   onLogout?: () => void;
   onNewGame: () => void;
   soundEnabled: boolean;
@@ -44,6 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
   isAdmin,
   myNickname,
   myRankTitle,
+  myStats,
   onLogout,
   onNewGame,
   soundEnabled,
@@ -173,6 +175,16 @@ export const Header: React.FC<HeaderProps> = ({
               <User size={16} color="#38bdf8" />
               <span style={{ fontWeight: 700, color: '#fff' }}>{myNickname}</span>
               <span style={{ fontSize: '0.78rem', color: '#fbbf24', background: 'rgba(245,158,11,0.22)', padding: '2px 7px', borderRadius: '8px', fontWeight: 700 }}>{myRankTitle}</span>
+              {myStats && (
+                <span style={{ fontSize: '0.78rem', color: '#38bdf8', background: 'rgba(56,189,248,0.18)', border: '1px solid rgba(56,189,248,0.3)', padding: '2px 8px', borderRadius: '8px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  🏆 {((myStats.vsAiWins||0)+(myStats.onlineWins||0)+(myStats.pvpWins||0))}승 {((myStats.vsAiLosses||0)+(myStats.onlineLosses||0)+(myStats.pvpLosses||0))}패
+                  {((myStats.vsAiWins||0)+(myStats.onlineWins||0)+(myStats.pvpWins||0)+(myStats.vsAiLosses||0)+(myStats.onlineLosses||0)+(myStats.pvpLosses||0)) > 0 && (
+                    <span style={{ color: '#a855f7', marginLeft: '2px' }}>
+                      ({Math.round(((myStats.vsAiWins||0)+(myStats.onlineWins||0)+(myStats.pvpWins||0)) / (((myStats.vsAiWins||0)+(myStats.onlineWins||0)+(myStats.pvpWins||0)+(myStats.vsAiLosses||0)+(myStats.onlineLosses||0)+(myStats.pvpLosses||0)) || 1) * 100)}%)
+                    </span>
+                  )}
+                </span>
+              )}
             </button>
             {onLogout && (
               <button
@@ -519,6 +531,40 @@ export const Header: React.FC<HeaderProps> = ({
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>바탕화면에 바로가기 아이콘 생성</div>
                 </div>
               </button>
+
+              {/* User Stats in Top-Down Menu */}
+              {myStats && (
+                <button
+                  onClick={() => {
+                    onOpenProfileModal();
+                    setIsMenuDropdownOpen(false);
+                  }}
+                  style={{
+                    padding: '0.65rem 0.85rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: 'none',
+                    background: 'rgba(245, 158, 11, 0.15)',
+                    color: '#fbbf24',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.65rem',
+                    textAlign: 'left',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  <Award size={17} />
+                  <div>
+                    <div style={{ fontSize: '0.9rem' }}>
+                      🏆 내 전적: {((myStats.vsAiWins||0)+(myStats.onlineWins||0)+(myStats.pvpWins||0))}승 {((myStats.vsAiLosses||0)+(myStats.onlineLosses||0)+(myStats.pvpLosses||0))}패
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      AI 대국 {myStats.vsAiWins||0}승 {myStats.vsAiLosses||0}패 | 온라인 {myStats.onlineWins||0}승 {myStats.onlineLosses||0}패
+                    </div>
+                  </div>
+                </button>
+              )}
 
               {/* KataGo Guidance in Top-Down Menu */}
               <button

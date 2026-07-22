@@ -364,22 +364,53 @@ export function App() {
     }
   };
 
-  const handleResign = () => {
+  const recordAndSyncGame = async (
+    targetMode: 'play' | 'pvp' | 'online',
+    myResult: 'win' | 'loss' | 'draw',
+    oppName: string,
+    myColor: StoneColor,
+    scoreDiff?: number
+  ) => {
+    // 1. Record in local history/profile
+    const { profile: localUpdated } = UserProfileService.recordGameResult(targetMode, myResult, oppName, myColor, scoreDiff);
+
+    // 2. If logged into Firebase, record to cloud DB and immediately sync stats into userProfile state
+    if (currentUser) {
+      try {
+        const cloudStats = await firebaseBridge.recordGameInCloud(
+          currentUser.uid,
+          targetMode,
+          myResult,
+          oppName,
+          myColor,
+          scoreDiff,
+          aiRank.name
+        );
+        if (cloudStats) {
+          const syncedProfile = {
+            ...userProfile,
+            stats: cloudStats
+          };
+          setUserProfile(syncedProfile);
+          UserProfileService.saveProfile(syncedProfile);
+          return;
+        }
+      } catch (e) {
+        console.error('Cloud game recording error:', e);
+      }
+    }
+    setUserProfile(localUpdated);
+  };
+
+  const handleResign = async () => {
     if (mode === 'play' || mode === 'pvp' || mode === 'online') {
       if (mode === 'online') {
         peerConnectionManager.sendMessage({ type: 'RESIGN', senderId: userProfile.id });
-        UserProfileService.recordGameResult('online', 'loss', opponentProfile?.nickname || '온라인 상대', onlineAssignedColor);
-        if (currentUser) {
-          firebaseBridge.recordGameInCloud(currentUser.uid, 'online', 'loss', opponentProfile?.nickname || '온라인 상대', onlineAssignedColor, undefined, aiRank.name);
-        }
-        setUserProfile(UserProfileService.getProfile());
+        await recordAndSyncGame('online', 'loss', opponentProfile?.nickname || '온라인 상대', onlineAssignedColor);
       } else {
-        UserProfileService.recordGameResult(mode, 'loss', mode === 'play' ? aiRank.name : '1:1 상대', turn);
-        if (currentUser) {
-          const safeMode = (mode === 'play' || mode === 'pvp' || mode === 'online') ? mode : 'play';
-          firebaseBridge.recordGameInCloud(currentUser.uid, safeMode, 'loss', mode === 'play' ? aiRank.name : '1:1 상대', turn, undefined, aiRank.name);
-        }
-        setUserProfile(UserProfileService.getProfile());
+        const safeMode = (mode === 'play' || mode === 'pvp' || mode === 'online') ? mode : 'play';
+        const oppName = mode === 'play' ? aiRank.name : '1:1 상대';
+        await recordAndSyncGame(safeMode, 'loss', oppName, turn);
       }
       boardRef.current.resign(turn);
       updateStateFromBoard();
@@ -424,6 +455,7 @@ export function App() {
           isAdmin={isAdmin}
           myNickname={userProfile.nickname}
           myRankTitle={userProfile.rankTitle}
+          myStats={userProfile.stats}
           onLogout={handleLogout}
           onNewGame={() => handleNewGame()}
           soundEnabled={soundEnabled}
@@ -575,7 +607,7 @@ export function App() {
           board={boardRef.current}
           komi={komi}
           onClose={() => setIsScoringOpen(false)}
-          onRestartGame={() => {
+          onRestartGame={async () => {
             if (boardRef.current.gameOver) {
               const res = ScoringEngine.estimateTerritoryAndScore(boardRef.current, komi);
               const winnerColor = res.blackScore > res.whiteScore ? 'black' : 'white';
@@ -584,11 +616,7 @@ export function App() {
               const myResult = winnerColor === (amIBlack ? 'black' : 'white') ? 'win' : 'loss';
               const safeMode = (mode === 'play' || mode === 'pvp' || mode === 'online') ? mode : 'play';
               const oppName = mode === 'online' ? opponentProfile?.nickname || '온라인 친구' : mode === 'play' ? aiRank.name : '1:1 상대';
-              UserProfileService.recordGameResult(safeMode, myResult, oppName, amIBlack ? 'black' : 'white', scoreDiff);
-              if (currentUser) {
-                firebaseBridge.recordGameInCloud(currentUser.uid, safeMode, myResult, oppName, amIBlack ? 'black' : 'white', scoreDiff, aiRank.name);
-              }
-              setUserProfile(UserProfileService.getProfile());
+              await recordAndSyncGame(safeMode, myResult, oppName, amIBlack ? 'black' : 'white', scoreDiff);
             }
             setIsScoringOpen(false);
             handleNewGame();
