@@ -11,6 +11,9 @@ import { AiCoachPanel } from './components/ControlPanel/AiCoachPanel';
 import { RankSelector } from './components/ControlPanel/RankSelector';
 import { AiEngineModal } from './components/ControlPanel/AiEngineModal';
 import { TsumegoModal } from './components/Tsumego/TsumegoModal';
+import { LoginModal } from './components/Auth/LoginModal';
+import { AdminDashboard } from './components/Admin/AdminDashboard';
+import { firebaseBridge } from './core/FirebaseService';
 import { ScoringModal } from './components/Scoring/ScoringModal';
 import { KataGoBridge } from './ai/KataGoBridge';
 import { MCTSEngine } from './ai/MCTS';
@@ -49,10 +52,34 @@ export function App() {
   const [showRankSelector, setShowRankSelector] = useState(false);
   const [showAiEngineModal, setShowAiEngineModal] = useState(false);
   const [isScoringOpen, setIsScoringOpen] = useState(false);
-
   const [isOnlineModalOpen, setIsOnlineModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<UserProfile>(() => UserProfileService.getProfile());
+
+  // Listen to Firebase auth state
+  useEffect(() => {
+    return firebaseBridge.onUserChange(async (user) => {
+      if (user) {
+        setCurrentUser(user);
+        try {
+          const cloudProfile = await firebaseBridge.syncUserToDb(user);
+          setUserProfile(cloudProfile);
+          setIsAdmin(Boolean(cloudProfile.isAdmin));
+        } catch (e) {
+          console.error('Failed to sync user profile:', e);
+        }
+      } else {
+        setCurrentUser(null);
+        setIsAdmin(false);
+        setUserProfile(UserProfileService.getProfile());
+      }
+    });
+  }, []);
   const [opponentProfile, setOpponentProfile] = useState<UserProfile | null>(null);
   const [onlineAssignedColor, setOnlineAssignedColor] = useState<'black' | 'white'>('black');
   const [, setOnlineRoomCode] = useState<string>('');
@@ -329,9 +356,16 @@ export function App() {
       if (mode === 'online') {
         peerConnectionManager.sendMessage({ type: 'RESIGN', senderId: userProfile.id });
         UserProfileService.recordGameResult('online', 'loss', opponentProfile?.nickname || '온라인 상대', onlineAssignedColor);
+        if (currentUser) {
+          firebaseBridge.recordGameInCloud(currentUser.uid, 'online', 'loss', opponentProfile?.nickname || '온라인 상대', onlineAssignedColor, undefined, aiRank.name);
+        }
         setUserProfile(UserProfileService.getProfile());
       } else {
         UserProfileService.recordGameResult(mode, 'loss', mode === 'play' ? aiRank.name : '1:1 상대', turn);
+        if (currentUser) {
+          const safeMode = (mode === 'play' || mode === 'pvp' || mode === 'online') ? mode : 'play';
+          firebaseBridge.recordGameInCloud(currentUser.uid, safeMode, 'loss', mode === 'play' ? aiRank.name : '1:1 상대', turn, undefined, aiRank.name);
+        }
         setUserProfile(UserProfileService.getProfile());
       }
       boardRef.current.resign(turn);
@@ -371,6 +405,10 @@ export function App() {
           onOpenAiEngineModal={() => setShowAiEngineModal(true)}
           onOpenOnlineModal={() => setIsOnlineModalOpen(true)}
           onOpenProfileModal={() => setIsProfileModalOpen(true)}
+          onOpenLoginModal={() => setShowLoginModal(true)}
+          onOpenAdminDashboard={() => setShowAdminDashboard(true)}
+          currentUser={currentUser}
+          isAdmin={isAdmin}
           myNickname={userProfile.nickname}
           myRankTitle={userProfile.rankTitle}
           onNewGame={() => handleNewGame()}
@@ -531,7 +569,11 @@ export function App() {
               const amIBlack = (mode === 'online') ? onlineAssignedColor === 'black' : userColor === 'black';
               const myResult = winnerColor === (amIBlack ? 'black' : 'white') ? 'win' : 'loss';
               const safeMode = (mode === 'play' || mode === 'pvp' || mode === 'online') ? mode : 'play';
-              UserProfileService.recordGameResult(safeMode, myResult, mode === 'online' ? opponentProfile?.nickname || '온라인 친구' : mode === 'play' ? aiRank.name : '1:1 상대', amIBlack ? 'black' : 'white', scoreDiff);
+              const oppName = mode === 'online' ? opponentProfile?.nickname || '온라인 친구' : mode === 'play' ? aiRank.name : '1:1 상대';
+              UserProfileService.recordGameResult(safeMode, myResult, oppName, amIBlack ? 'black' : 'white', scoreDiff);
+              if (currentUser) {
+                firebaseBridge.recordGameInCloud(currentUser.uid, safeMode, myResult, oppName, amIBlack ? 'black' : 'white', scoreDiff, aiRank.name);
+              }
               setUserProfile(UserProfileService.getProfile());
             }
             setIsScoringOpen(false);
@@ -552,6 +594,23 @@ export function App() {
           onClose={() => setIsOnlineModalOpen(false)}
           onStartOnlineMatch={handleStartOnlineMatch}
         />
+      )}
+
+      {showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onLoginSuccess={(u, p) => {
+            setCurrentUser(u);
+            if (p) {
+              setUserProfile(p);
+              setIsAdmin(Boolean(p.isAdmin));
+            }
+          }}
+        />
+      )}
+
+      {showAdminDashboard && (
+        <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
       )}
 
       {mode === 'tsumego' && <TsumegoModal onClose={() => setMode('play')} />}

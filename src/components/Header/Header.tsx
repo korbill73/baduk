@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { GameMode, BoardSize, RankInfo } from '../../types/go';
-import { Volume2, VolumeX, Award, BookOpen, Play, RotateCcw, HelpCircle, Users, Globe, User, Maximize2, Minimize2 } from 'lucide-react';
+import { Volume2, VolumeX, Award, BookOpen, Play, RotateCcw, HelpCircle, Users, Globe, User, Maximize2, Minimize2, LogIn, ShieldCheck } from 'lucide-react';
 import { soundManager } from '../../sound/SoundManager';
 import { KataGoBridge } from '../../ai/KataGoBridge';
 import { PwaInstallPrompt } from '../PwaInstallPrompt';
@@ -15,6 +15,10 @@ interface HeaderProps {
   onOpenAiEngineModal: () => void;
   onOpenOnlineModal: () => void;
   onOpenProfileModal: () => void;
+  onOpenLoginModal?: () => void;
+  onOpenAdminDashboard?: () => void;
+  currentUser?: any;
+  isAdmin?: boolean;
   myNickname: string;
   myRankTitle: string;
   onNewGame: () => void;
@@ -34,6 +38,10 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAiEngineModal,
   onOpenOnlineModal,
   onOpenProfileModal,
+  onOpenLoginModal,
+  onOpenAdminDashboard,
+  currentUser,
+  isAdmin,
   myNickname,
   myRankTitle,
   onNewGame,
@@ -261,17 +269,47 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="header-actions-group">
         <PwaInstallPrompt />
 
-        {/* User Profile Button */}
-        <button
-          onClick={onOpenProfileModal}
-          className="glass-button"
-          style={{ borderColor: '#38bdf8', background: 'rgba(56, 189, 248, 0.12)', gap: '0.4rem', padding: '0.5rem 0.9rem' }}
-          title="내 기사 ID 및 대국 전적 조회"
-        >
-          <User size={16} color="#38bdf8" />
-          <span style={{ fontWeight: 700, color: '#fff' }}>{myNickname}</span>
-          <span style={{ fontSize: '0.78rem', color: '#fbbf24', background: 'rgba(245,158,11,0.2)', padding: '1px 6px', borderRadius: '8px' }}>{myRankTitle}</span>
-        </button>
+        {/* User Profile / Login Button */}
+        {!currentUser && onOpenLoginModal ? (
+          <button
+            onClick={onOpenLoginModal}
+            className="glass-button"
+            style={{ borderColor: '#f59e0b', background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.25))', gap: '0.4rem', padding: '0.5rem 0.9rem' }}
+            title="클라우드 전적 DB 로그인 및 가입"
+          >
+            <LogIn size={16} color="#fbbf24" />
+            <span style={{ fontWeight: 800, color: '#fbbf24' }}>로그인 / 가입</span>
+          </button>
+        ) : (
+          <button
+            onClick={onOpenProfileModal}
+            className="glass-button"
+            style={{ borderColor: '#38bdf8', background: 'rgba(56, 189, 248, 0.12)', gap: '0.4rem', padding: '0.5rem 0.9rem' }}
+            title="내 기사 ID 및 대국 전적 조회"
+          >
+            <User size={16} color="#38bdf8" />
+            <span style={{ fontWeight: 700, color: '#fff' }}>{myNickname}</span>
+            <span style={{ fontSize: '0.78rem', color: '#fbbf24', background: 'rgba(245,158,11,0.2)', padding: '1px 6px', borderRadius: '8px' }}>{myRankTitle}</span>
+          </button>
+        )}
+
+        {/* Admin Dashboard Button */}
+        {isAdmin && onOpenAdminDashboard && (
+          <button
+            onClick={onOpenAdminDashboard}
+            className="glass-button"
+            style={{
+              borderColor: '#fbbf24',
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(180, 83, 9, 0.35))',
+              gap: '0.4rem',
+              padding: '0.5rem 0.85rem'
+            }}
+            title="관리자 전적/회원/통계 대시보드"
+          >
+            <ShieldCheck size={16} color="#fbbf24" />
+            <span style={{ fontWeight: 800, color: '#fbbf24' }}>관리자 센터</span>
+          </button>
+        )}
 
         {mode === 'play' && (
           <>

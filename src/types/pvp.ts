@@ -4,6 +4,8 @@ export interface UserProfile {
   id: string; // e.g. "baduk-user-1721562911"
   nickname: string; // e.g. "한게임9단"
   rankTitle: string; // e.g. "아마 3단"
+  email?: string;
+  isAdmin?: boolean;
   stats: {
     vsAiWins: number;
     vsAiLosses: number;
