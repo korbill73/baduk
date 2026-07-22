@@ -128,20 +128,28 @@ export function App() {
     setTerritoryMap(map);
   }, [komi]);
 
-  // 대국 진행 중인지 체크하고, 진행 중일 경우 기권 패로 무조건 전적/기보 저장 후 다음 동작 진행
+  // 대국 진행 중인지 체크하고, 20수 이상일 때만 기권 패로 전적/기보 저장 후 다음 동작 진행
   const checkAndRecordAbandonIfInProgress = useCallback(async (): Promise<boolean> => {
     const b = boardRef.current;
     // 돌이 1수 이상 놓였고 게임이 아직 안 끝난 진행 중 상태
     if (b.historyIndex > 0 && !b.gameOver) {
+      // 20수 미만 대국인 경우: 전적으로 기록하지 않고 바로 무효 리셋 후 진행
+      if (b.historyIndex < 20) {
+        boardRef.current = new GoBoard(b.size);
+        updateStateFromBoard();
+        return true;
+      }
+
+      // 20수 이상 정식 대국인 경우만 기권패 전적 기록
       const confirmResign = window.confirm(
-        '⚔️ 현재 대국이 진행 중입니다.\n\n확인을 누르시면 현재 대국이 [기권 패]로 전적 및 클라우드 DB에 100% 저장된 후 요청하신 작업이 진행됩니다.'
+        `⚔️ 현재 대국이 ${b.historyIndex}수 진행 중입니다.\n\n확인을 누르시면 현재 대국이 [기권 패]로 전적 및 클라우드 DB에 저장된 후 요청하신 작업이 진행됩니다.`
       );
       if (!confirmResign) return false; // 취소
 
       const safeMode = (mode === 'play' || mode === 'pvp' || mode === 'online') ? mode : 'play';
       const oppName = mode === 'play' ? aiRank.name : (mode === 'online' ? (opponentProfile?.nickname || '온라인 상대') : '1:1 상대');
       
-      // 기권패 처리 및 Firestore/Local 100% 동기화
+      // 기권패 처리 및 Firestore/Local 동기화
       const myCol = mode === 'online' ? onlineAssignedColor : turn;
       const { profile: localUpdated } = UserProfileService.recordGameResult(safeMode, 'loss', oppName, myCol);
       setUserProfile(localUpdated);

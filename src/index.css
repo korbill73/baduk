@@ -211,7 +211,7 @@ body {
   grid-template-columns: 1fr;
 }
 
-/* PC: 전체 화면 고정, 우측 패널 스크롤 없음 */
+/* PC: 전체 화면 고정, 우측 패널 부드러운 스크롤 허용 */
 @media (min-width: 961px) {
   html, body {
     height: 100%;
@@ -228,9 +228,11 @@ body {
     overflow: hidden;
     min-height: 0;
   }
-  /* 우측 패널: 스크롤 없이 화면 꽉 채우기 */
+  /* 우측 패널: 내용이 길 때 부드러운 수직 스크롤 허용 */
   .right-panel-scroll {
-    overflow: hidden !important;
+    max-height: calc(100vh - 85px);
+    overflow-y: auto !important;
+    padding-right: 4px;
   }
 }
 
