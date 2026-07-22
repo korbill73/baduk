@@ -66,10 +66,12 @@ export function App() {
     return firebaseBridge.onUserChange(async (user) => {
       if (user) {
         setCurrentUser(user);
+        const isOwnerAdmin = (user.email || '').toLowerCase().trim() === 'korbill73@gmail.com';
+        setIsAdmin(isOwnerAdmin);
         try {
           const cloudProfile = await firebaseBridge.syncUserToDb(user);
           setUserProfile(cloudProfile);
-          setIsAdmin(Boolean(cloudProfile.isAdmin));
+          if (isOwnerAdmin) setIsAdmin(true);
         } catch (e) {
           console.error('Failed to sync user profile:', e);
         }
@@ -601,9 +603,10 @@ export function App() {
           onClose={() => setShowLoginModal(false)}
           onLoginSuccess={(u, p) => {
             setCurrentUser(u);
+            const isOwnerAdmin = (u?.email || '').toLowerCase().trim() === 'korbill73@gmail.com';
+            setIsAdmin(isOwnerAdmin);
             if (p) {
               setUserProfile(p);
-              setIsAdmin(Boolean(p.isAdmin));
             }
           }}
         />

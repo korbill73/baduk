@@ -155,6 +155,11 @@ class FirebaseBridgeService {
     return await signOut(auth);
   }
 
+  public getCurrentUser(): User | null {
+    const auth = this.getAuth();
+    return auth ? auth.currentUser : null;
+  }
+
   public onUserChange(callback: (user: User | null) => void) {
     const auth = this.getAuth();
     if (!auth) return () => {};
@@ -166,18 +171,24 @@ class FirebaseBridgeService {
     const db = this.getDb();
     if (!db) throw new Error('Firestore가 아직 설정되지 않았습니다.');
     
+    const userEmail = (user.email || '').toLowerCase().trim();
+    const isOwnerAdmin = userEmail === 'korbill73@gmail.com';
+
     const userRef = doc(db, 'users', user.uid);
     const snap = await getDoc(userRef);
 
     if (snap.exists()) {
       const data = snap.data();
+      if (isOwnerAdmin && !data.isAdmin) {
+        updateDoc(userRef, { isAdmin: true, role: 'admin' }).catch(() => {});
+      }
       return {
         id: user.uid,
         nickname: data.nickname || user.displayName || user.email?.split('@')[0] || '바둑기사',
         rankTitle: data.rankTitle || '18급 (입문)',
         stats: data.stats || { vsAiWins: 0, vsAiLosses: 0, onlineWins: 0, onlineLosses: 0, pvpWins: 0, pvpLosses: 0 },
         createdAt: data.createdAt ? new Date(data.createdAt.toDate()).getTime() : Date.now(),
-        isAdmin: Boolean(data.isAdmin || data.role === 'admin')
+        isAdmin: isOwnerAdmin
       } as any;
     } else {
       const nickname = customNickname || user.displayName || user.email?.split('@')[0] || `기사#${Math.floor(1000 + Math.random() * 9000)}`;
@@ -186,8 +197,8 @@ class FirebaseBridgeService {
         email: user.email || '',
         nickname,
         rankTitle: '18급 (입문)',
-        role: 'user',
-        isAdmin: false,
+        role: isOwnerAdmin ? 'admin' : 'user',
+        isAdmin: isOwnerAdmin,
         stats: { vsAiWins: 0, vsAiLosses: 0, onlineWins: 0, onlineLosses: 0, pvpWins: 0, pvpLosses: 0 },
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp()
@@ -199,7 +210,7 @@ class FirebaseBridgeService {
         rankTitle: '18급 (입문)',
         stats: initialData.stats,
         createdAt: Date.now(),
-        isAdmin: false
+        isAdmin: isOwnerAdmin
       } as any;
     }
   }
@@ -210,10 +221,11 @@ class FirebaseBridgeService {
     const snap = await getDoc(doc(db, 'users', userId));
     if (!snap.exists()) return null;
     const data = snap.data();
+    const isOwnerAdmin = (data.email || '').toLowerCase().trim() === 'korbill73@gmail.com';
     return {
       ...data,
       id: userId,
-      isAdmin: Boolean(data.isAdmin || data.role === 'admin')
+      isAdmin: isOwnerAdmin
     };
   }
 

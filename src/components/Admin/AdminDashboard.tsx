@@ -13,7 +13,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'users' | 'games'>('users');
 
+  const currentUser = firebaseBridge.getCurrentUser();
+  const isOwnerAdmin = (currentUser?.email || '').toLowerCase().trim() === 'korbill73@gmail.com';
+
   const fetchData = async () => {
+    if (!isOwnerAdmin) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const uList = await firebaseBridge.getAdminAllUsers();
@@ -29,7 +36,43 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [isOwnerAdmin]);
+
+  if (!isOwnerAdmin) {
+    return (
+      <div className="modal-overlay" style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(5, 10, 20, 0.9)',
+        backdropFilter: 'blur(16px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 3000,
+        padding: '1.5rem'
+      }}>
+        <div className="glass-panel" style={{
+          width: '100%',
+          maxWidth: '420px',
+          background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98))',
+          border: '1px solid rgba(239, 68, 68, 0.5)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '2rem',
+          textAlign: 'center',
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85)'
+        }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔒</div>
+          <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ef4444', marginBottom: '0.6rem' }}>관리자 전용 페이지</h3>
+          <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+            이 페이지는 최고 관리자(<code>korbill73@gmail.com</code>) 계정으로 로그인한 경우에만 접근할 수 있습니다.
+          </p>
+          <button onClick={onClose} className="glass-button primary" style={{ width: '100%', padding: '0.8rem', justifyContent: 'center', fontWeight: 700 }}>
+            확인 및 닫기
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const totalWins = users.reduce((acc, u) => acc + (u.stats?.vsAiWins || 0) + (u.stats?.onlineWins || 0), 0);
   const totalLosses = users.reduce((acc, u) => acc + (u.stats?.vsAiLosses || 0) + (u.stats?.onlineLosses || 0), 0);
