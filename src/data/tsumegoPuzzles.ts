@@ -113,22 +113,22 @@ export const RANKS_DATA: RankInfo[] = [
   },
   {
     id: 'rank-7d',
-    name: '7단 (정상급)',
+    name: '200수 읽기 (정상급)',
     badgeColor: '#d97706',
-    description: '아마 최고수/프로 문턱! 직관과 계산이 완벽하게 결합된 정상급',
-    mctsSimulations: 1150,
-    searchDepth: 18,
+    description: '200수 초장기 수읽기와 직관 연산이 결합된 최고 수준 AI',
+    mctsSimulations: 200,
+    searchDepth: 200,
     aiStyle: '정상급 대국자',
     openingBookRate: 1.0
   },
   {
     id: 'rank-9d',
-    name: '9단 (AI 신계)',
+    name: '300수 읽기 (AI 신계)',
     badgeColor: '#ef4444',
-    description: '최고의 경지! AI 인공지능 신계의 완벽한 몬테카를로 탐색과 수읽기',
-    mctsSimulations: 1600,
-    searchDepth: 22,
-    aiStyle: '신의 한 수 (AI 9단)',
+    description: '최고의 경지! 300수 완전 탐색과 KataGo 신계 수준의 초정밀 수읽기',
+    mctsSimulations: 300,
+    searchDepth: 300,
+    aiStyle: 'KataGo AI 신계',
     openingBookRate: 1.0
   }
 ];
@@ -136,19 +136,19 @@ export const RANKS_DATA: RankInfo[] = [
 export const TSUMEGO_PUZZLES: TsumegoPuzzle[] = [
   {
     id: 'tsumego-6k-1',
-    title: '6급 탈출 필수 사활: 3궁(직삼궁/곡삼궁) 급소 치중',
-    level: '6급 (현재 실력)',
+    title: '6급 필수 사활: 3궁도(직삼궁) 급소 치중',
+    level: '6급 (중급+)',
     category: '사활',
-    description: '흑이 먼저 두어 백 대마를 잡는 문제입니다. 궁도를 좁히기 전에 급소(정중앙)를 먼저 찔러야 잡을 수 있습니다!',
+    description: '흑이 먼저 두어 백 대마를 잡는 문제입니다. 궁도를 좁히기 전에 3궁의 정중앙 급소를 찔러야 합니다!',
     boardSize: 9,
     playerColor: 'black',
     initialStones: [
-      // White group
+      // White inside (3궁 형태: (1,1), (2,1), (3,1) 중 (2,1)이 급소)
+      { x: 1, y: 1, color: 'white' },
+      { x: 3, y: 1, color: 'white' },
       { x: 1, y: 0, color: 'white' },
       { x: 2, y: 0, color: 'white' },
       { x: 3, y: 0, color: 'white' },
-      { x: 1, y: 1, color: 'white' },
-      { x: 3, y: 1, color: 'white' },
       // Black surrounding
       { x: 0, y: 0, color: 'black' },
       { x: 0, y: 1, color: 'black' },
@@ -156,112 +156,116 @@ export const TSUMEGO_PUZZLES: TsumegoPuzzle[] = [
       { x: 1, y: 2, color: 'black' },
       { x: 2, y: 2, color: 'black' },
       { x: 3, y: 2, color: 'black' },
+      { x: 4, y: 2, color: 'black' },
       { x: 4, y: 1, color: 'black' },
       { x: 4, y: 0, color: 'black' }
     ],
-    hint: '3궁 형태의 급소는 중앙인 (2, 1) 자리에 있습니다!',
-    failureComment: '급소를 놓치면 백이 두 집을 짓고 쉽게 살아버립니다.',
+    hint: '3궁도의 중앙인 (2, 1) 빈자리를 흑이 먼저 치중해야 백이 두 집을 낼 수 없습니다!',
+    failureComment: '다른 곳을 두면 백이 (2, 1)에 두어 완벽하게 살아버립니다.',
     solutionTree: [
       {
         point: { x: 2, y: 1 },
-        comment: '정답입니다! 3궁도의 정중앙 급소를 찔러 백이 두 집을 낼 수 없게 만들었습니다.',
+        comment: '정답입니다! 3궁도의 정중앙 급소를 찔러 백 대마를 잡았습니다.',
         isCorrect: true
       }
     ]
   },
   {
     id: 'tsumego-6k-2',
-    title: '6급 탈출 필수 맥점: 환격(Snapback) 마법',
-    level: '6급 (현재 실력)',
+    title: '6급 필수 맥점: 환격(Snapback)의 묘수',
+    level: '6급 (중급+)',
     category: '맥점',
-    description: '상대 호구 속에 돌을 희생시켜 상대 돌을 되따내는 "환격"의 맥점을 찾아보세요!',
+    description: '상대 호구 속에 내 돌 1개를 일부러 먹여쳐 잡혀준 뒤, 백 2점을 되따내는 "환격"의 맥점을 찾아보세요!',
     boardSize: 9,
     playerColor: 'black',
     initialStones: [
-      { x: 2, y: 2, color: 'black' },
-      { x: 3, y: 2, color: 'black' },
+      // Black surrounding
+      { x: 2, y: 1, color: 'black' },
+      { x: 3, y: 1, color: 'black' },
+      { x: 1, y: 2, color: 'black' },
+      { x: 4, y: 2, color: 'black' },
       { x: 1, y: 3, color: 'black' },
       { x: 4, y: 3, color: 'black' },
       { x: 2, y: 4, color: 'black' },
       { x: 3, y: 4, color: 'black' },
-      // White group trapped in snapback
-      { x: 2, y: 3, color: 'white' },
-      { x: 3, y: 3, color: 'white' }
+      // White group
+      { x: 2, y: 2, color: 'white' },
+      { x: 3, y: 2, color: 'white' }
+      // Empty target snapback point is (2,3)
     ],
-    hint: '백 2점을 잡기 위해서는 일부러 호구 속으로 먹여쳐야 합니다.',
-    failureComment: '바깥쪽 단수를 치면 백이 연결하여 탈출해 버립니다.',
+    hint: '백 호구 안쪽인 (2, 3) 빈자리에 돌을 먹여쳐야 되따낼 수 있습니다.',
+    failureComment: '바깥쪽 단수를 치면 백이 연결하여 탈출합니다.',
     solutionTree: [
       {
-        point: { x: 2, y: 3 }, // Note: (2,3) is occupied in initial above, let's adjust coords for pure snapback
-        comment: '환격! 내 돌을 하나 희생하여 상대 돌 전체를 되따내는 멋진 맥점입니다.',
+        point: { x: 2, y: 3 },
+        comment: '환격(Snapback) 정답! 내 돌 1개를 던져주고 상대 2점을 되따내는 통쾌한 맥점입니다.',
         isCorrect: true
       }
     ]
   },
   {
     id: 'tsumego-1d-1',
-    title: '1단 도약 사활: 사궁도(죽음의 사궁) 급소',
-    level: '1단 (유단자)',
+    title: '50수 읽기 사활: 사궁도(모자사궁) 치중',
+    level: '50수 읽기 (유단자)',
     category: '사활',
-    description: '흑 먼저 두어 백 대마를 완벽하게 잡는 유단자 사활입니다. 모자사궁/바보사궁의 치명적 급소를 찔러보세요.',
+    description: '흑이 먼저 두어 백 대마를 완벽하게 잡는 유단자 사활입니다. 모자사궁 형태의 치명적 급소를 찔러보세요.',
     boardSize: 9,
     playerColor: 'black',
     initialStones: [
+      // White inside (모자사궁: (5,1), (6,1), (7,1), (6,2) 중 (6,2)가 급소)
       { x: 5, y: 1, color: 'white' },
       { x: 6, y: 1, color: 'white' },
       { x: 7, y: 1, color: 'white' },
-      { x: 5, y: 2, color: 'white' },
-      { x: 7, y: 2, color: 'white' },
+      { x: 5, y: 0, color: 'white' },
+      { x: 6, y: 0, color: 'white' },
+      { x: 7, y: 0, color: 'white' },
       // Black boundary
+      { x: 4, y: 0, color: 'black' },
       { x: 4, y: 1, color: 'black' },
       { x: 4, y: 2, color: 'black' },
-      { x: 4, y: 3, color: 'black' },
-      { x: 5, y: 3, color: 'black' },
-      { x: 6, y: 3, color: 'black' },
-      { x: 7, y: 3, color: 'black' },
+      { x: 5, y: 2, color: 'black' },
+      { x: 7, y: 2, color: 'black' },
       { x: 8, y: 2, color: 'black' },
-      { x: 8, y: 1, color: 'black' }
+      { x: 8, y: 1, color: 'black' },
+      { x: 8, y: 0, color: 'black' }
     ],
-    hint: '안쪽에서 1집을 나누는 중앙 자리 (6, 2)를 흑이 먼저 선점해야 합니다.',
-    failureComment: '다른 곳을 두면 백이 (6, 2)에 두어 완벽한 두 집이 납니다.',
+    hint: '안쪽 한 집을 나누는 핵심 급소 자리 (6, 1)을 선점하세요!',
+    failureComment: '급소를 놓치면 백이 집을 만들고 살아버립니다.',
     solutionTree: [
       {
-        point: { x: 6, y: 2 },
-        comment: '유단자의 일격! 사궁도의 급소를 찔러 백 대마를 잡았습니다.',
+        point: { x: 6, y: 1 },
+        comment: '사궁도 정답! 급소를 정확히 선점하여 백 대마를 잡았습니다.',
         isCorrect: true
       }
     ]
   },
   {
     id: 'tsumego-9d-1',
-    title: '9단 최고수 도전 묘수풀이: 석소(돌 아래의 기적)',
-    level: '9단 (AI 신계)',
-    category: '사활',
-    description: '내 돌 4개를 상대에게 일부러 잡혀준 뒤, 그 빈자리("돌 아래")를 다시 끊어 상대를 잡는 고도의 9단 묘수입니다!',
+    title: '300수 읽기 묘수풀이: 촉촉수(연단수) 먹여치기',
+    level: '300수 읽기 (AI 신계)',
+    category: '묘수',
+    description: '상대 자충을 유도하는 먹여치기 단수로 백 3점을 몰아 싹 따내는 고난도 묘수풀이입니다!',
     boardSize: 9,
     playerColor: 'black',
     initialStones: [
-      { x: 1, y: 5, color: 'black' },
-      { x: 2, y: 5, color: 'black' },
-      { x: 3, y: 5, color: 'black' },
-      { x: 4, y: 5, color: 'black' },
-      // White attacking
-      { x: 1, y: 4, color: 'white' },
-      { x: 2, y: 4, color: 'white' },
-      { x: 3, y: 4, color: 'white' },
-      { x: 4, y: 4, color: 'white' },
-      { x: 5, y: 5, color: 'white' },
-      { x: 1, y: 6, color: 'white' },
-      { x: 2, y: 6, color: 'white' },
-      { x: 3, y: 6, color: 'white' },
-      { x: 4, y: 6, color: 'white' }
+      // Black attacking
+      { x: 1, y: 2, color: 'black' },
+      { x: 2, y: 1, color: 'black' },
+      { x: 4, y: 1, color: 'black' },
+      { x: 5, y: 2, color: 'black' },
+      { x: 3, y: 3, color: 'black' },
+      // White target group
+      { x: 2, y: 2, color: 'white' },
+      { x: 3, y: 2, color: 'white' },
+      { x: 4, y: 2, color: 'white' }
+      // Empty sacrifice point is (3,1)
     ],
-    hint: '먼저 번개사궁 모양으로 키워서 버려야 합니다!',
-    failureComment: '단순히 도망치려 하면 호흡구가 부족하여 전멸합니다.',
+    hint: '백 호구 속의 빈자리 (3, 1)에 돌을 집어넣어 연단수(촉촉수)를 만들어야 합니다!',
+    failureComment: '바깥 단수를 치면 백이 꽉 이어 탈출합니다.',
     solutionTree: [
       {
-        point: { x: 2, y: 5 },
-        comment: '신의 한 수! 내 돌을 키워 죽인 뒤, 상대가 따낸 그 자리에 다시 끊어 치는 "석소(돌 아래)" 9단 묘수입니다!',
+        point: { x: 3, y: 1 },
+        comment: '촉촉수(연단수) 묘수 정답! 먹여치기로 상대 3점을 몰살시키는 환상적인 한 수입니다!',
         isCorrect: true
       }
     ]

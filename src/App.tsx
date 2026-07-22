@@ -532,132 +532,121 @@ export function App() {
         />
       )}
 
-      {/* Main Grid Area (Mobile responsive single column on phone screens via CSS) */}
-      <main className={`main-grid-layout ${mode === 'tsumego' ? 'tsumego' : isBoardExpanded ? 'expanded' : ''}`}>
-        {mode !== 'tsumego' ? (
-          <>
-            {/* Left Column: Board Canvas ONLY (prevents any vertical shifting when stones are placed) */}
-            <div style={{ display: 'flex', flexDirection: 'column', width: '100%', position: 'relative' }}>
-              {isThinking && (
-                <div style={{
-                  position: 'absolute',
-                  top: '14px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  zIndex: 200,
-                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.96))',
-                  border: `2px solid ${aiRank.badgeColor || '#38bdf8'}`,
-                  borderRadius: '35px',
-                  padding: '0.5rem 1.4rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.65rem',
-                  boxShadow: `0 8px 30px rgba(0, 0, 0, 0.7), 0 0 20px ${aiRank.badgeColor || '#38bdf8'}55`,
-                  backdropFilter: 'blur(12px)',
-                  animation: 'pulse 1.6s infinite ease-in-out',
-                  pointerEvents: 'none'
-                }}>
-                  <span style={{ fontSize: '1.2rem', animation: 'bounce 1s infinite' }}>🤖</span>
-                  <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.95rem', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <span>KataGo AI 생각 중...</span>
-                    <strong style={{ color: aiRank.badgeColor || '#38bdf8', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.85rem' }}>
-                      {aiRank.name} 수읽기
-                    </strong>
-                  </span>
-                </div>
-              )}
-              <BoardCanvas
-                size={boardSize}
-                grid={grid}
-                turn={turn}
-                lastMove={lastMove}
-                recommendations={recommendations}
-                showHints={showHints}
-                territoryMap={territoryMap}
-                showTerritory={showTerritory}
-                isThinking={isThinking}
-                isExpanded={isBoardExpanded}
-                onToggleExpand={() => setIsBoardExpanded(prev => !prev)}
-                onPlaceStone={handlePlaceStone}
-              />
+      {/* Main Grid Area */}
+      <main className={`main-grid-layout ${isBoardExpanded ? 'expanded' : ''}`}>
+        {/* Left Column: Board Canvas ONLY */}
+        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', position: 'relative' }}>
+          {isThinking && (
+            <div style={{
+              position: 'absolute',
+              top: '14px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 200,
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.96))',
+              border: `2px solid ${aiRank.badgeColor || '#38bdf8'}`,
+              borderRadius: '35px',
+              padding: '6px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.6)'
+            }}>
+              <span className="animate-pulse-glow" style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#38bdf8' }} />
+              <span style={{ color: '#f8fafc', fontSize: '0.82rem', fontWeight: 800 }}>
+                {aiRank.name} 수읽기 연산 중...
+              </span>
             </div>
+          )}
 
-            {/* Right Column: Game Status Controls, Territory Evaluation Overlay, Chat & AI Coach Panel */}
-            <div className="right-panel-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '2px' }}>
-              {isBoardExpanded && (
-                <div className="glass-panel" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.55rem 0.85rem',
-                  background: 'rgba(15, 23, 42, 0.95)',
-                  border: '1px solid #fbbf24',
-                  borderRadius: 'var(--radius-sm)',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.4)'
-                }}>
-                  <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    ⛶ 크게 보기 모드
-                  </span>
-                  <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    <button onClick={() => handleNewGame()} className="glass-button primary" style={{ padding: '0.32rem 0.65rem', fontSize: '0.78rem' }}>
-                      새 대국
-                    </button>
-                    <button onClick={() => setIsBoardExpanded(false)} className="glass-button" style={{ padding: '0.32rem 0.65rem', fontSize: '0.78rem', borderColor: '#fbbf24', color: '#fbbf24' }}>
-                      ↙ 기본 화면
-                    </button>
-                  </div>
-                </div>
-              )}
+          <BoardCanvas
+            size={boardSize}
+            grid={grid}
+            turn={turn}
+            lastMove={lastMove}
+            recommendations={recommendations}
+            showHints={showHints}
+            territoryMap={territoryMap}
+            showTerritory={showTerritory}
+            isThinking={isThinking}
+            isExpanded={isBoardExpanded}
+            onToggleExpand={() => setIsBoardExpanded(prev => !prev)}
+            onPlaceStone={handlePlaceStone}
+          />
+        </div>
 
-              <TerritoryOverlay
-                map={territoryMap}
-                showTerritory={showTerritory}
-                onToggleTerritory={() => setShowTerritory(!showTerritory)}
-              />
-
-              <GameStatus
-                mode={mode}
-                turn={turn}
-                userColor={mode === 'online' ? onlineAssignedColor : userColor}
-                capturesBlack={capturesBlack}
-                capturesWhite={capturesWhite}
-                komi={komi}
-                isThinking={isThinking}
-                gameOver={gameOver}
-                resultMessage={resultMessage}
-                onUndo={handleUndo}
-                onRedo={handleRedo}
-                onPass={handlePass}
-                onResign={handleResign}
-                onOpenScoring={() => setIsScoringOpen(true)}
-                canUndo={boardRef.current.historyIndex > 0}
-                canRedo={boardRef.current.historyIndex < boardRef.current.history.length - 1}
-                myNickname={userProfile.nickname}
-                myRankTitle={userProfile.rankTitle}
-                myStats={userProfile.stats}
-                aiRankName={aiRank.name}
-              />
-
-              {mode === 'online' && (
-                <OnlineChatPanel opponentName={opponentProfile?.nickname || '온라인 상대'} />
-              )}
-
-              <AiCoachPanel
-                mode={mode}
-                recommendations={recommendations}
-                showHints={showHints}
-                onToggleHints={() => setShowHints(!showHints)}
-                onRequestHints={handleRequestHints}
-                isThinking={isThinking}
-                history={boardRef.current.history}
-                historyIndex={boardRef.current.historyIndex}
-                onJumpToHistory={handleJumpToHistory}
-              />
+        {/* Right Column: Controls, Stats, Overlay & AI Coach */}
+        <div className="right-panel-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '2px' }}>
+          {isBoardExpanded && (
+            <div className="glass-panel" style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.55rem 0.85rem',
+              background: 'rgba(15, 23, 42, 0.95)',
+              border: '1px solid #fbbf24',
+              borderRadius: 'var(--radius-sm)',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.4)'
+            }}>
+              <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                ⛶ 크게 보기 모드
+              </span>
+              <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <button onClick={() => handleNewGame()} className="glass-button primary" style={{ padding: '0.32rem 0.65rem', fontSize: '0.78rem' }}>
+                  새 대국
+                </button>
+                <button onClick={() => setIsBoardExpanded(false)} className="glass-button" style={{ padding: '0.32rem 0.65rem', fontSize: '0.78rem', borderColor: '#fbbf24', color: '#fbbf24' }}>
+                  ↙ 기본 화면
+                </button>
+              </div>
             </div>
-          </>
-        ) : (
-          <TsumegoModal onClose={() => setMode('play')} />
-        )}
+          )}
+
+          <TerritoryOverlay
+            map={territoryMap}
+            showTerritory={showTerritory}
+            onToggleTerritory={() => setShowTerritory(!showTerritory)}
+          />
+
+          <GameStatus
+            mode={mode}
+            turn={turn}
+            userColor={mode === 'online' ? onlineAssignedColor : userColor}
+            capturesBlack={capturesBlack}
+            capturesWhite={capturesWhite}
+            komi={komi}
+            isThinking={isThinking}
+            gameOver={gameOver}
+            resultMessage={resultMessage}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            onPass={handlePass}
+            onResign={handleResign}
+            onOpenScoring={() => setIsScoringOpen(true)}
+            canUndo={boardRef.current.historyIndex > 0}
+            canRedo={boardRef.current.historyIndex < boardRef.current.history.length - 1}
+            myNickname={userProfile.nickname}
+            myRankTitle={userProfile.rankTitle}
+            myStats={userProfile.stats}
+            aiRankName={aiRank.name}
+          />
+
+          {mode === 'online' && (
+            <OnlineChatPanel opponentName={opponentProfile?.nickname || '온라인 상대'} />
+          )}
+
+          <AiCoachPanel
+            mode={mode}
+            recommendations={recommendations}
+            showHints={showHints}
+            onToggleHints={() => setShowHints(!showHints)}
+            onRequestHints={handleRequestHints}
+            isThinking={isThinking}
+            history={boardRef.current.history}
+            historyIndex={boardRef.current.historyIndex}
+            onJumpToHistory={handleJumpToHistory}
+          />
+        </div>
       </main>
 
       {/* Modals */}

@@ -67,7 +67,7 @@ export interface TsumegoPuzzle {
   id: string;
   title: string;
   level: RankLevel;
-  category: '사활' | '맥점' | '포석' | '끝내기';
+  category: '사활' | '맥점' | '포석' | '끝내기' | '묘수';
   description: string;
   boardSize: BoardSize;
   initialStones: { x: number; y: number; color: 'black' | 'white' }[];

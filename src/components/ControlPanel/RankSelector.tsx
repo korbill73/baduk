@@ -97,21 +97,21 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
             const isTopDan = rank.name.includes('9단');
             const isDan = rank.name.includes('단');
 
-            let visitsText = '30회 탐색 (호각)';
+            let visitsText = '20수 탐색 (호각)';
             let speedText = '약 1.5초';
-            if (rank.id.includes('18k')) { visitsText = '4회 탐색 (여유행마)'; speedText = '초고속 0.2초'; }
-            else if (rank.id.includes('15k')) { visitsText = '5회 탐색 (아마행마)'; speedText = '초고속 0.3초'; }
-            else if (rank.id.includes('12k')) { visitsText = '7회 탐색 (초급)'; speedText = '쾌속 0.4초'; }
-            else if (rank.id.includes('10k')) { visitsText = '10회 탐색 (초/중급)'; speedText = '쾌속 0.6초'; }
-            else if (rank.id.includes('8k')) { visitsText = '18회 탐색'; speedText = '약 1.0초'; }
-            else if (rank.id.includes('6k')) { visitsText = '30회 탐색 (권장)'; speedText = '약 1.5초 (호각)'; }
-            else if (rank.id.includes('4k')) { visitsText = '45회 탐색'; speedText = '약 2.0초'; }
-            else if (rank.id.includes('2k')) { visitsText = '65회 탐색'; speedText = '약 2.6초'; }
-            else if (rank.id.includes('1d')) { visitsText = '90회 탐색'; speedText = '약 3.3초'; }
-            else if (rank.id.includes('3d')) { visitsText = '130회 탐색'; speedText = '약 4.5초'; }
-            else if (rank.id.includes('5d')) { visitsText = '180회 탐색'; speedText = '약 6.0초'; }
-            else if (rank.id.includes('7d')) { visitsText = '230회 탐색'; speedText = '약 7.5초'; }
-            else if (rank.id.includes('9d')) { visitsText = '300회 심층탐색'; speedText = '약 9.5초 (최고수)'; }
+            if (rank.id.includes('18k')) { visitsText = '3수 탐색 (입문)'; speedText = '초고속 0.2초'; }
+            else if (rank.id.includes('15k')) { visitsText = '5수 탐색 (기초)'; speedText = '초고속 0.3초'; }
+            else if (rank.id.includes('12k')) { visitsText = '8수 탐색 (초급)'; speedText = '쾌속 0.4초'; }
+            else if (rank.id.includes('10k')) { visitsText = '10수 탐색 (초/중급)'; speedText = '쾌속 0.6초'; }
+            else if (rank.id.includes('8k')) { visitsText = '15수 탐색 (중급)'; speedText = '약 1.0초'; }
+            else if (rank.id.includes('6k')) { visitsText = '20수 탐색 (권장)'; speedText = '약 1.5초 (호각)'; }
+            else if (rank.id.includes('4k')) { visitsText = '30수 탐색 (상급)'; speedText = '약 2.0초'; }
+            else if (rank.id.includes('2k')) { visitsText = '40수 탐색 (고급)'; speedText = '약 2.6초'; }
+            else if (rank.id.includes('1d')) { visitsText = '50수 탐색 (유단자)'; speedText = '약 3.3초'; }
+            else if (rank.id.includes('3d')) { visitsText = '80수 탐색 (강자)'; speedText = '약 4.5초'; }
+            else if (rank.id.includes('5d')) { visitsText = '120수 탐색 (사범급)'; speedText = '약 6.0초'; }
+            else if (rank.id.includes('7d')) { visitsText = '200수 탐색 (정상급)'; speedText = '약 7.5초'; }
+            else if (rank.id.includes('9d')) { visitsText = '300수 탐색 (AI 신계)'; speedText = '약 9.5초'; }
 
             return (
               <div
