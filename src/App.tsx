@@ -565,6 +565,10 @@ export function App() {
                 onOpenScoring={() => setIsScoringOpen(true)}
                 canUndo={boardRef.current.historyIndex > 0}
                 canRedo={boardRef.current.historyIndex < boardRef.current.history.length - 1}
+                myNickname={userProfile.nickname}
+                myRankTitle={userProfile.rankTitle}
+                myStats={userProfile.stats}
+                aiRankName={aiRank.name}
               />
 
               {mode === 'online' && (

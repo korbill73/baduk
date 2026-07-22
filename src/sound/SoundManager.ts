@@ -27,99 +27,72 @@ class SoundManager {
     return this.enabled;
   }
 
-  // Hangame Baduk (한게임 바둑) Authentic Stone Placement Sound (딱! / 착!)
-  // 비자나무 원목 바둑판 & 조개/오석 바둑알의 고품격 실전 착수음 4-Layer 프로파일
+  // 한게임 바둑 착수음 - 진짜 "딱!" 소리 (짧고 날카로운 고음 클릭)
   playStoneClick() {
     if (!this.enabled) return;
     this.initCtx();
     if (!this.ctx) return;
 
     try {
+      const sampleRate = this.ctx.sampleRate;
       const now = this.ctx.currentTime;
 
-      // Layer 1: High Shell/Slate Impact Clack (딱! - 0~12ms 고음역 돌 충격음)
-      const bufferSize1 = Math.floor(this.ctx.sampleRate * 0.012);
-      const noiseBuffer1 = this.ctx.createBuffer(1, bufferSize1, this.ctx.sampleRate);
-      const output1 = noiseBuffer1.getChannelData(0);
-      for (let i = 0; i < bufferSize1; i++) {
-        output1[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.0025));
+      // === 핵심: 순수 고음 임펄스 노이즈 (딱! 소리의 본질) ===
+      // 총 길이: 8ms (바둑알 착수음은 매우 짧아야 함)
+      const totalLen = Math.floor(sampleRate * 0.008);
+      const clickBuf = this.ctx.createBuffer(1, totalLen, sampleRate);
+      const data = clickBuf.getChannelData(0);
+
+      for (let i = 0; i < totalLen; i++) {
+        const t = i / sampleRate;
+        // 매우 빠른 지수 감쇠 (1.5ms에서 절반으로)
+        const envelope = Math.exp(-t / 0.0015);
+        // 고음 사인파 + 노이즈 조합 (딱! 특성)
+        const click = Math.sin(2 * Math.PI * 7200 * t) * 0.6
+                    + Math.sin(2 * Math.PI * 4800 * t) * 0.3
+                    + (Math.random() * 2 - 1) * 0.1;
+        data[i] = click * envelope;
       }
-      const whiteNoise1 = this.ctx.createBufferSource();
-      whiteNoise1.buffer = noiseBuffer1;
 
-      const bandpass1 = this.ctx.createBiquadFilter();
-      bandpass1.type = 'bandpass';
-      bandpass1.frequency.setValueAtTime(5600, now);
-      bandpass1.Q.setValueAtTime(2.8, now);
+      const clickSrc = this.ctx.createBufferSource();
+      clickSrc.buffer = clickBuf;
 
-      const noiseGain1 = this.ctx.createGain();
-      noiseGain1.gain.setValueAtTime(1.3, now);
-      noiseGain1.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
+      // 고음역 강조 필터 (6kHz 이상 부스트)
+      const hiShelf = this.ctx.createBiquadFilter();
+      hiShelf.type = 'highshelf';
+      hiShelf.frequency.setValueAtTime(4000, now);
+      hiShelf.gain.setValueAtTime(8, now);
 
-      whiteNoise1.connect(bandpass1);
-      bandpass1.connect(noiseGain1);
-      noiseGain1.connect(this.ctx.destination);
-      whiteNoise1.start(now);
+      // 저음 완전 차단 (500Hz 이하 제거 → 둔탁함 없애기)
+      const hiPass = this.ctx.createBiquadFilter();
+      hiPass.type = 'highpass';
+      hiPass.frequency.setValueAtTime(1800, now);
+      hiPass.Q.setValueAtTime(0.7, now);
 
-      // Layer 2: Hard Stone Tone Transient (탁! - 22ms 돌 표면 경도 피치 드롭)
-      const oscHigh = this.ctx.createOscillator();
-      const gainHigh = this.ctx.createGain();
-      oscHigh.type = 'sine';
-      oscHigh.frequency.setValueAtTime(2800, now);
-      oscHigh.frequency.exponentialRampToValueAtTime(1700, now + 0.022);
+      // 마스터 볼륨
+      const masterGain = this.ctx.createGain();
+      masterGain.gain.setValueAtTime(1.6, now);
 
-      gainHigh.gain.setValueAtTime(0.55, now);
-      gainHigh.gain.exponentialRampToValueAtTime(0.001, now + 0.022);
+      clickSrc.connect(hiPass);
+      hiPass.connect(hiShelf);
+      hiShelf.connect(masterGain);
+      masterGain.connect(this.ctx.destination);
+      clickSrc.start(now);
 
-      oscHigh.connect(gainHigh);
-      gainHigh.connect(this.ctx.destination);
-      oscHigh.start(now);
-      oscHigh.stop(now + 0.022);
+      // === 보조: 판 울림 (매우 짧고 조용하게, 3ms 지연) ===
+      // 판 재질감만 살짝 표현 (저음 아님, 중고음)
+      const oscWood = this.ctx.createOscillator();
+      const gainWood = this.ctx.createGain();
+      oscWood.type = 'sine';
+      oscWood.frequency.setValueAtTime(1400, now + 0.003);
+      oscWood.frequency.exponentialRampToValueAtTime(900, now + 0.018);
+      gainWood.gain.setValueAtTime(0.15, now + 0.003);
+      gainWood.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
+      oscWood.connect(gainWood);
+      gainWood.connect(this.ctx.destination);
+      oscWood.start(now + 0.003);
+      oscWood.stop(now + 0.018);
 
-      // Layer 3: Wood Cavity Resonance (착! - 50ms 비자나무 배꼽 향혈 공명)
-      const oscMid = this.ctx.createOscillator();
-      const gainMid = this.ctx.createGain();
-      oscMid.type = 'triangle';
-      oscMid.frequency.setValueAtTime(780, now);
-      oscMid.frequency.exponentialRampToValueAtTime(360, now + 0.05);
-
-      gainMid.gain.setValueAtTime(0.75, now);
-      gainMid.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-
-      oscMid.connect(gainMid);
-      gainMid.connect(this.ctx.destination);
-      oscMid.start(now);
-      oscMid.stop(now + 0.05);
-
-      // Layer 4: Deep Hardwood Board Bottom Thud (원목 묵직한 울림 바닥음 - 110ms)
-      const oscLow = this.ctx.createOscillator();
-      const gainLow = this.ctx.createGain();
-      oscLow.type = 'sine';
-      oscLow.frequency.setValueAtTime(220, now);
-      oscLow.frequency.exponentialRampToValueAtTime(75, now + 0.11);
-
-      gainLow.gain.setValueAtTime(0.85, now);
-      gainLow.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
-
-      oscLow.connect(gainLow);
-      gainLow.connect(this.ctx.destination);
-      oscLow.start(now);
-      oscLow.stop(now + 0.11);
-
-      // Layer 5: Micro-Reflection Clink (+2.5ms 미세 반사음으로 실감 극대화)
-      const oscReflect = this.ctx.createOscillator();
-      const gainReflect = this.ctx.createGain();
-      oscReflect.type = 'triangle';
-      oscReflect.frequency.setValueAtTime(2400, now + 0.0025);
-      oscReflect.frequency.exponentialRampToValueAtTime(1400, now + 0.012);
-
-      gainReflect.gain.setValueAtTime(0.25, now + 0.0025);
-      gainReflect.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
-
-      oscReflect.connect(gainReflect);
-      gainReflect.connect(this.ctx.destination);
-      oscReflect.start(now + 0.0025);
-      oscReflect.stop(now + 0.012);
     } catch (e) {
       console.error(e);
     }
