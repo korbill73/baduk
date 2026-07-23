@@ -19,75 +19,87 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
   onSelectRank,
   onClose,
 }) => {
-  console.log('Current active rank:', currentRank.name);
-  // Rich bright color palettes for high readability and game feel
+  console.log('Active rank:', currentRank.name);
+
+  // Rich vibrant theme & colorful emoji icons based on second reference image
   const getStageTheme = (idx: number, isCurrent: boolean, isUnlocked: boolean) => {
     if (isCurrent) {
       return {
         accent: '#fbbf24',
         bg: 'linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(30, 58, 110, 0.95))',
         border: '#fbbf24',
-        glow: '0 0 30px rgba(245, 158, 11, 0.7)',
+        glow: '0 0 30px rgba(245, 158, 11, 0.75)',
         textColor: '#ffffff',
         subTextColor: '#fef08a',
         badgeBg: 'linear-gradient(135deg, #f59e0b, #d97706)',
+        emoji: '⭐',
         icon: <Zap size={16} color="#fbbf24" className="animate-pulse" />
       };
     }
 
     if (idx <= 2) {
+      // 🌿 Leaf / Emerald (Entry Level: 5, 10, 15 sims)
       return {
         accent: '#34d399',
-        bg: isUnlocked ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(20, 45, 75, 0.9))' : 'rgba(25, 40, 65, 0.85)',
-        border: isUnlocked ? '#10b981' : 'rgba(16, 185, 129, 0.35)',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(20, 48, 80, 0.92))' : 'rgba(25, 42, 68, 0.88)',
+        border: isUnlocked ? '#10b981' : 'rgba(16, 185, 129, 0.4)',
         glow: 'none',
         textColor: '#f8fafc',
         subTextColor: '#a7f3d0',
         badgeBg: '#10b981',
+        emoji: '🌿',
         icon: <Shield size={14} color="#34d399" />
       };
     } else if (idx <= 5) {
+      // 💎 Sapphire Diamond (Beginner: 20, 25, 40 sims)
       return {
         accent: '#38bdf8',
-        bg: isUnlocked ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(15, 45, 80, 0.9))' : 'rgba(25, 45, 75, 0.85)',
-        border: isUnlocked ? '#38bdf8' : 'rgba(56, 189, 248, 0.35)',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(15, 48, 85, 0.92))' : 'rgba(25, 48, 78, 0.88)',
+        border: isUnlocked ? '#38bdf8' : 'rgba(56, 189, 248, 0.4)',
         glow: 'none',
         textColor: '#f8fafc',
         subTextColor: '#bae6fd',
         badgeBg: '#0284c7',
+        emoji: '💎',
         icon: <Gem size={14} color="#38bdf8" />
       };
     } else if (idx <= 8) {
+      // 🔮 Amethyst Orb (Intermediate: 70, 110, 160 sims)
       return {
         accent: '#c084fc',
-        bg: isUnlocked ? 'linear-gradient(135deg, rgba(192, 132, 252, 0.22), rgba(35, 30, 75, 0.9))' : 'rgba(35, 35, 70, 0.85)',
-        border: isUnlocked ? '#c084fc' : 'rgba(192, 132, 252, 0.35)',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(192, 132, 252, 0.25), rgba(35, 32, 80, 0.92))' : 'rgba(35, 35, 75, 0.88)',
+        border: isUnlocked ? '#c084fc' : 'rgba(192, 132, 252, 0.4)',
         glow: 'none',
         textColor: '#f8fafc',
         subTextColor: '#e9d5ff',
         badgeBg: '#9333ea',
+        emoji: '🔮',
         icon: <Swords size={14} color="#c084fc" />
       };
     } else if (idx <= 11) {
+      // 👑 Crown Gold (Master / Dan: 230, 350, 500 sims)
       return {
         accent: '#f43f5e',
-        bg: isUnlocked ? 'linear-gradient(135deg, rgba(244, 63, 94, 0.22), rgba(50, 25, 60, 0.9))' : 'rgba(45, 25, 55, 0.85)',
-        border: isUnlocked ? '#f43f5e' : 'rgba(244, 63, 94, 0.35)',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(244, 63, 94, 0.25), rgba(50, 25, 65, 0.92))' : 'rgba(45, 25, 60, 0.88)',
+        border: isUnlocked ? '#f43f5e' : 'rgba(244, 63, 94, 0.4)',
         glow: 'none',
         textColor: '#f8fafc',
         subTextColor: '#fecdd3',
         badgeBg: '#e11d48',
+        emoji: '👑',
         icon: <Crown size={14} color="#f43f5e" />
       };
     } else {
+      // 🔥 Crimson Flame (Godlike: 800 sims)
       return {
         accent: '#fb923c',
-        bg: isUnlocked ? 'linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(60, 30, 40, 0.9))' : 'rgba(50, 30, 45, 0.85)',
-        border: isUnlocked ? '#fb923c' : 'rgba(251, 146, 60, 0.35)',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(251, 146, 60, 0.3), rgba(65, 30, 45, 0.92))' : 'rgba(50, 30, 48, 0.88)',
+        border: isUnlocked ? '#fb923c' : 'rgba(251, 146, 60, 0.4)',
         glow: 'none',
         textColor: '#f8fafc',
         subTextColor: '#fed7aa',
         badgeBg: '#ea580c',
+        emoji: '🔥',
         icon: <Flame size={14} color="#fb923c" />
       };
     }
@@ -135,7 +147,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
             </div>
             <div>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.3px', background: 'linear-gradient(90deg, #ffffff, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                🎮 AI 수읽기 승단 챌린지 RPG 스테이지 맵
+                🎮 AI 수읽기 승단 챌린지 RPG 스테이지 맵 (초보자 맞춤 5회, 10회, 15회 세분화)
               </h2>
               <p style={{ fontSize: '0.78rem', color: '#cbd5e1', margin: '1px 0 0 0', fontWeight: 600 }}>
                 현재 최고 해금 단계에서 1승 시 다음 수읽기 레벨이 즉시 언락되며, 3패 기록 시 아래 단계로 강등됩니다!
@@ -151,7 +163,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
           </button>
         </div>
 
-        {/* Challenge Rule Banner (Bright & Highlighted) */}
+        {/* Challenge Rule Banner */}
         <div style={{
           background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(56, 189, 248, 0.22))',
           border: '1.5px solid #fbbf24',
@@ -176,7 +188,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
           </div>
         </div>
 
-        {/* Ranks Quest Map Grid - Fixed 4 Columns, Zero Scrollbar, High Brightness */}
+        {/* Ranks Quest Map Grid - Fixed 4 Columns, Zero Scrollbar */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
@@ -221,16 +233,16 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                   overflow: 'hidden'
                 }}
               >
-                {/* Header Line inside card */}
+                {/* Header Line with Colorful Emoji */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    {theme.icon}
-                    <span style={{ fontSize: '0.7rem', fontWeight: 900, color: theme.accent, letterSpacing: '0.4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '1rem' }}>{theme.emoji}</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 900, color: theme.accent, letterSpacing: '0.4px' }}>
                       STAGE {idx + 1}
                     </span>
                   </div>
 
-                  {/* Status Badges - Bright & Contained */}
+                  {/* Status Badges */}
                   <div>
                     {isCurrentChallenge && (
                       <span style={{
@@ -245,7 +257,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                         alignItems: 'center',
                         gap: '3px'
                       }}>
-                        ⭐ 현재 도전 중!
+                        ⭐ 도전 중!
                       </span>
                     )}
                     {isCleared && !isCurrentChallenge && (
@@ -281,7 +293,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                   </div>
                 </div>
 
-                {/* Stage Title - Bright Clear Text */}
+                {/* Stage Title */}
                 <div style={{
                   fontSize: isCurrentChallenge ? '0.96rem' : '0.88rem',
                   fontWeight: 900,
@@ -294,7 +306,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                   {rank.name}
                 </div>
 
-                {/* Clear Bright Description */}
+                {/* Description */}
                 <div style={{
                   fontSize: '0.68rem',
                   color: isCurrentChallenge ? '#fef08a' : (isUnlocked ? '#e2e8f0' : '#cbd5e1'),
