@@ -203,7 +203,7 @@ export const AiCoachPanel: React.FC<AiCoachPanelProps> = ({
                     </span>
                   </div>
 
-                  <p style={{ fontSize: '0.8rem', lineHeight: 1.35, color: 'var(--text-main)', margin: 0, wordBreak: 'keep-all' }}>
+                  <p className="hide-on-mobile" style={{ fontSize: '0.8rem', lineHeight: 1.35, color: 'var(--text-main)', margin: 0, wordBreak: 'keep-all' }}>
                     {rec.explanation}
                   </p>
                 </div>

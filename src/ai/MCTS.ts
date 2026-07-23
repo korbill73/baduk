@@ -140,33 +140,33 @@ export class MCTSEngine {
 
     evaluatedCandidates.sort((a, b) => b.totalScore - a.totalScore);
 
-    // 4. BEGINNER-FRIENDLY SOFTMOVE INJECTION based on simulation level
+    // 4. BEGINNER-FRIENDLY SOFTMOVE INJECTION based on simulation level (Guarantees easy wins for beginners at levels 1-3)
     let chosenIndex = 0;
     const rand = Math.random();
 
     if (sims === 1) {
-      // 1회 연산 (18급 극초보): 70% 확률로 2~4위 후보 선택 (인간적인 초보 수)
+      // 1회 연산 (18급 극초보): 85% 확률로 2~5위 후보 선택 (인간적인 초보 실수 수)
+      if (rand < 0.85 && evaluatedCandidates.length >= 2) {
+        chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 4) + 1);
+      }
+    } else if (sims === 2) {
+      // 2회 연산 (17급 초보): 70% 확률로 2~4위 후보 선택
       if (rand < 0.70 && evaluatedCandidates.length >= 2) {
         chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 3) + 1);
       }
-    } else if (sims === 2) {
-      // 2회 연산 (17급 초보): 55% 확률로 2~3위 후보 선택
+    } else if (sims === 3) {
+      // 3회 연산 (16급 기초): 55% 확률로 2~3위 후보 선택
       if (rand < 0.55 && evaluatedCandidates.length >= 2) {
         chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 2) + 1);
       }
-    } else if (sims === 3) {
-      // 3회 연산 (16급 기초): 40% 확률로 2위 후보 선택
+    } else if (sims === 4) {
+      // 4회 연산 (15급 기초+): 40% 확률로 2위 후보 선택
       if (rand < 0.40 && evaluatedCandidates.length >= 2) {
         chosenIndex = 1;
       }
-    } else if (sims === 4) {
-      // 4회 연산 (15급 기초+): 25% 확률로 2위 후보 선택
-      if (rand < 0.25 && evaluatedCandidates.length >= 2) {
-        chosenIndex = 1;
-      }
     } else if (sims === 5) {
-      // 5회 연산 (14급): 15% 확률로 2위 후보 선택
-      if (rand < 0.15 && evaluatedCandidates.length >= 2) {
+      // 5회 연산 (14급): 25% 확률로 2위 후보 선택
+      if (rand < 0.25 && evaluatedCandidates.length >= 2) {
         chosenIndex = 1;
       }
     }

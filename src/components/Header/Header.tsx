@@ -108,8 +108,8 @@ export const Header: React.FC<HeaderProps> = ({
     }}>
       {/* Top Row: Brand & Profile / User Actions */}
       <div className="header-top-row">
-        {/* Brand & Logo */}
-        <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 1, minWidth: 0 }}>
+        {/* Brand & Logo + Current Rank Selector Button */}
+        <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 1, minWidth: 0 }}>
           <div className="header-brand-icon" style={{
             width: '26px',
             height: '26px',
@@ -126,6 +126,33 @@ export const Header: React.FC<HeaderProps> = ({
           <h1 className="header-brand-title" style={{ fontSize: '0.9rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', background: 'linear-gradient(90deg, #f8fafc, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             Baduk AI
           </h1>
+
+          {/* Current Rank Selector Button (Opens Stage Selector Modal) */}
+          {mode === 'play' && (
+            <button
+              onClick={onOpenRankSelector}
+              className="glass-button header-rank-selector-btn"
+              style={{
+                padding: '0.28rem 0.55rem',
+                fontSize: '0.74rem',
+                borderColor: 'rgba(251, 191, 36, 0.5)',
+                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(30, 41, 59, 0.9))',
+                color: '#fbbf24',
+                fontWeight: 800,
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                borderRadius: '8px',
+                boxShadow: '0 0 10px rgba(245, 158, 11, 0.3)',
+                flexShrink: 0
+              }}
+              title="단계 선택 맵 열기"
+            >
+              <Award size={13} color={aiRank.badgeColor} />
+              <span>수읽기: <strong style={{ color: aiRank.badgeColor }}>{aiRank.name}</strong></span>
+            </button>
+          )}
         </div>
 
         {/* Top User Actions (Profile, Admin, Logout, Settings) */}
@@ -268,25 +295,6 @@ export const Header: React.FC<HeaderProps> = ({
             <option value={13} style={{ background: '#0f172a' }}>13x13</option>
             <option value={9} style={{ background: '#0f172a' }}>9x9</option>
           </select>
-        )}
-
-        {/* AI Lookahead Selector Button */}
-        {mode === 'play' && (
-          <button
-            onClick={onOpenRankSelector}
-            className="glass-button"
-            style={{
-              padding: '0.38rem 0.6rem',
-              fontSize: '0.78rem',
-              borderColor: 'rgba(56, 189, 248, 0.35)',
-              background: 'rgba(15, 23, 42, 0.85)',
-              whiteSpace: 'nowrap'
-            }}
-            title="AI 수읽기 깊이 변경"
-          >
-            <Award size={14} color={aiRank.badgeColor} />
-            <span>수읽기: <strong style={{ color: aiRank.badgeColor }}>{aiRank.name}</strong></span>
-          </button>
         )}
 
         {/* Online Room Button */}

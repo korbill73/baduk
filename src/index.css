@@ -425,6 +425,11 @@ button,
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95), 0 0 0 9999px rgba(0, 0, 0, 0.45) !important;
   }
 
+  /* 모바일 세로 높이 최소화 */
+  .hide-on-mobile {
+    display: none !important;
+  }
+
   /* 모바일 환경(확대/크게보기 포함) 바둑판 짤림 100% 철벽 차단 */
   .board-frame,
   .board-frame.expanded {
