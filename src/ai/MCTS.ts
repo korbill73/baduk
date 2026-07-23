@@ -157,9 +157,28 @@ export class MCTSEngine {
     //    - 6단계~(13급~): 유효 1위 (최선수 100%)
     //    종반(후반부)에는 잔여 수 감소에 따라 1~2위로 자동 수렴(Convergence)하여 판이 안 깨짐!
     // ====================================================================
-    // 4. PERFECT PRO-LEVEL MOVE SELECTION: 100% 1위 최선수만 선택!
-    // 실수나 차선수를 0%로 완벽 차단하여 1단계부터 단 한 수의 허점도 없는 탄탄한 바둑 구현
-    const chosenIndex = 0;
+    // 4. PROGRESSIVE LADDER BALANCE (사다리형 정교한 난이도 밸런싱)
+    // - STAGE 1 (18급): 1위 최선수 (60%) / 2위 차선수 (40%) -> 생각하며 두면 적당히 재미있게 이길 수 있음!
+    // - STAGE 2 (17급): 1위 최선수 (75%) / 2위 차선수 (25%)
+    // - STAGE 3 (16급): 1위 최선수 (88%) / 2위 차선수 (12%)
+    // - STAGE 4 (15급): 1위 최선수 (95%) / 2위 차선수 (5%)
+    // - STAGE 5 이상 (14급~): 100% 1위 최선수
+    let chosenIndex = 0;
+    const numCands = evaluatedCandidates.length;
+    const rand = Math.random();
+
+    if (sims <= 1) {
+      chosenIndex = (numCands >= 2 && rand < 0.40) ? 1 : 0;
+    } else if (sims === 2) {
+      chosenIndex = (numCands >= 2 && rand < 0.25) ? 1 : 0;
+    } else if (sims === 3) {
+      chosenIndex = (numCands >= 2 && rand < 0.12) ? 1 : 0;
+    } else if (sims === 4) {
+      chosenIndex = (numCands >= 2 && rand < 0.05) ? 1 : 0;
+    } else {
+      chosenIndex = 0;
+    }
+
     const selectedCand = evaluatedCandidates[chosenIndex] || evaluatedCandidates[0];
 
     // Filter out recommendations to strictly empty cells only!
