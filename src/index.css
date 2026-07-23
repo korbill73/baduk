@@ -527,6 +527,7 @@ button,
     max-width: 340px !important;
     position: relative !important;
     top: 0 !important;
+    margin-top: 34px !important;
   }
 
   .header-container {

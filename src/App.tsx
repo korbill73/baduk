@@ -614,7 +614,7 @@ export function App() {
         </div>
 
         {/* Right Column: Controls, Stats, Overlay & AI Coach */}
-        <div className="right-panel-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '2px' }}>
+        <div className="right-panel-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflowY: 'auto', paddingRight: '2px', marginTop: isBoardExpanded ? '0' : undefined }}>
           {isBoardExpanded && (
             <div className="glass-panel" style={{
               display: 'flex',
