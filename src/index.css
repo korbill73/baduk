@@ -198,8 +198,8 @@ body {
 /* Mobile Optimization & Responsive Grid Rules */
 .main-grid-layout {
   display: grid;
-  grid-template-columns: var(--grid-cols, minmax(480px, 1.2fr) minmax(320px, 0.8fr));
-  gap: 1.2rem;
+  grid-template-columns: var(--grid-cols, minmax(540px, 1.55fr) minmax(300px, 0.72fr));
+  gap: 1rem;
   align-items: start;
 }
 

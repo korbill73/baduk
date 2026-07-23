@@ -6,6 +6,9 @@ export interface UserProfile {
   rankTitle: string; // e.g. "아마 3단"
   email?: string;
   isAdmin?: boolean;
+  maxUnlockedRankIndex?: number; // 해금된 최고 수읽기 단계 (0=3수, 1=5수, 2=8수 ... 12=300수)
+  currentRankIndex?: number; // 현재 선택한 수읽기 단계 인덱스
+  currentRankLosses?: number; // 현재 단계에서의 누적 패배 수 (3패 시 강등)
   stats: {
     vsAiWins: number;
     vsAiLosses: number;

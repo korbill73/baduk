@@ -593,6 +593,46 @@ export function App() {
             onToggleExpand={() => setIsBoardExpanded(prev => !prev)}
             onPlaceStone={handlePlaceStone}
           />
+
+          {/* 바둑판 아래: 승단/강등 챌린지 안내 & 대국 전적 바 */}
+          <div className="glass-panel" style={{
+            marginTop: '0.65rem',
+            padding: '0.6rem 0.9rem',
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.95))',
+            border: '1px solid rgba(245, 158, 11, 0.35)',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.6rem',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flex: 1, minWidth: 0 }}>
+              <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>🏆</span>
+              <div style={{ fontSize: '0.81rem', color: '#f8fafc', lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {currentUser ? (
+                  <>
+                    <strong style={{ color: '#fbbf24' }}>[{userProfile.nickname}님]</strong> 현재 단계: <strong style={{ color: aiRank.badgeColor }}>{aiRank.name}</strong>
+                    <span style={{ color: '#38bdf8', marginLeft: '6px' }}>
+                      (⚔️ 1승 시 다음 단계 승급 | 현 3패시 강등: {userProfile.currentRankLosses || 0}/3패)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span style={{ color: '#fbbf24', fontWeight: 700 }}>🔑 로그인 필요:</span> 로그인하시면 수읽기 승단/강등 도전 기록이 영구 보존됩니다! (현재: {aiRank.name} 도전 중)
+                  </>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowRankSelector(true)}
+              className="glass-button primary"
+              style={{ padding: '0.35rem 0.7rem', fontSize: '0.76rem', whiteSpace: 'nowrap', flexShrink: 0, background: 'linear-gradient(135deg, #f59e0b, #d97706)', borderColor: '#fbbf24' }}
+            >
+              🎮 단계 선택 맵
+            </button>
+          </div>
         </div>
 
         {/* Right Column: Controls, Stats, Overlay & AI Coach */}
@@ -673,7 +713,13 @@ export function App() {
       {showRankSelector && (
         <RankSelector
           currentRank={aiRank}
-          onSelectRank={(r) => setAiRank(r)}
+          maxUnlockedRankIndex={userProfile.maxUnlockedRankIndex ?? 0}
+          currentRankLosses={userProfile.currentRankLosses ?? 0}
+          onSelectRank={(r, idx) => {
+            setAiRank(r);
+            setUserProfile(prev => ({ ...prev, currentRankIndex: idx }));
+            UserProfileService.saveProfile({ ...userProfile, currentRankIndex: idx });
+          }}
           onClose={() => setShowRankSelector(false)}
         />
       )}

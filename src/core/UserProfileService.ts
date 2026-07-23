@@ -70,6 +70,32 @@ export class UserProfileService {
       else profile.stats.pvpLosses++;
     }
 
+    // 승급 & 강등 처리 (AI 대국 모드일 때)
+    if (mode === 'play') {
+      const currentRankIndex = profile.currentRankIndex ?? 0;
+      const maxUnlockedRankIndex = profile.maxUnlockedRankIndex ?? 0;
+      let currentRankLosses = profile.currentRankLosses ?? 0;
+
+      if (result === 'win') {
+        currentRankLosses = 0; // 승리 시 패 카운트 리셋
+        // 현재 최고 해금 단계에서 1승을 거두면 다음 단계 언락 및 승급!
+        if (currentRankIndex >= maxUnlockedRankIndex && maxUnlockedRankIndex < 12) {
+          profile.maxUnlockedRankIndex = maxUnlockedRankIndex + 1;
+          profile.currentRankIndex = maxUnlockedRankIndex + 1;
+        }
+      } else if (result === 'loss') {
+        currentRankLosses++;
+        if (currentRankLosses >= 3) {
+          // 3패 달성 시 1단계 아래로 강등
+          currentRankLosses = 0;
+          if (currentRankIndex > 0) {
+            profile.currentRankIndex = currentRankIndex - 1;
+          }
+        }
+      }
+      profile.currentRankLosses = currentRankLosses;
+    }
+
     this.saveProfile(profile);
 
     // Save history entry

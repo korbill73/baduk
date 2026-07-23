@@ -1,16 +1,21 @@
 import React from 'react';
 import type { RankInfo } from '../../types/go';
 import { RANKS_DATA } from '../../data/tsumegoPuzzles';
-import { X, Award, CheckCircle2, Shield, Zap, Sparkles } from 'lucide-react';
+import { X, Award, CheckCircle2, Lock, Sparkles, Trophy, Flame } from 'lucide-react';
+import { soundManager } from '../../sound/SoundManager';
 
 interface RankSelectorProps {
   currentRank: RankInfo;
-  onSelectRank: (rank: RankInfo) => void;
+  maxUnlockedRankIndex?: number;
+  currentRankLosses?: number;
+  onSelectRank: (rank: RankInfo, index: number) => void;
   onClose: () => void;
 }
 
 export const RankSelector: React.FC<RankSelectorProps> = ({
   currentRank,
+  maxUnlockedRankIndex = 0,
+  currentRankLosses = 0,
   onSelectRank,
   onClose,
 }) => {
@@ -21,198 +26,182 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
       left: 0,
       width: '100vw',
       height: '100vh',
-      backgroundColor: 'rgba(0, 0, 0, 0.75)',
-      backdropFilter: 'blur(8px)',
+      backgroundColor: 'rgba(2, 6, 23, 0.88)',
+      backdropFilter: 'blur(12px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1000
+      zIndex: 1000,
+      padding: '1rem'
     }}>
       <div className="glass-panel" style={{
-        width: '90%',
-        maxWidth: '720px',
-        maxHeight: '85vh',
+        width: '100%',
+        maxWidth: '820px',
+        maxHeight: '90vh',
         display: 'flex',
         flexDirection: 'column',
-        padding: '1.8rem',
-        position: 'relative'
+        padding: '1.6rem',
+        position: 'relative',
+        border: '1px solid #fbbf24',
+        boxShadow: '0 0 50px rgba(245, 158, 11, 0.25)'
       }}>
-        {/* Modal Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <Award size={26} color="var(--accent-gold)" />
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.8rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Trophy size={28} color="#fbbf24" />
             <div>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>AI 수읽기 수준 (내다보는 수) 선택</h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                선택하신 수읽기 단계(3수~300수)에 맞춰 KataGo AI의 탐색 깊이와 연산 속도가 자동 동기화됩니다.
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
+                🎮 AI 수읽기 승급 챌린지 스테이지 맵
+              </h2>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '3px 0 0 0' }}>
+                현 단계를 1승하면 다음 수읽기 레벨이 해금되며, 3패를 기록하면 아래 단계로 강등됩니다!
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="glass-button"
-            style={{ padding: '0.5rem', borderRadius: '50%' }}
+            style={{ padding: '0.45rem', borderRadius: '50%' }}
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* KataGo Dynamic Scaling Banner */}
+        {/* Challenge Rule Banner */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(16, 185, 129, 0.15))',
-          border: '1px solid rgba(56, 189, 248, 0.4)',
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(56, 189, 248, 0.15))',
+          border: '1px solid rgba(245, 158, 11, 0.4)',
           borderRadius: 'var(--radius-md)',
-          padding: '1rem',
-          marginBottom: '1.2rem',
+          padding: '0.85rem 1.1rem',
+          marginBottom: '1rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.8rem'
+          gap: '0.85rem'
         }}>
-          <Sparkles size={24} color="#38bdf8" style={{ flexShrink: 0 }} />
-          <div style={{ fontSize: '0.85rem', lineHeight: 1.4 }}>
-            <strong style={{ color: '#38bdf8', display: 'block', fontSize: '0.95rem', marginBottom: '4px' }}>
-              ✨ 수읽기 단계별 내다보는 수 & MCTS 탐색 수 연동 시스템
+          <Flame size={26} color="#fbbf24" style={{ flexShrink: 0 }} />
+          <div style={{ fontSize: '0.83rem', lineHeight: 1.45 }}>
+            <strong style={{ color: '#fbbf24', display: 'block', fontSize: '0.92rem', marginBottom: '2px' }}>
+              ⚔️ 승단 / 강등 챌린지 규칙 안내
             </strong>
-            <span style={{ display: 'block', marginBottom: '4px' }}>
-              • <strong>3수 ~ 15수 읽기 (입문/초급)</strong>: 초고속(`0.2~0.6초`) 응답과 함께 AI가 3~15수 앞을 계산하며 가벼운 대국에 적합합니다.
-            </span>
-            <span>
-              • <strong>20수 ~ 300수 읽기 (중급~AI신계)</strong>: AI가 최대 300수 깊이까지 정밀 연산하여 사활과 승부처에서 완벽히 수읽기를 진행합니다.
+            <span style={{ color: '#e2e8f0' }}>
+              • <strong>승급 규칙</strong>: 최고 해금 단계에서 <strong>단 1승만 거두면 다음 단계가 언락</strong>됩니다!
+              <br />
+              • <strong>강등 규칙</strong>: 도전 중 <strong>누적 3패 달성 시 이전 단계로 강등</strong>됩니다. (현재 누적 패배: <strong style={{ color: '#ef4444' }}>{currentRankLosses}패</strong> / 3패 시 강등)
             </span>
           </div>
         </div>
 
-        {/* Ranks Grid / List */}
+        {/* Ranks Quest Map Grid */}
         <div style={{
           overflowY: 'auto',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
-          gap: '0.9rem',
-          paddingRight: '0.5rem',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
+          gap: '0.85rem',
+          paddingRight: '0.4rem',
           maxHeight: '52vh'
         }}>
-          {RANKS_DATA.map((rank) => {
+          {RANKS_DATA.map((rank, idx) => {
             const isSelected = rank.id === currentRank.id;
-            const isCurrentLevel = rank.name.includes('6급');
-            const isTopDan = rank.name.includes('9단');
-            const isDan = rank.name.includes('단');
-
-            let visitsText = '20수 탐색 (호각)';
-            let speedText = '약 1.5초';
-            if (rank.id.includes('18k')) { visitsText = '3수 탐색 (입문)'; speedText = '초고속 0.2초'; }
-            else if (rank.id.includes('15k')) { visitsText = '5수 탐색 (기초)'; speedText = '초고속 0.3초'; }
-            else if (rank.id.includes('12k')) { visitsText = '8수 탐색 (초급)'; speedText = '쾌속 0.4초'; }
-            else if (rank.id.includes('10k')) { visitsText = '10수 탐색 (초/중급)'; speedText = '쾌속 0.6초'; }
-            else if (rank.id.includes('8k')) { visitsText = '15수 탐색 (중급)'; speedText = '약 1.0초'; }
-            else if (rank.id.includes('6k')) { visitsText = '20수 탐색 (권장)'; speedText = '약 1.5초 (호각)'; }
-            else if (rank.id.includes('4k')) { visitsText = '30수 탐색 (상급)'; speedText = '약 2.0초'; }
-            else if (rank.id.includes('2k')) { visitsText = '40수 탐색 (고급)'; speedText = '약 2.6초'; }
-            else if (rank.id.includes('1d')) { visitsText = '50수 탐색 (유단자)'; speedText = '약 3.3초'; }
-            else if (rank.id.includes('3d')) { visitsText = '80수 탐색 (강자)'; speedText = '약 4.5초'; }
-            else if (rank.id.includes('5d')) { visitsText = '120수 탐색 (사범급)'; speedText = '약 6.0초'; }
-            else if (rank.id.includes('7d')) { visitsText = '200수 탐색 (정상급)'; speedText = '약 7.5초'; }
-            else if (rank.id.includes('9d')) { visitsText = '300수 탐색 (AI 신계)'; speedText = '약 9.5초'; }
+            const isUnlocked = idx <= maxUnlockedRankIndex;
+            const isCleared = idx < maxUnlockedRankIndex;
+            const isCurrentChallenge = idx === maxUnlockedRankIndex;
 
             return (
               <div
                 key={rank.id}
                 onClick={() => {
-                  onSelectRank(rank);
+                  if (!isUnlocked) {
+                    soundManager.playError();
+                    alert(`🔒 [단계 잠김]\n\n이전 단계(${RANKS_DATA[idx - 1]?.name})를 최소 1승 하셔야 이 단계가 해금됩니다!`);
+                    return;
+                  }
+                  soundManager.playStoneClick();
+                  onSelectRank(rank, idx);
                   onClose();
                 }}
                 style={{
-                  background: isSelected ? 'rgba(56, 189, 248, 0.15)' : isTopDan ? 'rgba(239, 68, 68, 0.08)' : 'rgba(255, 255, 255, 0.04)',
-                  border: `2px solid ${isSelected ? rank.badgeColor : isTopDan ? '#ef4444' : isCurrentLevel ? '#ec4899' : 'rgba(255, 255, 255, 0.08)'}`,
+                  background: isSelected
+                    ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(15, 23, 42, 0.95))'
+                    : isUnlocked
+                      ? 'rgba(30, 41, 59, 0.75)'
+                      : 'rgba(15, 23, 42, 0.4)',
+                  border: `2px solid ${
+                    isSelected
+                      ? '#38bdf8'
+                      : isCurrentChallenge
+                        ? '#fbbf24'
+                        : isCleared
+                          ? '#10b981'
+                          : 'rgba(255, 255, 255, 0.1)'
+                  }`,
                   borderRadius: 'var(--radius-md)',
-                  padding: '1.1rem',
-                  cursor: 'pointer',
+                  padding: '0.95rem 1rem',
+                  cursor: isUnlocked ? 'pointer' : 'not-allowed',
                   position: 'relative',
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'all 0.2s',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '0.5rem'
+                  gap: '0.45rem',
+                  opacity: isUnlocked ? 1 : 0.55
                 }}
               >
-                {isTopDan && (
+                {/* Badge top right */}
+                {isCurrentChallenge && (
                   <div style={{
-                    position: 'absolute',
-                    top: '-10px',
-                    right: '10px',
-                    background: '#ef4444',
-                    color: '#fff',
-                    fontSize: '0.68rem',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    boxShadow: '0 2px 6px rgba(239, 68, 68, 0.5)'
+                    position: 'absolute', top: '-10px', right: '10px',
+                    background: '#fbbf24', color: '#0f172a', fontSize: '0.68rem', fontWeight: 900,
+                    padding: '2px 8px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(245,158,11,0.5)'
                   }}>
-                    👑 신계 300회 탐색
+                    ⭐ 현재 도전 레벨
                   </div>
                 )}
-                {isCurrentLevel && !isTopDan && (
+                {isCleared && !isCurrentChallenge && (
                   <div style={{
-                    position: 'absolute',
-                    top: '-10px',
-                    right: '10px',
-                    background: '#ec4899',
-                    color: '#fff',
-                    fontSize: '0.68rem',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    boxShadow: '0 2px 6px rgba(236, 72, 153, 0.5)'
+                    position: 'absolute', top: '-10px', right: '10px',
+                    background: '#10b981', color: '#fff', fontSize: '0.68rem', fontWeight: 800,
+                    padding: '2px 8px', borderRadius: '12px'
                   }}>
-                    6급 맞춤 추천
+                    ✓ 정복 완료
+                  </div>
+                )}
+                {!isUnlocked && (
+                  <div style={{
+                    position: 'absolute', top: '-10px', right: '10px',
+                    background: '#475569', color: '#cbd5e1', fontSize: '0.68rem', fontWeight: 700,
+                    padding: '2px 8px', borderRadius: '12px'
+                  }}>
+                    🔒 잠김
                   </div>
                 )}
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{
-                    fontSize: '1.1rem',
-                    fontWeight: 700,
-                    color: rank.badgeColor,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.4rem'
-                  }}>
-                    {isDan ? <Sparkles size={16} /> : <Shield size={16} />}
-                    {rank.name}
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: rank.badgeColor }}>
+                    STAGE {idx + 1}
                   </span>
-                  {isSelected && <CheckCircle2 size={18} color={rank.badgeColor} />}
+                  {isUnlocked ? (
+                    isSelected ? <Award size={18} color="#38bdf8" /> : isCleared ? <CheckCircle2 size={18} color="#10b981" /> : <Sparkles size={16} color="#fbbf24" />
+                  ) : (
+                    <Lock size={16} color="#94a3b8" />
+                  )}
                 </div>
 
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', minHeight: '34px', lineHeight: 1.3 }}>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: isUnlocked ? '#f8fafc' : '#94a3b8' }}>
+                  {rank.name}
+                </div>
+
+                <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', lineHeight: 1.35 }}>
                   {rank.description}
-                </p>
+                </div>
 
                 <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '0.75rem',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-                  paddingTop: '0.5rem',
-                  color: 'var(--text-muted)'
+                  fontSize: '0.72rem', fontWeight: 700, color: rank.badgeColor,
+                  background: 'rgba(0,0,0,0.3)', padding: '3px 8px', borderRadius: '6px', marginTop: '2px', textAlign: 'center'
                 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Zap size={13} color="var(--accent-gold)" /> KataGo: <strong style={{ color: '#fff' }}>{visitsText}</strong>
-                  </span>
-                  <span style={{ color: rank.badgeColor, fontWeight: 600 }}>{speedText}</span>
+                  탐색 깊이: {rank.searchDepth}수 ({rank.mctsSimulations}회 연산)
                 </div>
               </div>
             );
           })}
-        </div>
-
-        {/* Footer */}
-        <div style={{ marginTop: '1.2rem', textAlign: 'center' }}>
-          <button
-            onClick={onClose}
-            className="glass-button primary"
-            style={{ width: '100%', justifyContent: 'center' }}
-          >
-            확인 및 대국 시작
-          </button>
         </div>
       </div>
     </div>
