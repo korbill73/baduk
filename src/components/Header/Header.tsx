@@ -150,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({
               title="단계 선택 맵 열기"
             >
               <Award size={13} color={aiRank.badgeColor} />
-              <span>수읽기: <strong style={{ color: aiRank.badgeColor }}>{aiRank.name}</strong></span>
+              <strong style={{ color: aiRank.badgeColor, fontWeight: 800 }}>{aiRank.name}</strong>
             </button>
           )}
         </div>

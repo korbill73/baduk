@@ -16,28 +16,29 @@ export class MCTSEngine {
     const rankName = rankInfo?.name || '1수 읽기 (1회 연산)';
     const openingRate = rankInfo?.openingBookRate ?? 0.1;
 
-    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris
-    const urgentMoves = TacticalSolver.findUrgentTacticalMoves(board, aiColor);
-    if (urgentMoves.length > 0) {
-      const topUrgent = urgentMoves[0];
-      // High level AI executes emergency Atari saves always; lower levels execute at lower rates
-      const urgentExecuteRate = sims <= 2 ? 0.4 : (sims <= 5 ? 0.7 : 0.98);
-      if (topUrgent.priorityScore >= 9000 && Math.random() < urgentExecuteRate) {
-        const rec: AiRecommendation = {
-          point: topUrgent.point,
-          rank: 1,
-          winRateChange: +8.5,
-          explanation: topUrgent.reason,
-          category: topUrgent.type === 'SAVE_ATARI' ? '방어' : '공격'
-        };
-        return { move: topUrgent.point, recommendations: [rec] };
+    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris (Disabled for levels 1-2 so beginners can capture AI stones easily)
+    if (sims >= 3) {
+      const urgentMoves = TacticalSolver.findUrgentTacticalMoves(board, aiColor);
+      if (urgentMoves.length > 0) {
+        const topUrgent = urgentMoves[0];
+        const urgentExecuteRate = sims <= 4 ? 0.4 : 0.95;
+        if (topUrgent.priorityScore >= 9000 && Math.random() < urgentExecuteRate) {
+          const rec: AiRecommendation = {
+            point: topUrgent.point,
+            rank: 1,
+            winRateChange: +8.5,
+            explanation: topUrgent.reason,
+            category: topUrgent.type === 'SAVE_ATARI' ? '방어' : '공격'
+          };
+          return { move: topUrgent.point, recommendations: [rec] };
+        }
       }
     }
 
-    // 1. Check Joseki / Opening Book only if openingRate condition passes (Beginners get natural beginner moves)
-    if (Math.random() < openingRate) {
+    // 1. Check Joseki / Opening Book (Disabled for levels 1-2 so AI won't play pro openings)
+    if (sims >= 3 && Math.random() < openingRate) {
       const opening = JosekiBook.getOpeningMove(board.size, board.grid, aiColor);
-      if (opening) {
+      if (opening && board.grid[opening.point.y][opening.point.x] === null) {
         const rec: AiRecommendation = {
           point: opening.point,
           rank: 1,
@@ -54,9 +55,11 @@ export class MCTSEngine {
       return { move: null, recommendations: [] };
     }
 
-    // 2. Evaluate and score valid moves using Evaluator with user's rank
+    // 2. Evaluate and score valid moves using Evaluator
     const candidateScores: { point: Point; heuristicScore: number }[] = [];
     for (const pt of validMoves) {
+      // Ensure move is strictly on an empty cell
+      if (board.grid[pt.y][pt.x] !== null) continue;
       const score = Evaluator.evaluateMovePattern(board, pt.x, pt.y, aiColor, rankName);
       if (score > -300) {
         candidateScores.push({ point: pt, heuristicScore: score });
@@ -79,7 +82,7 @@ export class MCTSEngine {
       category: '실리' | '세력' | '공격' | '방어' | '끝내기' | '정석';
     }[] = [];
 
-    // 3. Minimax Lookahead - Depth adjusts by simulation level
+    // 3. Minimax Lookahead
     for (const cand of topCandidates) {
       const simBoard = new GoBoard(board.size, false);
       simBoard.grid = board.cloneGrid(board.grid);
@@ -92,7 +95,6 @@ export class MCTSEngine {
 
       const staticBalance = Evaluator.evaluateBoardState(simBoard, aiColor);
 
-      // Higher levels compute opponent counter-moves; lower levels evaluate simpler static balance
       let worstCounterBalance = staticBalance;
 
       if (sims >= 5) {
@@ -140,23 +142,23 @@ export class MCTSEngine {
 
     evaluatedCandidates.sort((a, b) => b.totalScore - a.totalScore);
 
-    // 4. BEGINNER-FRIENDLY SOFTMOVE INJECTION based on simulation level (Guarantees easy wins for beginners at levels 1-3)
+    // 4. BEGINNER-FRIENDLY SOFTMOVE INJECTION (Level 1: 90% soft random moves)
     let chosenIndex = 0;
     const rand = Math.random();
 
     if (sims === 1) {
-      // 1회 연산 (18급 극초보): 85% 확률로 2~5위 후보 선택 (인간적인 초보 실수 수)
-      if (rand < 0.85 && evaluatedCandidates.length >= 2) {
+      // 1회 연산 (18급 극초보): 90% 확률로 2~5위 후보 무작위 선택 (확실한 왕초보 행마)
+      if (rand < 0.90 && evaluatedCandidates.length >= 2) {
         chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 4) + 1);
       }
     } else if (sims === 2) {
-      // 2회 연산 (17급 초보): 70% 확률로 2~4위 후보 선택
-      if (rand < 0.70 && evaluatedCandidates.length >= 2) {
+      // 2회 연산 (17급 초보): 75% 확률로 2~4위 후보 선택
+      if (rand < 0.75 && evaluatedCandidates.length >= 2) {
         chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 3) + 1);
       }
     } else if (sims === 3) {
-      // 3회 연산 (16급 기초): 55% 확률로 2~3위 후보 선택
-      if (rand < 0.55 && evaluatedCandidates.length >= 2) {
+      // 3회 연산 (16급 기초): 60% 확률로 2~3위 후보 선택
+      if (rand < 0.60 && evaluatedCandidates.length >= 2) {
         chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 2) + 1);
       }
     } else if (sims === 4) {
@@ -173,17 +175,21 @@ export class MCTSEngine {
 
     const selectedCand = evaluatedCandidates[chosenIndex] || evaluatedCandidates[0];
 
-    const recommendations: AiRecommendation[] = evaluatedCandidates.slice(0, 3).map((item, idx) => {
-      const scoreDiff = item.totalScore - (evaluatedCandidates[1]?.totalScore || item.totalScore);
-      const winRateChange = Math.min(5.0, Math.max(0.2, Math.round(scoreDiff * 0.1 * 10) / 10));
-      return {
-        point: item.point,
-        rank: idx + 1,
-        winRateChange: idx === 0 ? winRateChange : -winRateChange,
-        explanation: item.explanation,
-        category: item.category
-      };
-    });
+    // Filter out recommendations to strictly empty cells only!
+    const recommendations: AiRecommendation[] = evaluatedCandidates
+      .filter(item => board.grid[item.point.y][item.point.x] === null)
+      .slice(0, 3)
+      .map((item, idx) => {
+        const scoreDiff = item.totalScore - (evaluatedCandidates[1]?.totalScore || item.totalScore);
+        const winRateChange = Math.min(5.0, Math.max(0.2, Math.round(scoreDiff * 0.1 * 10) / 10));
+        return {
+          point: item.point,
+          rank: idx + 1,
+          winRateChange: idx === 0 ? winRateChange : -winRateChange,
+          explanation: item.explanation,
+          category: item.category
+        };
+      });
 
     return {
       move: selectedCand ? selectedCand.point : null,

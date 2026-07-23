@@ -402,6 +402,7 @@ export function App() {
       const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false, aiRank, b.grid);
       if (extResult && extResult.recommendations && extResult.recommendations.length > 0) {
         setRecommendations(extResult.recommendations);
+        setShowHints(true);
         setIsThinking(false);
       } else {
         setIsThinking(false);

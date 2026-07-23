@@ -52,12 +52,18 @@ export const AiCoachPanel: React.FC<AiCoachPanelProps> = ({
         </div>
         {mode === 'play' && (
           <button
-            onClick={onRequestHints}
+            onClick={() => {
+              if (showHints) {
+                onToggleHints();
+              } else {
+                onRequestHints();
+              }
+            }}
             disabled={isThinking}
-            className="glass-button gold"
+            className={`glass-button ${showHints ? 'primary' : 'gold'}`}
             style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem' }}
           >
-            <Compass size={14} /> AI 추천 받기
+            <Compass size={14} /> {showHints ? '추천 숨기기' : 'AI 추천 받기'}
           </button>
         )}
       </div>
