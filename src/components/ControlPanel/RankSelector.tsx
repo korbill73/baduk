@@ -1,7 +1,7 @@
 import React from 'react';
 import type { RankInfo } from '../../types/go';
 import { RANKS_DATA } from '../../data/tsumegoPuzzles';
-import { X, CheckCircle2, Lock, Trophy, Flame, Swords, Crown, Shield, Gem } from 'lucide-react';
+import { X, CheckCircle2, Lock, Trophy, Flame, Swords, Crown, Shield, Gem, Zap } from 'lucide-react';
 import { soundManager } from '../../sound/SoundManager';
 
 interface RankSelectorProps {
@@ -19,47 +19,76 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
   onSelectRank,
   onClose,
 }) => {
-  // Color palette by stage tier for rich RPG game aesthetic
-  const getStageTheme = (idx: number) => {
+  console.log('Current active rank:', currentRank.name);
+  // Rich bright color palettes for high readability and game feel
+  const getStageTheme = (idx: number, isCurrent: boolean, isUnlocked: boolean) => {
+    if (isCurrent) {
+      return {
+        accent: '#fbbf24',
+        bg: 'linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(30, 58, 110, 0.95))',
+        border: '#fbbf24',
+        glow: '0 0 30px rgba(245, 158, 11, 0.7)',
+        textColor: '#ffffff',
+        subTextColor: '#fef08a',
+        badgeBg: 'linear-gradient(135deg, #f59e0b, #d97706)',
+        icon: <Zap size={16} color="#fbbf24" className="animate-pulse" />
+      };
+    }
+
     if (idx <= 2) {
       return {
-        accent: '#10b981',
-        gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 78, 59, 0.4))',
-        border: 'rgba(16, 185, 129, 0.5)',
-        glow: 'rgba(16, 185, 129, 0.35)',
+        accent: '#34d399',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(20, 45, 75, 0.9))' : 'rgba(25, 40, 65, 0.85)',
+        border: isUnlocked ? '#10b981' : 'rgba(16, 185, 129, 0.35)',
+        glow: 'none',
+        textColor: '#f8fafc',
+        subTextColor: '#a7f3d0',
+        badgeBg: '#10b981',
         icon: <Shield size={14} color="#34d399" />
       };
     } else if (idx <= 5) {
       return {
         accent: '#38bdf8',
-        gradient: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(3, 105, 161, 0.4))',
-        border: 'rgba(56, 189, 248, 0.5)',
-        glow: 'rgba(56, 189, 248, 0.35)',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(15, 45, 80, 0.9))' : 'rgba(25, 45, 75, 0.85)',
+        border: isUnlocked ? '#38bdf8' : 'rgba(56, 189, 248, 0.35)',
+        glow: 'none',
+        textColor: '#f8fafc',
+        subTextColor: '#bae6fd',
+        badgeBg: '#0284c7',
         icon: <Gem size={14} color="#38bdf8" />
       };
     } else if (idx <= 8) {
       return {
         accent: '#c084fc',
-        gradient: 'linear-gradient(135deg, rgba(192, 132, 252, 0.2), rgba(126, 34, 206, 0.4))',
-        border: 'rgba(192, 132, 252, 0.5)',
-        glow: 'rgba(192, 132, 252, 0.35)',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(192, 132, 252, 0.22), rgba(35, 30, 75, 0.9))' : 'rgba(35, 35, 70, 0.85)',
+        border: isUnlocked ? '#c084fc' : 'rgba(192, 132, 252, 0.35)',
+        glow: 'none',
+        textColor: '#f8fafc',
+        subTextColor: '#e9d5ff',
+        badgeBg: '#9333ea',
         icon: <Swords size={14} color="#c084fc" />
       };
     } else if (idx <= 11) {
       return {
-        accent: '#fbbf24',
-        gradient: 'linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(180, 83, 9, 0.45))',
-        border: 'rgba(251, 191, 36, 0.6)',
-        glow: 'rgba(251, 191, 36, 0.45)',
-        icon: <Crown size={14} color="#fbbf24" />
+        accent: '#f43f5e',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(244, 63, 94, 0.22), rgba(50, 25, 60, 0.9))' : 'rgba(45, 25, 55, 0.85)',
+        border: isUnlocked ? '#f43f5e' : 'rgba(244, 63, 94, 0.35)',
+        glow: 'none',
+        textColor: '#f8fafc',
+        subTextColor: '#fecdd3',
+        badgeBg: '#e11d48',
+        icon: <Crown size={14} color="#f43f5e" />
       };
     } else {
       return {
-        accent: '#f43f5e',
-        gradient: 'linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(159, 18, 57, 0.55))',
-        border: 'rgba(244, 63, 94, 0.75)',
-        glow: 'rgba(244, 63, 94, 0.5)',
-        icon: <Flame size={14} color="#f43f5e" />
+        accent: '#fb923c',
+        bg: isUnlocked ? 'linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(60, 30, 40, 0.9))' : 'rgba(50, 30, 45, 0.85)',
+        border: isUnlocked ? '#fb923c' : 'rgba(251, 146, 60, 0.35)',
+        glow: 'none',
+        textColor: '#f8fafc',
+        subTextColor: '#fed7aa',
+        badgeBg: '#ea580c',
+        icon: <Flame size={14} color="#fb923c" />
       };
     }
   };
@@ -71,7 +100,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
       left: 0,
       width: '100vw',
       height: '100vh',
-      backgroundColor: 'rgba(2, 6, 20, 0.92)',
+      backgroundColor: 'rgba(6, 14, 30, 0.94)',
       backdropFilter: 'blur(14px)',
       display: 'flex',
       alignItems: 'center',
@@ -85,80 +114,81 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
         maxHeight: '96vh',
         display: 'flex',
         flexDirection: 'column',
-        padding: '1rem 1.2rem',
+        padding: '1.1rem 1.3rem',
         position: 'relative',
+        background: 'linear-gradient(145deg, rgba(15, 28, 54, 0.98), rgba(10, 20, 40, 0.99))',
         border: '2px solid #fbbf24',
-        boxShadow: '0 0 60px rgba(245, 158, 11, 0.35)',
+        boxShadow: '0 0 60px rgba(245, 158, 11, 0.4)',
         borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden' // Force zero scrollbar
+        overflow: 'hidden'
       }}>
-        {/* Header Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.45rem', borderBottom: '1px solid rgba(255,255,255,0.12)', paddingBottom: '0.4rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        {/* Modal Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '0.45rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <div style={{
-              width: '36px', height: '36px', borderRadius: '50%',
-              background: 'linear-gradient(135deg, #f59e0b, #b45309)',
+              width: '38px', height: '38px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 14px rgba(245, 158, 11, 0.6)'
+              boxShadow: '0 0 16px rgba(245, 158, 11, 0.7)'
             }}>
-              <Trophy size={20} color="#fff" />
+              <Trophy size={22} color="#fff" />
             </div>
             <div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#f8fafc', margin: 0, letterSpacing: '-0.3px', background: 'linear-gradient(90deg, #f8fafc, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                🎮 AI 수읽기 승단 챌린지 RPG 스테이지 맵 (한눈에 전체 보기)
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.3px', background: 'linear-gradient(90deg, #ffffff, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                🎮 AI 수읽기 승단 챌린지 RPG 스테이지 맵
               </h2>
-              <p style={{ fontSize: '0.74rem', color: 'var(--text-muted)', margin: '1px 0 0 0' }}>
-                현 단계를 1승하면 다음 수읽기 레벨이 언락되며, 3패를 기록하면 아래 단계로 강등됩니다!
+              <p style={{ fontSize: '0.78rem', color: '#cbd5e1', margin: '1px 0 0 0', fontWeight: 600 }}>
+                현재 최고 해금 단계에서 1승 시 다음 수읽기 레벨이 즉시 언락되며, 3패 기록 시 아래 단계로 강등됩니다!
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="glass-button"
-            style={{ padding: '0.35rem', borderRadius: '50%' }}
+            style={{ padding: '0.4rem', borderRadius: '50%' }}
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
 
-        {/* Challenge Rule Banner */}
+        {/* Challenge Rule Banner (Bright & Highlighted) */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(56, 189, 248, 0.14))',
-          border: '1px solid rgba(245, 158, 11, 0.4)',
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(56, 189, 248, 0.22))',
+          border: '1.5px solid #fbbf24',
           borderRadius: 'var(--radius-md)',
-          padding: '0.4rem 0.8rem',
-          marginBottom: '0.6rem',
+          padding: '0.45rem 0.9rem',
+          marginBottom: '0.65rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.65rem'
+          gap: '0.75rem',
+          boxShadow: '0 4px 15px rgba(245,158,11,0.2)'
         }}>
-          <Flame size={18} color="#fbbf24" style={{ flexShrink: 0 }} />
-          <div style={{ fontSize: '0.74rem', lineHeight: 1.3, color: '#f1f5f9' }}>
-            <strong style={{ color: '#fbbf24', fontSize: '0.8rem', marginRight: '6px' }}>
+          <Flame size={20} color="#fbbf24" style={{ flexShrink: 0 }} />
+          <div style={{ fontSize: '0.78rem', lineHeight: 1.35, color: '#ffffff' }}>
+            <strong style={{ color: '#fbbf24', fontSize: '0.84rem', marginRight: '6px', fontWeight: 900 }}>
               ⚔️ 승단 / 강등 규칙:
             </strong>
             <span>
-              • <strong>승급 규칙</strong>: 최고 해금 단계에서 <strong>1승만 거두면 다음 단계 언락!</strong>
+              • <strong>승급 규칙</strong>: 최고 해금 단계에서 <strong>1승만 거두면 다음 단계 즉시 언락!</strong>
               &nbsp;&nbsp;|&nbsp;&nbsp;
-              • <strong>강등 규칙</strong>: 누적 <strong>3패 달성 시 1단계 아래 강등</strong> (현재 누적: <strong style={{ color: '#ef4444' }}>{currentRankLosses}패</strong> / 3패 시 강등)
+              • <strong>강등 규칙</strong>: 도전 중 <strong>3패 달성 시 1단계 아래 강등</strong> (현재 누적: <strong style={{ color: '#ef4444', background: 'rgba(239,68,68,0.2)', padding: '1px 6px', borderRadius: '4px' }}>{currentRankLosses}패</strong> / 3패 시 강등)
             </span>
           </div>
         </div>
 
-        {/* Ranks Quest Map Grid - Fixed 4 Columns, Zero Scrollbar */}
+        {/* Ranks Quest Map Grid - Fixed 4 Columns, Zero Scrollbar, High Brightness */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '0.55rem',
-          overflow: 'hidden', // Completely eliminate scrollbars
+          gap: '0.6rem',
+          overflow: 'hidden',
           flex: 1
         }}>
           {RANKS_DATA.map((rank, idx) => {
-            const isSelected = rank.id === currentRank.id;
             const isUnlocked = idx <= maxUnlockedRankIndex;
             const isCleared = idx < maxUnlockedRankIndex;
             const isCurrentChallenge = idx === maxUnlockedRankIndex;
-            const theme = getStageTheme(idx);
+            const theme = getStageTheme(idx, isCurrentChallenge, isUnlocked);
 
             return (
               <div
@@ -174,68 +204,76 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                   onClose();
                 }}
                 style={{
-                  background: isSelected
-                    ? `linear-gradient(135deg, ${theme.accent}33, rgba(15, 23, 42, 0.95))`
-                    : isUnlocked
-                      ? theme.gradient
-                      : 'rgba(15, 23, 42, 0.55)',
-                  border: isSelected
-                    ? `2px solid ${theme.accent}`
-                    : isCurrentChallenge
-                      ? '2px solid #fbbf24'
-                      : isCleared
-                        ? `1.5px solid ${theme.border}`
-                        : '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 'var(--radius-sm)',
-                  padding: '0.45rem 0.65rem',
+                  background: theme.bg,
+                  border: isCurrentChallenge ? '3px solid #fbbf24' : `1.8px solid ${theme.border}`,
+                  borderRadius: 'var(--radius-md)',
+                  padding: isCurrentChallenge ? '0.5rem 0.75rem' : '0.48rem 0.7rem',
                   cursor: isUnlocked ? 'pointer' : 'not-allowed',
                   position: 'relative',
-                  transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  gap: '0.2rem',
-                  boxShadow: isSelected
-                    ? `0 0 18px ${theme.glow}`
-                    : isCurrentChallenge
-                      ? '0 0 14px rgba(245, 158, 11, 0.4)'
-                      : 'none',
-                  opacity: isUnlocked ? 1 : 0.4,
+                  gap: '0.25rem',
+                  boxShadow: theme.glow,
+                  transform: isCurrentChallenge ? 'scale(1.02)' : 'none',
+                  zIndex: isCurrentChallenge ? 10 : 1,
                   overflow: 'hidden'
                 }}
               >
                 {/* Header Line inside card */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     {theme.icon}
-                    <span style={{ fontSize: '0.68rem', fontWeight: 900, color: theme.accent, letterSpacing: '0.4px' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 900, color: theme.accent, letterSpacing: '0.4px' }}>
                       STAGE {idx + 1}
                     </span>
                   </div>
 
-                  {/* Status Badge */}
+                  {/* Status Badges - Bright & Contained */}
                   <div>
                     {isCurrentChallenge && (
                       <span style={{
-                        background: '#fbbf24', color: '#0f172a', fontSize: '0.6rem', fontWeight: 900,
-                        padding: '1px 5px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(245,158,11,0.4)',
-                        display: 'inline-flex', alignItems: 'center', gap: '2px'
+                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                        color: '#ffffff',
+                        fontSize: '0.64rem',
+                        fontWeight: 900,
+                        padding: '2px 7px',
+                        borderRadius: '10px',
+                        boxShadow: '0 2px 8px rgba(245,158,11,0.6)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px'
                       }}>
-                        ⭐ 도전 중
+                        ⭐ 현재 도전 중!
                       </span>
                     )}
                     {isCleared && !isCurrentChallenge && (
                       <span style={{
-                        background: 'rgba(16, 185, 129, 0.85)', color: '#fff', fontSize: '0.6rem', fontWeight: 800,
-                        padding: '1px 5px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '2px'
+                        background: '#10b981',
+                        color: '#ffffff',
+                        fontSize: '0.63rem',
+                        fontWeight: 800,
+                        padding: '1.5px 6px',
+                        borderRadius: '10px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px'
                       }}>
                         <CheckCircle2 size={10} /> 완료
                       </span>
                     )}
                     {!isUnlocked && (
                       <span style={{
-                        background: 'rgba(71, 85, 105, 0.75)', color: '#cbd5e1', fontSize: '0.6rem', fontWeight: 700,
-                        padding: '1px 5px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '2px'
+                        background: 'rgba(51, 65, 85, 0.9)',
+                        color: '#94a3b8',
+                        fontSize: '0.62rem',
+                        fontWeight: 700,
+                        padding: '1.5px 6px',
+                        borderRadius: '10px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px'
                       }}>
                         <Lock size={10} /> 잠김
                       </span>
@@ -243,25 +281,46 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                   </div>
                 </div>
 
-                {/* Stage Title */}
-                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: isUnlocked ? '#f8fafc' : '#94a3b8', margin: '0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {/* Stage Title - Bright Clear Text */}
+                <div style={{
+                  fontSize: isCurrentChallenge ? '0.96rem' : '0.88rem',
+                  fontWeight: 900,
+                  color: isCurrentChallenge ? '#fbbf24' : '#ffffff',
+                  margin: '0',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
                   {rank.name}
                 </div>
 
-                {/* Short Description */}
-                <div style={{ fontSize: '0.66rem', color: isUnlocked ? '#cbd5e1' : '#64748b', lineHeight: 1.25, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {/* Clear Bright Description */}
+                <div style={{
+                  fontSize: '0.68rem',
+                  color: isCurrentChallenge ? '#fef08a' : (isUnlocked ? '#e2e8f0' : '#cbd5e1'),
+                  lineHeight: 1.25,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  fontWeight: 500
+                }}>
                   {rank.description}
                 </div>
 
-                {/* Search Depth Bar */}
+                {/* Search Depth & Visits Bar */}
                 <div style={{
-                  fontSize: '0.65rem', fontWeight: 800, color: isUnlocked ? theme.accent : '#64748b',
-                  background: isUnlocked ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.15)',
-                  padding: '2px 4px', borderRadius: '4px', textAlign: 'center',
-                  border: `1px solid ${isUnlocked ? theme.border : 'transparent'}`,
-                  whiteSpace: 'nowrap', overflow: 'hidden'
+                  fontSize: '0.66rem',
+                  fontWeight: 800,
+                  color: isCurrentChallenge ? '#ffffff' : theme.accent,
+                  background: isCurrentChallenge ? 'rgba(245, 158, 11, 0.4)' : 'rgba(15, 23, 42, 0.75)',
+                  padding: '2.5px 5px',
+                  borderRadius: '5px',
+                  textAlign: 'center',
+                  border: `1px solid ${isCurrentChallenge ? '#fbbf24' : theme.border}`,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden'
                 }}>
-                  탐색: {rank.searchDepth}수 ({rank.mctsSimulations}회)
+                  탐색 깊이: {rank.searchDepth}수 ({rank.mctsSimulations}회 연산)
                 </div>
               </div>
             );
