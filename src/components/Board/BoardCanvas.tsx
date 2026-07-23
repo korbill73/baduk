@@ -370,7 +370,7 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {onToggleExpand && (
         <div className="board-expand-bar" style={{
-          maxWidth: isExpanded ? 'min(780px, calc(100vh - 120px))' : '640px',
+          maxWidth: isExpanded ? 'min(780px, calc(100vh - 120px))' : 'min(calc(100vh - 140px), 720px)',
         }}>
           <button
             onClick={onToggleExpand}
@@ -384,8 +384,8 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
 
       <div className="board-frame" style={{
         width: '100%',
-        maxWidth: isExpanded ? 'min(100vw - 12px, 780px, calc(100vh - 120px))' : 'min(100vw - 12px, 640px)',
-        maxHeight: isExpanded ? 'calc(100vh - 120px)' : 'none',
+        maxWidth: isExpanded ? 'min(100vw - 12px, 780px, calc(100vh - 120px))' : 'min(100vw - 12px, calc(100vh - 140px), 720px)',
+        maxHeight: isExpanded ? 'calc(100vh - 120px)' : 'calc(100vh - 140px)',
         aspectRatio: '1/1',
         margin: '0 auto',
         position: 'relative',

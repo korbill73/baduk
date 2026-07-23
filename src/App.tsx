@@ -542,7 +542,7 @@ export function App() {
   };
 
   return (
-    <div className="app-main-container" style={{ maxWidth: '1440px', margin: '0 auto', padding: isBoardExpanded ? '0.3rem 1.2rem 0.5rem 1.2rem' : '0.5rem 1.2rem 0.6rem 1.2rem', transition: 'padding 0.3s' }}>
+    <div className="app-main-container" style={{ maxWidth: '1440px', margin: '0 auto', padding: isBoardExpanded ? '0.2rem 0.8rem 0.3rem 0.8rem' : '0.3rem 0.8rem 0.5rem 0.8rem', transition: 'padding 0.3s' }}>
       {!isBoardExpanded && (
         <Header
           mode={mode}

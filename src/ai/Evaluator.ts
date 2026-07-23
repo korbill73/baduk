@@ -173,14 +173,8 @@ export class Evaluator {
       score += 8.0;
     }
 
-    // Noise perturbation based on rank level
-    if (rankName.includes('18급') || rankName.includes('15급')) {
-      score += (Math.random() - 0.5) * 30.0;
-    } else if (rankName.includes('급')) {
-      score += (Math.random() - 0.5) * 5.0;
-    } else {
-      score += (Math.random() - 0.5) * 0.5;
-    }
+    // Minimal noise for tie-breaking only (동점 방지용 미세 노이즈)
+    score += (Math.random() - 0.5) * 0.5;
 
     return score;
   }

@@ -506,9 +506,9 @@ button,
 /* ===== PC 데스크탑 (961px 이상) 프리미엄 레이아웃 최적화 ===== */
 @media (min-width: 961px) {
   .app-main-container {
-    max-width: 1320px !important;
+    max-width: 1400px !important;
     margin: 0 auto !important;
-    padding: 0.5rem 1rem 3rem 1rem !important;
+    padding: 0.3rem 0.8rem 1rem 0.8rem !important;
   }
 
   .main-game-layout {
@@ -516,9 +516,9 @@ button,
     flex-direction: row !important;
     justify-content: center !important;
     align-items: flex-start !important;
-    gap: 1.5rem !important;
+    gap: 1.2rem !important;
     width: 100% !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
   }
 
   .right-panel-scroll {
@@ -530,9 +530,9 @@ button,
   }
 
   .header-container {
-    padding: 0.65rem 1.2rem !important;
-    margin-bottom: 1rem !important;
-    max-width: 1320px !important;
+    padding: 0.5rem 1rem !important;
+    margin-bottom: 0.4rem !important;
+    max-width: 1400px !important;
     margin-left: auto !important;
     margin-right: auto !important;
   }

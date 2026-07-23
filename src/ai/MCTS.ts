@@ -16,11 +16,12 @@ export class MCTSEngine {
     const rankName = rankInfo?.name || '1수 읽기 (1회 연산)';
     const openingRate = rankInfo?.openingBookRate ?? 0.1;
 
-    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris (40% execute rate for level 1-2)
+    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris
     const urgentMoves = TacticalSolver.findUrgentTacticalMoves(board, aiColor);
     if (urgentMoves.length > 0) {
       const topUrgent = urgentMoves[0];
-      const urgentExecuteRate = sims <= 2 ? 0.4 : (sims <= 4 ? 0.65 : 0.95);
+      // 초급(1-2): 50% 확률로 단수 방어/포획, 중급(3-4): 70%, 고급: 95%
+      const urgentExecuteRate = sims <= 2 ? 0.50 : (sims <= 4 ? 0.70 : 0.95);
       if (topUrgent.priorityScore >= 9000 && Math.random() < urgentExecuteRate) {
         const rec: AiRecommendation = {
           point: topUrgent.point,
@@ -33,8 +34,8 @@ export class MCTSEngine {
       }
     }
 
-    // 1. Check Joseki / Opening Book (Disabled for levels 1-2 so AI won't play pro openings)
-    if (sims >= 3 && Math.random() < openingRate) {
+    // 1. Check Joseki / Opening Book
+    if (sims >= 2 && Math.random() < openingRate) {
       const opening = JosekiBook.getOpeningMove(board.size, board.grid, aiColor);
       if (opening && board.grid[opening.point.y][opening.point.x] === null) {
         const rec: AiRecommendation = {
@@ -53,12 +54,13 @@ export class MCTSEngine {
       return { move: null, recommendations: [] };
     }
 
-    // 2. Evaluate and score valid moves using Evaluator
+    // 2. Evaluate ALL valid moves using full-strength Evaluator (모든 단계에서 동일)
+    // 핵심: 초급이라도 "정확한 평가"를 하고, "의도적으로 약한 수를 선택"하는 구조
     const candidateScores: { point: Point; heuristicScore: number }[] = [];
     for (const pt of validMoves) {
-      // Ensure move is strictly on an empty cell
       if (board.grid[pt.y][pt.x] !== null) continue;
-      const score = Evaluator.evaluateMovePattern(board, pt.x, pt.y, aiColor, rankName);
+      // 평가 시에는 항상 프로급 rankName을 사용하여 정확한 점수를 산출
+      const score = Evaluator.evaluateMovePattern(board, pt.x, pt.y, aiColor, '프로 평가');
       if (score > -300) {
         candidateScores.push({ point: pt, heuristicScore: score });
       }
@@ -69,8 +71,8 @@ export class MCTSEngine {
     }
 
     candidateScores.sort((a, b) => b.heuristicScore - a.heuristicScore);
-    const candidateLimit = sims <= 2 ? 6 : (sims <= 5 ? 10 : 16);
-    const topCandidates = candidateScores.slice(0, Math.min(candidateLimit, candidateScores.length));
+    // 상위 16개 후보를 항상 선별 (모든 단계 동일)
+    const topCandidates = candidateScores.slice(0, Math.min(16, candidateScores.length));
 
     const enemyColor: StoneColor = aiColor === 'black' ? 'white' : 'black';
     const evaluatedCandidates: {
@@ -80,7 +82,7 @@ export class MCTSEngine {
       category: '실리' | '세력' | '공격' | '방어' | '끝내기' | '정석';
     }[] = [];
 
-    // 3. Minimax Lookahead
+    // 3. Minimax Lookahead (모든 단계에서 최소 1수 앞 읽기 수행)
     for (const cand of topCandidates) {
       const simBoard = new GoBoard(board.size, false);
       simBoard.grid = board.cloneGrid(board.grid);
@@ -95,11 +97,12 @@ export class MCTSEngine {
 
       let worstCounterBalance = staticBalance;
 
+      // 2수 이상 읽기: 상대 반격 시뮬레이션
       if (sims >= 5) {
         const enemyMoves = simBoard.getValidMovesFast(enemyColor);
         const enemyCandidates: { pt: Point; score: number }[] = [];
         for (const ePt of enemyMoves) {
-          const eScore = Evaluator.evaluateMovePattern(simBoard, ePt.x, ePt.y, enemyColor, rankName);
+          const eScore = Evaluator.evaluateMovePattern(simBoard, ePt.x, ePt.y, enemyColor, '프로 평가');
           if (eScore > -200) {
             enemyCandidates.push({ pt: ePt, score: eScore });
           }
@@ -140,36 +143,60 @@ export class MCTSEngine {
 
     evaluatedCandidates.sort((a, b) => b.totalScore - a.totalScore);
 
-    // 4. BEGINNER-FRIENDLY SOFTMOVE INJECTION (Level 1: 90% soft random moves)
+    // ====================================================================
+    // 4. 단계별 "의도적 차선수 선택" (Controlled Blunder Selection)
+    //    핵심 철학: AI는 항상 정확하게 평가하되, 낮은 단계에서는
+    //    "충분히 좋지만 최선은 아닌 수"를 의도적으로 선택함.
+    //    이렇게 하면 바둑의 기본 형태(포석, 연결, 집짓기)를 유지하면서도
+    //    초보자가 승리할 수 있는 빈틈을 자연스럽게 제공합니다.
+    // ====================================================================
     let chosenIndex = 0;
     const rand = Math.random();
+    const numCands = evaluatedCandidates.length;
 
-    if (sims === 1) {
-      // 1회 연산 (18급 극초보): 90% 확률로 2~5위 후보 무작위 선택 (확실한 왕초보 행마)
-      if (rand < 0.90 && evaluatedCandidates.length >= 2) {
-        chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 4) + 1);
+    if (sims <= 1) {
+      // 1수 읽기 (18급): 1위 25%, 2위 30%, 3~4위 30%, 5~6위 15%
+      // → 바둑 형태는 유지하면서 가끔 약한 수 선택
+      if (numCands >= 5 && rand < 0.15) {
+        chosenIndex = 4 + Math.floor(Math.random() * Math.min(2, numCands - 4));
+      } else if (numCands >= 3 && rand < 0.45) {
+        chosenIndex = 2 + Math.floor(Math.random() * Math.min(2, numCands - 2));
+      } else if (numCands >= 2 && rand < 0.75) {
+        chosenIndex = 1;
       }
+      // else chosenIndex = 0 (1위 선택, 25%)
     } else if (sims === 2) {
-      // 2회 연산 (17급 초보): 75% 확률로 2~4위 후보 선택
-      if (rand < 0.75 && evaluatedCandidates.length >= 2) {
-        chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 3) + 1);
+      // 2수 읽기 (17급): 1위 35%, 2위 35%, 3~4위 25%, 5위+ 5%
+      if (numCands >= 5 && rand < 0.05) {
+        chosenIndex = 4 + Math.floor(Math.random() * Math.min(2, numCands - 4));
+      } else if (numCands >= 3 && rand < 0.30) {
+        chosenIndex = 2 + Math.floor(Math.random() * Math.min(2, numCands - 2));
+      } else if (numCands >= 2 && rand < 0.65) {
+        chosenIndex = 1;
       }
     } else if (sims === 3) {
-      // 3회 연산 (16급 기초): 60% 확률로 2~3위 후보 선택
-      if (rand < 0.60 && evaluatedCandidates.length >= 2) {
-        chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 2) + 1);
+      // 3수 읽기 (16급): 1위 45%, 2위 35%, 3위 20%
+      if (numCands >= 3 && rand < 0.20) {
+        chosenIndex = 2;
+      } else if (numCands >= 2 && rand < 0.55) {
+        chosenIndex = 1;
       }
     } else if (sims === 4) {
-      // 4회 연산 (15급 기초+): 40% 확률로 2위 후보 선택
-      if (rand < 0.40 && evaluatedCandidates.length >= 2) {
+      // 4수 읽기 (15급): 1위 60%, 2위 30%, 3위 10%
+      if (numCands >= 3 && rand < 0.10) {
+        chosenIndex = 2;
+      } else if (numCands >= 2 && rand < 0.40) {
         chosenIndex = 1;
       }
     } else if (sims === 5) {
-      // 5회 연산 (14급): 25% 확률로 2위 후보 선택
-      if (rand < 0.25 && evaluatedCandidates.length >= 2) {
+      // 5수 읽기 (14급): 1위 75%, 2위 20%, 3위 5%
+      if (numCands >= 3 && rand < 0.05) {
+        chosenIndex = 2;
+      } else if (numCands >= 2 && rand < 0.25) {
         chosenIndex = 1;
       }
     }
+    // sims >= 6: 항상 1위 최선수 선택
 
     const selectedCand = evaluatedCandidates[chosenIndex] || evaluatedCandidates[0];
 
@@ -195,3 +222,4 @@ export class MCTSEngine {
     };
   }
 }
+
