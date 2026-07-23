@@ -657,7 +657,7 @@ export function App() {
             <button
               onClick={() => setShowRankSelector(true)}
               className="glass-button primary"
-              style={{ padding: '0.35rem 0.7rem', fontSize: '0.76rem', whiteSpace: 'nowrap', flexShrink: 0, background: 'linear-gradient(135deg, #f59e0b, #d97706)', borderColor: '#fbbf24' }}
+              style={{ padding: '0.3rem 0.55rem', fontSize: '0.72rem', whiteSpace: 'nowrap', flexShrink: 0, background: 'linear-gradient(135deg, #f59e0b, #d97706)', borderColor: '#fbbf24' }}
             >
               🎮 단계 선택 맵
             </button>
