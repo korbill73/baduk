@@ -34,8 +34,12 @@ export class MCTSEngine {
       }
     }
 
-    // 1. Check Joseki / Opening Book
-    if (sims >= 2 && Math.random() < openingRate) {
+    // 1. Check Joseki / Opening Book (Enabled for ALL levels so opening moves are beautifully distributed across corners & sides)
+    const totalStonesOnBoard = board.grid.flat().filter(c => c !== null).length;
+    const isEarlyOpening = totalStonesOnBoard < 30;
+    const effectiveOpeningRate = isEarlyOpening ? Math.max(openingRate, 0.85) : openingRate;
+
+    if (Math.random() < effectiveOpeningRate) {
       const opening = JosekiBook.getOpeningMove(board.size, board.grid, aiColor);
       if (opening && board.grid[opening.point.y][opening.point.x] === null) {
         const rec: AiRecommendation = {
@@ -155,38 +159,36 @@ export class MCTSEngine {
     const numCands = evaluatedCandidates.length;
 
     if (sims <= 1) {
-      // 1수 읽기 (18급): 1위 25%, 2위 30%, 3~4위 30%, 5~6위 15%
-      // → 바둑 형태는 유지하면서 가끔 약한 수 선택
-      if (numCands >= 5 && rand < 0.15) {
-        chosenIndex = 4 + Math.floor(Math.random() * Math.min(2, numCands - 4));
-      } else if (numCands >= 3 && rand < 0.45) {
-        chosenIndex = 2 + Math.floor(Math.random() * Math.min(2, numCands - 2));
-      } else if (numCands >= 2 && rand < 0.75) {
-        chosenIndex = 1;
-      }
-      // else chosenIndex = 0 (1위 선택, 25%)
-    } else if (sims === 2) {
-      // 2수 읽기 (17급): 1위 35%, 2위 35%, 3~4위 25%, 5위+ 5%
-      if (numCands >= 5 && rand < 0.05) {
-        chosenIndex = 4 + Math.floor(Math.random() * Math.min(2, numCands - 4));
-      } else if (numCands >= 3 && rand < 0.30) {
-        chosenIndex = 2 + Math.floor(Math.random() * Math.min(2, numCands - 2));
-      } else if (numCands >= 2 && rand < 0.65) {
-        chosenIndex = 1;
-      }
-    } else if (sims === 3) {
-      // 3수 읽기 (16급): 1위 45%, 2위 35%, 3위 20%
-      if (numCands >= 3 && rand < 0.20) {
-        chosenIndex = 2;
-      } else if (numCands >= 2 && rand < 0.55) {
-        chosenIndex = 1;
-      }
-    } else if (sims === 4) {
-      // 4수 읽기 (15급): 1위 60%, 2위 30%, 3위 10%
+      // 1수 읽기 (18급): 1위 최선수 70%, 2위 차선수 20%, 3위 10% (무작위 엉뚱한 수 0%)
       if (numCands >= 3 && rand < 0.10) {
         chosenIndex = 2;
-      } else if (numCands >= 2 && rand < 0.40) {
+      } else if (numCands >= 2 && rand < 0.30) {
         chosenIndex = 1;
+      } else {
+        chosenIndex = 0;
+      }
+    } else if (sims === 2) {
+      // 2수 읽기 (17급): 1위 최선수 80%, 2위 차선수 15%, 3위 5%
+      if (numCands >= 3 && rand < 0.05) {
+        chosenIndex = 2;
+      } else if (numCands >= 2 && rand < 0.20) {
+        chosenIndex = 1;
+      } else {
+        chosenIndex = 0;
+      }
+    } else if (sims === 3) {
+      // 3수 읽기 (16급): 1위 85%, 2위 15%
+      if (numCands >= 2 && rand < 0.15) {
+        chosenIndex = 1;
+      } else {
+        chosenIndex = 0;
+      }
+    } else if (sims === 4) {
+      // 4수 읽기 (15급): 1위 90%, 2위 10%
+      if (numCands >= 2 && rand < 0.10) {
+        chosenIndex = 1;
+      } else {
+        chosenIndex = 0;
       }
     } else if (sims === 5) {
       // 5수 읽기 (14급): 1위 75%, 2위 20%, 3위 5%
