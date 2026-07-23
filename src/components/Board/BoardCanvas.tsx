@@ -35,7 +35,7 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
 
   // Constants for board sizing
   const BOARD_DIM = 620; // fixed canvas resolution
-  const PADDING = 44;
+  const PADDING = 48; // generous padding so 19 lines & labels (A~T, 1~19) are 100% inside canvas
   const CELL_SIZE = (BOARD_DIM - PADDING * 2) / (size - 1);
   const STONE_RADIUS = CELL_SIZE * 0.46;
 
