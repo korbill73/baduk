@@ -198,7 +198,7 @@ body {
 /* Mobile Optimization & Responsive Grid Rules */
 .main-grid-layout {
   display: grid;
-  grid-template-columns: var(--grid-cols, minmax(580px, 1.7fr) minmax(290px, 0.68fr));
+  grid-template-columns: var(--grid-cols, minmax(460px, 1.45fr) minmax(280px, 0.72fr));
   gap: 0.9rem;
   align-items: start;
 }
@@ -334,9 +334,12 @@ button,
     flex-shrink: 0;
   }
 
-  /* 모바일 바둑판 프레임 */
+  /* 모바일 바둑판 프레임 최적화 */
   .board-frame {
-    padding: 8px !important;
+    padding: 6px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
     border-radius: var(--radius-md) !important;
   }
 
