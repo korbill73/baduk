@@ -16,12 +16,11 @@ export class MCTSEngine {
     const rankName = rankInfo?.name || '1수 읽기 (1회 연산)';
     const openingRate = rankInfo?.openingBookRate ?? 0.1;
 
-    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris (96%+ for level 1-2)
+    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris (100% Perfect Tactical Defense)
     const urgentMoves = TacticalSolver.findUrgentTacticalMoves(board, aiColor);
     if (urgentMoves.length > 0) {
       const topUrgent = urgentMoves[0];
-      const urgentExecuteRate = sims <= 2 ? 0.96 : 0.99;
-      if (topUrgent.priorityScore >= 9000 && Math.random() < urgentExecuteRate) {
+      if (topUrgent.priorityScore >= 9000) {
         const rec: AiRecommendation = {
           point: topUrgent.point,
           rank: 1,
@@ -33,10 +32,10 @@ export class MCTSEngine {
       }
     }
 
-    // 1. Check Joseki / Opening Book (Enabled for ALL levels so opening moves are beautifully distributed across corners & sides)
+    // 1. Check Joseki / Opening Book (95% high precision for opening moves)
     const totalStonesOnBoard = board.grid.flat().filter(c => c !== null).length;
-    const isEarlyOpening = totalStonesOnBoard < 30;
-    const effectiveOpeningRate = isEarlyOpening ? Math.max(openingRate, 0.85) : openingRate;
+    const isEarlyOpening = totalStonesOnBoard < 35;
+    const effectiveOpeningRate = isEarlyOpening ? Math.max(openingRate, 0.95) : openingRate;
 
     if (Math.random() < effectiveOpeningRate) {
       const opening = JosekiBook.getOpeningMove(board.size, board.grid, aiColor);
@@ -158,24 +157,9 @@ export class MCTSEngine {
     //    - 6단계~(13급~): 유효 1위 (최선수 100%)
     //    종반(후반부)에는 잔여 수 감소에 따라 1~2위로 자동 수렴(Convergence)하여 판이 안 깨짐!
     // ====================================================================
-    // STAGE 1부터 헐거운 수(3위 이하)를 차단하고 1~2위 최선 정수 위주로 착수!
-    let chosenIndex = 0;
-    const numCands = evaluatedCandidates.length;
-
-    if (sims <= 1) {
-      // STAGE 1 (18급): 1위 최선수 (80%), 2위 차선수 (20%) -> 헐겁지 않은 탄탄한 18급
-      chosenIndex = (numCands >= 2 && Math.random() < 0.20) ? 1 : 0;
-    } else if (sims === 2) {
-      // STAGE 2 (17급): 1위 최선수 (90%), 2위 차선수 (10%)
-      chosenIndex = (numCands >= 2 && Math.random() < 0.10) ? 1 : 0;
-    } else if (sims === 3) {
-      // STAGE 3 (16급): 1위 최선수 (95%), 2위 차선수 (5%)
-      chosenIndex = (numCands >= 2 && Math.random() < 0.05) ? 1 : 0;
-    } else {
-      // STAGE 4 이상 (15급~): 100% 1위 최선수
-      chosenIndex = 0;
-    }
-
+    // 4. PERFECT PRO-LEVEL MOVE SELECTION: 100% 1위 최선수만 선택!
+    // 실수나 차선수를 0%로 완벽 차단하여 1단계부터 단 한 수의 허점도 없는 탄탄한 바둑 구현
+    const chosenIndex = 0;
     const selectedCand = evaluatedCandidates[chosenIndex] || evaluatedCandidates[0];
 
     // Filter out recommendations to strictly empty cells only!
