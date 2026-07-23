@@ -1,6 +1,6 @@
 import React from 'react';
 import type { GameMode } from '../../types/go';
-import { Flag, SkipForward, Undo2, Redo2, Trophy, PieChart, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Flag, SkipForward, Undo2, Redo2, PieChart, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface UserStats {
   vsAiWins?: number;
@@ -231,193 +231,147 @@ export const GameStatus: React.FC<GameStatusProps> = ({
           </div>
         </div>
 
-        {/* 덤 안내 */}
+        {/* 덤 안내 및 게임 오버 상태 */}
         <div style={{
-          marginTop: '0.65rem',
+          marginTop: '0.35rem',
           textAlign: 'center',
-          fontSize: '0.72rem', color: 'var(--text-muted)'
+          fontSize: '0.68rem', color: 'var(--text-muted)'
         }}>
-          덤 {komi}집 | {userColor === 'black' ? '흑(나) 선착' : '백(나) 후착'}
+          {gameOver && resultMessage ? (
+            <span style={{ color: '#fbbf24', fontWeight: 800 }}>🏁 {resultMessage}</span>
+          ) : (
+            `덤 ${komi}집 | ${userColor === 'black' ? '흑(나) 선착' : '백(나) 후착'}`
+          )}
         </div>
       </div>
 
-      {/* ===== 내 전적 통계 (대국화면 표시) ===== */}
+      {/* ===== 내 전적 통계 (대국화면 표시 - Slim) ===== */}
       {myStats && totalGames > 0 && (
         <div className="glass-panel" style={{
-          padding: '0.65rem 0.9rem',
+          padding: '0.45rem 0.65rem',
           background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(120,80,0,0.12))',
           border: '1px solid rgba(245,158,11,0.25)',
           borderRadius: 'var(--radius-md)',
         }}>
-          <div style={{ fontSize: '0.74rem', color: '#fbbf24', fontWeight: 700, marginBottom: '0.45rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <div style={{ fontSize: '0.7rem', color: '#fbbf24', fontWeight: 800, marginBottom: '0.3rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
             🏆 나의 전적
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.35rem', textAlign: 'center' }}>
-            <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '0.4rem 0.3rem' }}>
-              <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)' }}>총 대국</div>
-              <div style={{ fontSize: '1rem', fontWeight: 800, color: '#f8fafc' }}>{totalGames}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.25rem', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '6px', padding: '0.25rem 0.2rem' }}>
+              <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)' }}>총 대국</div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f8fafc' }}>{totalGames}</div>
             </div>
-            <div style={{ background: 'rgba(56,189,248,0.12)', borderRadius: '8px', padding: '0.4rem 0.3rem', border: '1px solid rgba(56,189,248,0.2)' }}>
-              <div style={{ fontSize: '0.66rem', color: '#38bdf8' }}>승</div>
-              <div style={{ fontSize: '1rem', fontWeight: 800, color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                <TrendingUp size={12} />{totalWins}
+            <div style={{ background: 'rgba(56,189,248,0.12)', borderRadius: '6px', padding: '0.25rem 0.2rem', border: '1px solid rgba(56,189,248,0.2)' }}>
+              <div style={{ fontSize: '0.62rem', color: '#38bdf8' }}>승</div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1px' }}>
+                <TrendingUp size={11} />{totalWins}
               </div>
             </div>
-            <div style={{ background: 'rgba(244,63,94,0.1)', borderRadius: '8px', padding: '0.4rem 0.3rem', border: '1px solid rgba(244,63,94,0.2)' }}>
-              <div style={{ fontSize: '0.66rem', color: '#f43f5e' }}>패</div>
-              <div style={{ fontSize: '1rem', fontWeight: 800, color: '#f43f5e', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                <TrendingDown size={12} />{totalLosses}
+            <div style={{ background: 'rgba(244,63,94,0.1)', borderRadius: '6px', padding: '0.25rem 0.2rem', border: '1px solid rgba(244,63,94,0.2)' }}>
+              <div style={{ fontSize: '0.62rem', color: '#f43f5e' }}>패</div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f43f5e', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1px' }}>
+                <TrendingDown size={11} />{totalLosses}
               </div>
             </div>
-            <div style={{ background: 'rgba(168,85,247,0.1)', borderRadius: '8px', padding: '0.4rem 0.3rem', border: '1px solid rgba(168,85,247,0.2)' }}>
-              <div style={{ fontSize: '0.66rem', color: '#a855f7' }}>승률</div>
-              <div style={{ fontSize: '1rem', fontWeight: 800, color: '#a855f7' }}>{winRate}%</div>
-            </div>
-          </div>
-
-          {/* 모드별 세부 통계 */}
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.45rem' }}>
-            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              <span style={{ color: '#38bdf8' }}>AI {myStats.vsAiWins||0}승{myStats.vsAiLosses||0}패</span>
-              <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
-              <span style={{ color: '#22c55e' }}>온라인 {myStats.onlineWins||0}승{myStats.onlineLosses||0}패</span>
-              <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
-              <span style={{ color: '#a855f7' }}>1:1 {myStats.pvpWins||0}승{myStats.pvpLosses||0}패</span>
+            <div style={{ background: 'rgba(168,85,247,0.1)', borderRadius: '6px', padding: '0.25rem 0.2rem', border: '1px solid rgba(168,85,247,0.2)' }}>
+              <div style={{ fontSize: '0.62rem', color: '#a855f7' }}>승률</div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#a855f7' }}>{winRate}%</div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ===== 따낸 돌 / 덤 상세 (Captures Detail) ===== */}
+      {/* ===== 따낸 돌 / 덤 상세 ===== */}
       <div className="glass-panel" style={{
-        padding: '0.65rem 0.9rem',
+        padding: '0.45rem 0.65rem',
         background: 'rgba(10,15,30,0.8)',
         border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: 'var(--radius-md)',
       }}>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'stretch' }}>
-          <div style={{ flex: 1, textAlign: 'center', padding: '0.45rem', background: 'rgba(0,0,0,0.3)', borderRadius: '8px' }}>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '2px' }}>흑 따낸 돌</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#38bdf8', lineHeight: 1 }}>{capturesBlack}</div>
+        <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'stretch' }}>
+          <div style={{ flex: 1, textAlign: 'center', padding: '0.3rem', background: 'rgba(0,0,0,0.3)', borderRadius: '6px' }}>
+            <div style={{ fontSize: '0.64rem', color: 'var(--text-muted)' }}>흑 따낸 돌</div>
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#38bdf8', lineHeight: 1 }}>{capturesBlack}</div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', paddingBottom: '0px' }}>
-            <Minus size={14} color="rgba(255,255,255,0.15)" />
+          <div style={{ flex: 1, textAlign: 'center', padding: '0.3rem', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }}>
+            <div style={{ fontSize: '0.64rem', color: 'var(--text-muted)' }}>백 따낸 돌</div>
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>{capturesWhite}</div>
           </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '0.45rem', background: 'rgba(255,255,255,0.04)', borderRadius: '8px' }}>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '2px' }}>백 따낸 돌</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>{capturesWhite}</div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Minus size={14} color="rgba(255,255,255,0.15)" />
-          </div>
-          <div style={{ flex: 1, textAlign: 'center', padding: '0.45rem', background: 'rgba(245,158,11,0.08)', borderRadius: '8px', border: '1px solid rgba(245,158,11,0.2)' }}>
-            <div style={{ fontSize: '0.7rem', color: '#fbbf24', marginBottom: '2px' }}>덤</div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fbbf24', lineHeight: 1 }}>{komi}</div>
+          <div style={{ flex: 1, textAlign: 'center', padding: '0.3rem', background: 'rgba(245,158,11,0.08)', borderRadius: '6px', border: '1px solid rgba(245,158,11,0.2)' }}>
+            <div style={{ fontSize: '0.64rem', color: '#fbbf24' }}>덤</div>
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#fbbf24', lineHeight: 1 }}>{komi}</div>
           </div>
         </div>
       </div>
 
-      {/* ===== 대국 종료 배너 ===== */}
-      {gameOver && resultMessage && (
-        <div className="glass-panel" style={{
-          background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(239,68,68,0.2))',
-          border: '1px solid var(--accent-gold)',
-          borderRadius: 'var(--radius-md)',
-          padding: '0.85rem 1rem',
-          display: 'flex', flexDirection: 'column', gap: '0.55rem',
-          whiteSpace: 'normal'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
-            <Trophy size={24} color="var(--accent-gold)" style={{ flexShrink: 0 }} />
-            <div>
-              <h4 style={{ fontWeight: 800, color: '#fbbf24', fontSize: '0.95rem' }}>대국 종료!</h4>
-              <p style={{ fontSize: '0.83rem', color: 'var(--text-main)', marginTop: '2px' }}>{resultMessage}</p>
-            </div>
-          </div>
-          <button
-            onClick={onOpenScoring}
-            className="glass-button"
-            style={{
-              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-              borderColor: '#fbbf24', color: '#fff', fontWeight: 700,
-              padding: '0.5rem 0.85rem', justifyContent: 'center', fontSize: '0.85rem'
-            }}
-          >
-            <PieChart size={16} /> 계가 및 사석 판독 창 열기
-          </button>
-        </div>
-      )}
-
-      {/* ===== 한게임 스타일 하단 액션 버튼 ===== */}
+      {/* ===== 하단 액션 버튼 ===== */}
       {(mode === 'play' || mode === 'pvp') && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
           {/* 보조 버튼 (무르기/다시) */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem' }}>
             <button
               onClick={onUndo} disabled={!canUndo || isThinking}
               className="glass-button"
-              style={{ justifyContent: 'center', padding: '0.45rem 0.5rem', fontSize: '0.82rem', opacity: !canUndo || isThinking ? 0.4 : 1 }}
+              style={{ justifyContent: 'center', padding: '0.3rem 0.4rem', fontSize: '0.75rem', opacity: !canUndo || isThinking ? 0.4 : 1 }}
               title="한 수 무르기"
             >
-              <Undo2 size={15} /> 무르기
+              <Undo2 size={13} /> 무르기
             </button>
             <button
               onClick={onRedo} disabled={!canRedo || isThinking}
               className="glass-button"
-              style={{ justifyContent: 'center', padding: '0.45rem 0.5rem', fontSize: '0.82rem', opacity: !canRedo || isThinking ? 0.4 : 1 }}
+              style={{ justifyContent: 'center', padding: '0.3rem 0.4rem', fontSize: '0.75rem', opacity: !canRedo || isThinking ? 0.4 : 1 }}
               title="다시 놓기"
             >
-              <Redo2 size={15} /> 다시 놓기
+              <Redo2 size={13} /> 다시 놓기
             </button>
           </div>
 
-          {/* 한게임 스타일 주요 버튼 (통과/기권/계가) */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.4rem' }}>
+          {/* 주요 버튼 (통과/계가/기권) */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.3rem' }}>
             <button
               onClick={onPass} disabled={isThinking || gameOver}
               style={{
-                padding: '0.55rem 0.4rem',
-                borderRadius: 'var(--radius-md)',
+                padding: '0.4rem 0.3rem',
+                borderRadius: 'var(--radius-sm)',
                 border: '1px solid rgba(245,158,11,0.5)',
                 background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(180,100,0,0.25))',
-                color: '#fbbf24', fontWeight: 700, cursor: 'pointer',
-                fontSize: '0.82rem', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', gap: '4px',
-                transition: 'all 0.15s',
+                color: '#fbbf24', fontWeight: 800, cursor: 'pointer',
+                fontSize: '0.76rem', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', gap: '3px',
                 opacity: isThinking || gameOver ? 0.4 : 1,
               }}
             >
-              <SkipForward size={14} /> 통과
+              <SkipForward size={13} /> 통과
             </button>
             <button
               onClick={onOpenScoring}
               style={{
-                padding: '0.55rem 0.4rem',
-                borderRadius: 'var(--radius-md)',
+                padding: '0.4rem 0.3rem',
+                borderRadius: 'var(--radius-sm)',
                 border: '1px solid rgba(56,189,248,0.5)',
                 background: 'linear-gradient(135deg, rgba(56,189,248,0.2), rgba(37,99,235,0.25))',
-                color: '#38bdf8', fontWeight: 700, cursor: 'pointer',
-                fontSize: '0.82rem', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', gap: '4px',
-                transition: 'all 0.15s',
+                color: '#38bdf8', fontWeight: 800, cursor: 'pointer',
+                fontSize: '0.76rem', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', gap: '3px',
               }}
             >
-              <PieChart size={14} /> 계가
+              <PieChart size={13} /> 계가
             </button>
             <button
               onClick={onResign} disabled={isThinking || gameOver}
               style={{
-                padding: '0.55rem 0.4rem',
-                borderRadius: 'var(--radius-md)',
+                padding: '0.4rem 0.3rem',
+                borderRadius: 'var(--radius-sm)',
                 border: '1px solid rgba(244,63,94,0.5)',
                 background: 'linear-gradient(135deg, rgba(244,63,94,0.18), rgba(185,28,28,0.22))',
-                color: '#f43f5e', fontWeight: 700, cursor: 'pointer',
-                fontSize: '0.82rem', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', gap: '4px', transition: 'all 0.15s',
+                color: '#f43f5e', fontWeight: 800, cursor: 'pointer',
+                fontSize: '0.76rem', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', gap: '3px',
                 opacity: isThinking || gameOver ? 0.4 : 1,
               }}
             >
-              <Flag size={14} /> 기권
+              <Flag size={13} /> 기권
             </button>
           </div>
         </div>

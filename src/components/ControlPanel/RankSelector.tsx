@@ -188,12 +188,14 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
           </div>
         </div>
 
-        {/* Ranks Quest Map Grid - Fixed 4 Columns, Zero Scrollbar */}
+        {/* Ranks Quest Map Grid - Fixed 4 Columns, Zero Scrollbar, Zero Border Clipping */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '0.6rem',
+          gap: '0.65rem',
           overflow: 'hidden',
+          padding: '8px 12px',
+          boxSizing: 'border-box',
           flex: 1
         }}>
           {RANKS_DATA.map((rank, idx) => {
@@ -218,6 +220,8 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                 style={{
                   background: theme.bg,
                   border: isCurrentChallenge ? '3px solid #fbbf24' : `1.8px solid ${theme.border}`,
+                  outline: isCurrentChallenge ? '2px solid rgba(251, 191, 36, 0.8)' : 'none',
+                  outlineOffset: '1px',
                   borderRadius: 'var(--radius-md)',
                   padding: isCurrentChallenge ? '0.5rem 0.75rem' : '0.48rem 0.7rem',
                   cursor: isUnlocked ? 'pointer' : 'not-allowed',
@@ -228,7 +232,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                   justifyContent: 'space-between',
                   gap: '0.25rem',
                   boxShadow: theme.glow,
-                  transform: isCurrentChallenge ? 'scale(1.02)' : 'none',
+                  transform: 'none',
                   zIndex: isCurrentChallenge ? 10 : 1,
                   overflow: 'hidden'
                 }}

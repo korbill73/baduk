@@ -607,19 +607,44 @@ export function App() {
             gap: '0.6rem',
             boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>🏆</span>
-              <div style={{ fontSize: '0.81rem', color: '#f8fafc', lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, minWidth: 0 }}>
+              <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>🏆</span>
+              <div style={{ fontSize: '0.82rem', color: '#ffffff', lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {currentUser ? (
                   <>
-                    <strong style={{ color: '#fbbf24' }}>[{userProfile.nickname}님]</strong> 현재 단계: <strong style={{ color: aiRank.badgeColor }}>{aiRank.name}</strong>
-                    <span style={{ color: '#38bdf8', marginLeft: '6px' }}>
-                      (⚔️ 1승 시 다음 단계 승급 | 현 3패시 강등: {userProfile.currentRankLosses || 0}/3패)
+                    <strong style={{ color: '#fbbf24' }}>[{userProfile.nickname}님]</strong>
+                    <span>현재 단계:</span>
+                    <span style={{
+                      background: 'linear-gradient(90deg, #facc15, #fbbf24)',
+                      color: '#0f172a',
+                      fontWeight: 900,
+                      fontSize: '0.84rem',
+                      padding: '2px 8px',
+                      borderRadius: '8px',
+                      boxShadow: '0 0 12px rgba(250, 204, 21, 0.8)',
+                      letterSpacing: '-0.2px'
+                    }}>
+                      ⚡ {aiRank.name}
+                    </span>
+                    <span style={{ color: '#38bdf8', marginLeft: '4px', fontWeight: 600 }}>
+                      (⚔️ 1승 시 승급 | 현 3패시 강등: <strong style={{ color: '#ef4444' }}>{userProfile.currentRankLosses || 0}패</strong> / 3패)
                     </span>
                   </>
                 ) : (
                   <>
-                    <span style={{ color: '#fbbf24', fontWeight: 700 }}>🔑 로그인 필요:</span> 로그인하시면 수읽기 승단/강등 도전 기록이 영구 보존됩니다! (현재: {aiRank.name} 도전 중)
+                    <span style={{ color: '#fbbf24', fontWeight: 800 }}>🔑 로그인 필요:</span>
+                    <span>현재 단계:</span>
+                    <span style={{
+                      background: 'linear-gradient(90deg, #facc15, #fbbf24)',
+                      color: '#0f172a',
+                      fontWeight: 900,
+                      fontSize: '0.84rem',
+                      padding: '2px 8px',
+                      borderRadius: '8px',
+                      boxShadow: '0 0 12px rgba(250, 204, 21, 0.8)'
+                    }}>
+                      ⚡ {aiRank.name}
+                    </span>
                   </>
                 )}
               </div>
