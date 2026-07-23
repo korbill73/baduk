@@ -414,3 +414,34 @@ button,
     gap: 0.3rem;
   }
 }
+
+/* ===== PC (961px 이상): 고정 4열 콤팩트 레이아웃 ===== */
+@media (min-width: 961px) {
+  .rank-map-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    overflow: hidden !important;
+  }
+  .rank-stage-desc {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+/* ===== 모바일 (960px 이하): 1열 수직 스크롤 100% 텍스트 완벽 표출 ===== */
+@media (max-width: 960px) {
+  .rank-map-grid {
+    grid-template-columns: 1fr !important;
+    max-height: 72vh !important;
+    overflow-y: auto !important;
+    padding-right: 4px !important;
+  }
+  .rank-stage-desc {
+    white-space: normal !important;
+    word-break: keep-all !important;
+  }
+  .rank-selector-modal {
+    padding: 0.8rem 0.9rem !important;
+    width: 96vw !important;
+  }
+}

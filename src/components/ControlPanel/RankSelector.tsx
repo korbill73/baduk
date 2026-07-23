@@ -21,7 +21,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
 }) => {
   console.log('Active rank:', currentRank.name);
 
-  // Rich vibrant theme & colorful emoji icons based on second reference image
+  // Rich vibrant theme & colorful emoji icons based on reference design
   const getStageTheme = (idx: number, isCurrent: boolean, isUnlocked: boolean) => {
     if (isCurrent) {
       return {
@@ -120,7 +120,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
       zIndex: 1000,
       padding: '0.5rem'
     }}>
-      <div className="glass-panel" style={{
+      <div className="glass-panel rank-selector-modal" style={{
         width: '98vw',
         maxWidth: '1240px',
         maxHeight: '96vh',
@@ -141,13 +141,14 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
               width: '38px', height: '38px', borderRadius: '50%',
               background: 'linear-gradient(135deg, #f59e0b, #d97706)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 16px rgba(245, 158, 11, 0.7)'
+              boxShadow: '0 0 16px rgba(245, 158, 11, 0.7)',
+              flexShrink: 0
             }}>
               <Trophy size={22} color="#fff" />
             </div>
             <div>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.3px', background: 'linear-gradient(90deg, #ffffff, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                🎮 AI 수읽기 승단 챌린지 RPG 스테이지 맵 (초보자 맞춤 5회, 10회, 15회 세분화)
+                🎮 AI 수읽기 승단 챌린지 RPG 스테이지 맵
               </h2>
               <p style={{ fontSize: '0.78rem', color: '#cbd5e1', margin: '1px 0 0 0', fontWeight: 600 }}>
                 현재 최고 해금 단계에서 1승 시 다음 수읽기 레벨이 즉시 언락되며, 3패 기록 시 아래 단계로 강등됩니다!
@@ -188,12 +189,10 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
           </div>
         </div>
 
-        {/* Ranks Quest Map Grid - Fixed 4 Columns, Zero Scrollbar, Zero Border Clipping */}
-        <div style={{
+        {/* Ranks Quest Map Grid - Responsive 4 Columns (PC) / 1 Column Full Details (Mobile) */}
+        <div className="rank-map-grid" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '0.65rem',
-          overflow: 'hidden',
           padding: '8px 12px',
           boxSizing: 'border-box',
           flex: 1
@@ -207,6 +206,7 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
             return (
               <div
                 key={rank.id}
+                className="rank-stage-card"
                 onClick={() => {
                   if (!isUnlocked) {
                     soundManager.playError();
@@ -223,25 +223,25 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                   outline: isCurrentChallenge ? '2px solid rgba(251, 191, 36, 0.8)' : 'none',
                   outlineOffset: '1px',
                   borderRadius: 'var(--radius-md)',
-                  padding: isCurrentChallenge ? '0.5rem 0.75rem' : '0.48rem 0.7rem',
+                  padding: isCurrentChallenge ? '0.6rem 0.85rem' : '0.55rem 0.8rem',
                   cursor: isUnlocked ? 'pointer' : 'not-allowed',
                   position: 'relative',
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  gap: '0.25rem',
+                  gap: '0.35rem',
                   boxShadow: theme.glow,
                   transform: 'none',
                   zIndex: isCurrentChallenge ? 10 : 1,
-                  overflow: 'hidden'
+                  boxSizing: 'border-box'
                 }}
               >
                 {/* Header Line with Colorful Emoji */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ fontSize: '1rem' }}>{theme.emoji}</span>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 900, color: theme.accent, letterSpacing: '0.4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ fontSize: '1.1rem' }}>{theme.emoji}</span>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 900, color: theme.accent, letterSpacing: '0.4px' }}>
                       STAGE {idx + 1}
                     </span>
                   </div>
@@ -252,46 +252,46 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
                       <span style={{
                         background: 'linear-gradient(135deg, #f59e0b, #d97706)',
                         color: '#ffffff',
-                        fontSize: '0.64rem',
+                        fontSize: '0.66rem',
                         fontWeight: 900,
-                        padding: '2px 7px',
+                        padding: '2px 8px',
                         borderRadius: '10px',
                         boxShadow: '0 2px 8px rgba(245,158,11,0.6)',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '3px'
                       }}>
-                        ⭐ 도전 중!
+                        ⭐ 현재 도전 중!
                       </span>
                     )}
                     {isCleared && !isCurrentChallenge && (
                       <span style={{
                         background: '#10b981',
                         color: '#ffffff',
-                        fontSize: '0.63rem',
+                        fontSize: '0.65rem',
                         fontWeight: 800,
-                        padding: '1.5px 6px',
+                        padding: '2px 7px',
                         borderRadius: '10px',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '3px'
                       }}>
-                        <CheckCircle2 size={10} /> 완료
+                        <CheckCircle2 size={11} /> 완료
                       </span>
                     )}
                     {!isUnlocked && (
                       <span style={{
                         background: 'rgba(51, 65, 85, 0.9)',
                         color: '#94a3b8',
-                        fontSize: '0.62rem',
+                        fontSize: '0.64rem',
                         fontWeight: 700,
-                        padding: '1.5px 6px',
+                        padding: '2px 7px',
                         borderRadius: '10px',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '3px'
                       }}>
-                        <Lock size={10} /> 잠김
+                        <Lock size={11} /> 잠김
                       </span>
                     )}
                   </div>
@@ -299,25 +299,19 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
 
                 {/* Stage Title */}
                 <div style={{
-                  fontSize: isCurrentChallenge ? '0.96rem' : '0.88rem',
+                  fontSize: isCurrentChallenge ? '1rem' : '0.92rem',
                   fontWeight: 900,
                   color: isCurrentChallenge ? '#fbbf24' : '#ffffff',
-                  margin: '0',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+                  margin: '0'
                 }}>
                   {rank.name}
                 </div>
 
-                {/* Description */}
-                <div style={{
-                  fontSize: '0.68rem',
+                {/* Full Unclipped Description */}
+                <div className="rank-stage-desc" style={{
+                  fontSize: '0.78rem',
                   color: isCurrentChallenge ? '#fef08a' : (isUnlocked ? '#e2e8f0' : '#cbd5e1'),
-                  lineHeight: 1.25,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
+                  lineHeight: 1.4,
                   fontWeight: 500
                 }}>
                   {rank.description}
@@ -325,16 +319,15 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
 
                 {/* Search Depth & Visits Bar */}
                 <div style={{
-                  fontSize: '0.66rem',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   color: isCurrentChallenge ? '#ffffff' : theme.accent,
                   background: isCurrentChallenge ? 'rgba(245, 158, 11, 0.4)' : 'rgba(15, 23, 42, 0.75)',
-                  padding: '2.5px 5px',
-                  borderRadius: '5px',
+                  padding: '3px 7px',
+                  borderRadius: '6px',
                   textAlign: 'center',
                   border: `1px solid ${isCurrentChallenge ? '#fbbf24' : theme.border}`,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden'
+                  marginTop: '2px'
                 }}>
                   탐색 깊이: {rank.searchDepth}수 ({rank.mctsSimulations}회 연산)
                 </div>
