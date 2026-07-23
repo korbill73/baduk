@@ -204,7 +204,7 @@ body {
 }
 
 .main-grid-layout.expanded {
-  grid-template-columns: minmax(680px, 2.6fr) minmax(300px, 0.75fr);
+  grid-template-columns: minmax(500px, 1.6fr) minmax(300px, 0.9fr);
 }
 
 .main-grid-layout.tsumego {
@@ -235,23 +235,30 @@ body {
     padding-right: 4px;
   }
 
-  /* PC 헤더 1줄 가로 배치 */
+  /* PC 헤더 1줄 가로 배치 - 모든 항목을 한 줄에 균형있게 */
   header.glass-panel.header-container {
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: space-between !important;
-    gap: 0.6rem !important;
+    gap: 0.5rem !important;
   }
   .header-top-row {
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.6rem !important;
+    display: contents !important;
   }
   .header-bottom-row {
+    display: contents !important;
+  }
+  .header-brand {
+    flex-shrink: 0 !important;
+  }
+  .header-user-actions {
     display: flex !important;
     align-items: center !important;
     gap: 0.45rem !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
   }
 }
 
