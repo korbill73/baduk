@@ -57,7 +57,7 @@ export class UserProfileService {
     opponent: string,
     playerColor: StoneColor,
     scoreDiff?: number
-  ): { profile: UserProfile; history: GameRecordEntry[] } {
+  ): { profile: UserProfile; history: GameRecordEntry[]; isRankUp?: boolean; newUnlockedIndex?: number } {
     const profile = this.getProfile();
 
     if (result === 'win') {
@@ -70,6 +70,9 @@ export class UserProfileService {
       else profile.stats.pvpLosses++;
     }
 
+    let isRankUp = false;
+    let newUnlockedIndex = profile.maxUnlockedRankIndex ?? 0;
+
     // 승급 & 강등 처리 (AI 대국 모드일 때)
     if (mode === 'play') {
       const currentRankIndex = profile.currentRankIndex ?? 0;
@@ -78,10 +81,12 @@ export class UserProfileService {
 
       if (result === 'win') {
         currentRankLosses = 0; // 승리 시 패 카운트 리셋
-        // 현재 최고 해금 단계에서 1승을 거두면 다음 단계 언락 및 승급!
-        if (currentRankIndex >= maxUnlockedRankIndex && maxUnlockedRankIndex < 12) {
+        // 현재 최고 해금 단계에서 1승을 거두면 다음 단계 언락 및 승급! (최대 13 인덱스 = STAGE 14)
+        if (currentRankIndex >= maxUnlockedRankIndex && maxUnlockedRankIndex < 13) {
           profile.maxUnlockedRankIndex = maxUnlockedRankIndex + 1;
           profile.currentRankIndex = maxUnlockedRankIndex + 1;
+          isRankUp = true;
+          newUnlockedIndex = maxUnlockedRankIndex + 1;
         }
       } else if (result === 'loss') {
         currentRankLosses++;
@@ -120,7 +125,7 @@ export class UserProfileService {
       console.error('Failed to save game history:', e);
     }
 
-    return { profile, history };
+    return { profile, history, isRankUp, newUnlockedIndex };
   }
 
   static getHistory(): GameRecordEntry[] {

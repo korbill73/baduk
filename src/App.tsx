@@ -23,6 +23,7 @@ import { peerConnectionManager } from './core/PeerConnectionManager';
 import { UserProfileModal } from './components/Profile/UserProfileModal';
 import { OnlinePvpModal } from './components/Online/OnlinePvpModal';
 import { OnlineChatPanel } from './components/Online/OnlineChatPanel';
+import { RankUpModal } from './components/Modals/RankUpModal';
 import type { UserProfile, PvpMessage, MovePayload } from './types/pvp';
 
 export function App() {
@@ -54,6 +55,7 @@ export function App() {
   const [isScoringOpen, setIsScoringOpen] = useState(false);
   const [isOnlineModalOpen, setIsOnlineModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [rankUpData, setRankUpData] = useState<{ unlockedRank: RankInfo; stageNumber: number } | null>(null);
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
@@ -476,10 +478,10 @@ export function App() {
     myColor: StoneColor,
     scoreDiff?: number
   ) => {
-    // 1. Record in local history/profile
-    const { profile: localUpdated } = UserProfileService.recordGameResult(targetMode, myResult, oppName, myColor, scoreDiff);
+    // 1. Record in local history/profile and check rank up
+    const { profile: localUpdated, isRankUp, newUnlockedIndex } = UserProfileService.recordGameResult(targetMode, myResult, oppName, myColor, scoreDiff);
 
-    // 2. If logged into Firebase, record to cloud DB and immediately sync stats into userProfile state
+    // 2. If logged into Firebase, record to cloud DB and preserve unlocked index
     if (currentUser) {
       try {
         const cloudStats = await firebaseBridge.recordGameInCloud(
@@ -494,17 +496,35 @@ export function App() {
         if (cloudStats) {
           const syncedProfile = {
             ...userProfile,
-            stats: cloudStats
+            stats: cloudStats,
+            maxUnlockedRankIndex: localUpdated.maxUnlockedRankIndex,
+            currentRankIndex: localUpdated.currentRankIndex,
+            currentRankLosses: localUpdated.currentRankLosses
           };
           setUserProfile(syncedProfile);
           UserProfileService.saveProfile(syncedProfile);
+
+          if (isRankUp && newUnlockedIndex !== undefined && RANKS_DATA[newUnlockedIndex]) {
+            setRankUpData({
+              unlockedRank: RANKS_DATA[newUnlockedIndex],
+              stageNumber: newUnlockedIndex + 1
+            });
+          }
           return;
         }
       } catch (e) {
         console.error('Cloud game recording error:', e);
       }
     }
+
     setUserProfile(localUpdated);
+
+    if (isRankUp && newUnlockedIndex !== undefined && RANKS_DATA[newUnlockedIndex]) {
+      setRankUpData({
+        unlockedRank: RANKS_DATA[newUnlockedIndex],
+        stageNumber: newUnlockedIndex + 1
+      });
+    }
   };
 
   const handleResign = async () => {
@@ -749,6 +769,29 @@ export function App() {
               setUserProfile(p);
             }
           }}
+        />
+      )}
+
+      {rankUpData && (
+        <RankUpModal
+          unlockedRank={rankUpData.unlockedRank}
+          stageNumber={rankUpData.stageNumber}
+          onNextStage={() => {
+            const nextIndex = rankUpData.stageNumber - 1;
+            setAiRank(rankUpData.unlockedRank);
+            setUserProfile(prev => ({
+              ...prev,
+              currentRankIndex: nextIndex,
+              maxUnlockedRankIndex: Math.max(prev.maxUnlockedRankIndex ?? 0, nextIndex)
+            }));
+            UserProfileService.saveProfile({
+              ...userProfile,
+              currentRankIndex: nextIndex,
+              maxUnlockedRankIndex: Math.max(userProfile.maxUnlockedRankIndex ?? 0, nextIndex)
+            });
+            startFreshGame();
+          }}
+          onClose={() => setRankUpData(null)}
         />
       )}
 
