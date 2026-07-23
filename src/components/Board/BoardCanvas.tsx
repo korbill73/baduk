@@ -397,11 +397,13 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
 
       <div className="board-frame" style={{
         width: '100%',
-        maxWidth: isExpanded ? 'min(940px, calc(100vh - 28px))' : '640px',
+        maxWidth: isExpanded ? 'min(100vw - 12px, 940px, calc(100vh - 28px))' : 'min(100vw - 12px, 640px)',
         maxHeight: isExpanded ? 'calc(100vh - 28px)' : 'none',
         aspectRatio: '1/1',
         margin: '0 auto',
         position: 'relative',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
         <div className="board-inner" style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
