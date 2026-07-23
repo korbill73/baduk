@@ -3,123 +3,133 @@ import type { TsumegoPuzzle, RankInfo } from '../types/go';
 export const RANKS_DATA: RankInfo[] = [
   {
     id: 'rank-18k',
-    name: '1수 읽기 (입문 5회)',
+    name: '1수 읽기 (1회 연산)',
     badgeColor: '#10b981',
-    description: '기초 입문용! 5회 가벼운 연산으로 쉬운 수읽기를 제공하는 초보 AI',
-    mctsSimulations: 5,
+    description: '극초보 맞춤! 1회 초단기 연산으로 실수와 기회를 자주 주는 왕초보 AI',
+    mctsSimulations: 1,
     searchDepth: 1,
-    aiStyle: '초보 친화형',
-    openingBookRate: 0.05
+    aiStyle: '왕초보 친화형',
+    openingBookRate: 0.01
+  },
+  {
+    id: 'rank-17k',
+    name: '1수 읽기 (2회 연산)',
+    badgeColor: '#14b8a6',
+    description: '초보 연습용! 2회 가벼운 연산으로 누구나 쉽게 이길 수 있는 AI',
+    mctsSimulations: 2,
+    searchDepth: 1,
+    aiStyle: '초보 수비형',
+    openingBookRate: 0.02
+  },
+  {
+    id: 'rank-16k',
+    name: '2수 읽기 (3회 연산)',
+    badgeColor: '#06b6d4',
+    description: '기초 연습용! 3회 탐색으로 한 걸음씩 바둑 승리의 재미를 느끼는 AI',
+    mctsSimulations: 3,
+    searchDepth: 2,
+    aiStyle: '기초 탐색형',
+    openingBookRate: 0.03
   },
   {
     id: 'rank-15k',
-    name: '2수 읽기 (입문 10회)',
-    badgeColor: '#14b8a6',
-    description: '기초 연습용! 10회 탐색으로 한 걸음씩 바둑을 깨우치는 AI',
-    mctsSimulations: 10,
+    name: '2수 읽기 (4회 연산)',
+    badgeColor: '#38bdf8',
+    description: '기초 입문용! 4회 계산으로 단수와 연결 감각을 기르는 AI',
+    mctsSimulations: 4,
     searchDepth: 2,
-    aiStyle: '기초 수비형',
-    openingBookRate: 0.1
+    aiStyle: '단수 반응형',
+    openingBookRate: 0.04
+  },
+  {
+    id: 'rank-14k',
+    name: '3수 읽기 (5회 연산)',
+    badgeColor: '#3b82f6',
+    description: '기초+ 단계! 5회 연산으로 돌의 따내기와 기본 행마를 겨루는 AI',
+    mctsSimulations: 5,
+    searchDepth: 3,
+    aiStyle: '기초 행마형',
+    openingBookRate: 0.05
   },
   {
     id: 'rank-12k',
-    name: '3수 읽기 (기초 15회)',
-    badgeColor: '#06b6d4',
-    description: '단수 방어와 연결을 위해 15회 연산으로 수읽기하는 기초 AI',
-    mctsSimulations: 15,
+    name: '3수 읽기 (8회 연산)',
+    badgeColor: '#6366f1',
+    description: '초급 단계! 8회 정밀 탐색으로 실전 수읽기 훈련을 돕는 AI',
+    mctsSimulations: 8,
     searchDepth: 3,
-    aiStyle: '단수 탐지형',
-    openingBookRate: 0.15
+    aiStyle: '초급 수비형',
+    openingBookRate: 0.08
   },
   {
     id: 'rank-10k',
-    name: '4수 읽기 (기초 20회)',
-    badgeColor: '#38bdf8',
-    description: '돌의 생사와 따내기를 위해 20회 계산하는 기초+ AI',
-    mctsSimulations: 20,
-    searchDepth: 4,
-    aiStyle: '따내기 반응형',
-    openingBookRate: 0.2
+    name: '5수 읽기 (12회 연산)',
+    badgeColor: '#8b5cf6',
+    description: '초급+ 단계! 12회 계산으로 포석과 세력 균형을 파악하는 AI',
+    mctsSimulations: 12,
+    searchDepth: 5,
+    aiStyle: '포석 균형형',
+    openingBookRate: 0.12
   },
   {
     id: 'rank-8k',
-    name: '5수 읽기 (초급 25회)',
-    badgeColor: '#3b82f6',
-    description: '행마 균형과 세력을 위해 25회 정밀 탐색하는 초급 AI',
-    mctsSimulations: 25,
-    searchDepth: 5,
-    aiStyle: '행마 균형형',
-    openingBookRate: 0.25
+    name: '8수 읽기 (20회 연산)',
+    badgeColor: '#a855f7',
+    description: '중급 입문! 20회 탐색으로 전투와 끊음 행마를 연산하는 AI',
+    mctsSimulations: 20,
+    searchDepth: 8,
+    aiStyle: '중급 전투형',
+    openingBookRate: 0.20
   },
   {
     id: 'rank-6k',
-    name: '8수 읽기 (초급+ 40회)',
-    badgeColor: '#6366f1',
-    description: '기본 포석과 사활 감각을 위해 40회 탐색하는 초급+ AI',
-    mctsSimulations: 40,
-    searchDepth: 8,
-    aiStyle: '포석 탐색형',
-    openingBookRate: 0.3
+    name: '10수 읽기 (35회 연산)',
+    badgeColor: '#d946ef',
+    description: '중급+ 단계! 35회 수읽기로 사활 및 끝내기 계산을 시도하는 AI',
+    mctsSimulations: 35,
+    searchDepth: 10,
+    aiStyle: '사활 정밀형',
+    openingBookRate: 0.30
   },
   {
     id: 'rank-4k',
-    name: '10수 읽기 (중급 70회)',
-    badgeColor: '#8b5cf6',
-    description: '전투와 연결을 위해 70회 깊이로 수읽기하는 중급 AI',
-    mctsSimulations: 70,
-    searchDepth: 10,
-    aiStyle: '전투 지향형',
-    openingBookRate: 0.4
+    name: '15수 읽기 (60회 연산)',
+    badgeColor: '#ec4899',
+    description: '상급 입문! 60회 깊이로 집 계산과 형세를 추산하는 AI',
+    mctsSimulations: 60,
+    searchDepth: 15,
+    aiStyle: '실리 수비형',
+    openingBookRate: 0.45
   },
   {
     id: 'rank-2k',
-    name: '15수 읽기 (중급+ 110회)',
-    badgeColor: '#a855f7',
-    description: '끊음과 사활 변화수를 위해 110회 계산하는 중급+ AI',
-    mctsSimulations: 110,
-    searchDepth: 15,
-    aiStyle: '사활 정밀형',
-    openingBookRate: 0.5
+    name: '20수 읽기 (100회 연산)',
+    badgeColor: '#f43f5e',
+    description: '상급+ 단계! 100회 정밀 연산으로 강력한 사활 공격을 펼치는 AI',
+    mctsSimulations: 100,
+    searchDepth: 20,
+    aiStyle: '맥점 공략형',
+    openingBookRate: 0.60
   },
   {
     id: 'rank-1d',
-    name: '20수 읽기 (상급 160회)',
-    badgeColor: '#d946ef',
-    description: '상급 수읽기 훈련을 위해 160회 차분히 내다보는 AI',
-    mctsSimulations: 160,
-    searchDepth: 20,
-    aiStyle: '실리 수비형',
-    openingBookRate: 0.6
-  },
-  {
-    id: 'rank-3d',
-    name: '30수 읽기 (고급 230회)',
-    badgeColor: '#ec4899',
-    description: '핵심 급소와 맥점을 230회 깊이로 수읽기하는 고급 AI',
-    mctsSimulations: 230,
-    searchDepth: 30,
-    aiStyle: '맥점 공략형',
-    openingBookRate: 0.7
+    name: '50수 읽기 (200회 연산)',
+    badgeColor: '#fb923c',
+    description: '유단자 실력! 200회 탐색과 두터운 포석 전개 고성능 AI',
+    mctsSimulations: 200,
+    searchDepth: 50,
+    aiStyle: '유단자 포석형',
+    openingBookRate: 0.75
   },
   {
     id: 'rank-5d',
-    name: '50수 읽기 (유단자 350회)',
-    badgeColor: '#f43f5e',
-    description: '유단자 실력! 350회 정밀 수읽기와 두터운 포석 전개',
-    mctsSimulations: 350,
-    searchDepth: 50,
-    aiStyle: '두터움 중시',
-    openingBookRate: 0.8
-  },
-  {
-    id: 'rank-7d',
-    name: '100수 읽기 (사범급 500회)',
-    badgeColor: '#fb923c',
-    description: '500회 수읽기와 계가 계산이 연동된 사범급 AI',
+    name: '100수 읽기 (500회 연산)',
+    badgeColor: '#eab308',
+    description: '사범급 실력! 500회 수읽기와 오차 없는 반집 승부사 AI',
     mctsSimulations: 500,
     searchDepth: 100,
-    aiStyle: '사범급 정밀형',
-    openingBookRate: 0.9
+    aiStyle: '사범급 수읽기',
+    openingBookRate: 0.90
   },
   {
     id: 'rank-9d',

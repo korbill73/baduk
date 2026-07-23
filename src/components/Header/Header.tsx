@@ -109,22 +109,22 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Top Row: Brand & Profile / User Actions */}
       <div className="header-top-row">
         {/* Brand & Logo */}
-        <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+        <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 1, minWidth: 0 }}>
           <div className="header-brand-icon" style={{
-            width: '32px',
-            height: '32px',
+            width: '26px',
+            height: '26px',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #1e2025 50%, #f8fafc 50%)',
             border: '2px solid #38bdf8',
-            boxShadow: '0 0 14px rgba(56, 189, 248, 0.45)',
+            boxShadow: '0 0 10px rgba(56, 189, 248, 0.45)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             transform: 'rotate(-45deg)',
             flexShrink: 0
           }} />
-          <h1 className="header-brand-title" style={{ fontSize: '1rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', background: 'linear-gradient(90deg, #f8fafc, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Baduk AI Master Class
+          <h1 className="header-brand-title" style={{ fontSize: '0.9rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', background: 'linear-gradient(90deg, #f8fafc, #38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            Baduk AI
           </h1>
         </div>
 

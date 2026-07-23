@@ -338,12 +338,12 @@ button,
     box-sizing: border-box !important;
   }
 
-  /* 헤더 모바일 2줄 레이아웃 (가로 스크롤 0% 완전 제거) */
+  /* 헤더 모바일 2줄 레이아웃 (가로 스크롤 & 짤림 100% 영구 차단) */
   header.glass-panel.header-container {
     display: flex !important;
     flex-direction: column !important;
-    gap: 0.45rem !important;
-    padding: 0.5rem 0.6rem !important;
+    gap: 0.4rem !important;
+    padding: 0.45rem 0.5rem !important;
     max-width: 100% !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -355,14 +355,42 @@ button,
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
+    gap: 0.25rem !important;
+  }
+
+  .header-brand {
     gap: 0.35rem !important;
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .header-brand-icon {
+    width: 24px !important;
+    height: 24px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .header-brand-title {
+    font-size: 0.82rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 
   .header-user-actions {
     display: flex !important;
     align-items: center !important;
-    gap: 0.3rem !important;
+    gap: 0.25rem !important;
     flex-wrap: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
+  .header-user-btn,
+  .header-login-btn,
+  .header-admin-btn,
+  .header-logout-btn {
+    font-size: 0.72rem !important;
+    padding: 0.28rem 0.45rem !important;
   }
 
   .header-bottom-row {
@@ -370,15 +398,15 @@ button,
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
-    gap: 0.25rem !important;
+    gap: 0.2rem !important;
     flex-wrap: nowrap !important;
   }
 
   .header-bottom-row > button,
   .header-bottom-row > select,
   .header-bottom-row > div > button {
-    font-size: 0.74rem !important;
-    padding: 0.35rem 0.45rem !important;
+    font-size: 0.72rem !important;
+    padding: 0.3rem 0.4rem !important;
     white-space: nowrap !important;
     flex: 1 1 auto !important;
     justify-content: center !important;
