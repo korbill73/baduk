@@ -16,12 +16,11 @@ export class MCTSEngine {
     const rankName = rankInfo?.name || '1수 읽기 (1회 연산)';
     const openingRate = rankInfo?.openingBookRate ?? 0.1;
 
-    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris
+    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris (88% for level 1-2)
     const urgentMoves = TacticalSolver.findUrgentTacticalMoves(board, aiColor);
     if (urgentMoves.length > 0) {
       const topUrgent = urgentMoves[0];
-      // 초급(1-2): 50% 확률로 단수 방어/포획, 중급(3-4): 70%, 고급: 95%
-      const urgentExecuteRate = sims <= 2 ? 0.50 : (sims <= 4 ? 0.70 : 0.95);
+      const urgentExecuteRate = sims <= 2 ? 0.88 : (sims <= 4 ? 0.92 : 0.98);
       if (topUrgent.priorityScore >= 9000 && Math.random() < urgentExecuteRate) {
         const rec: AiRecommendation = {
           point: topUrgent.point,
@@ -159,46 +158,23 @@ export class MCTSEngine {
     const numCands = evaluatedCandidates.length;
 
     if (sims <= 1) {
-      // 1수 읽기 (18급): 1위 최선수 70%, 2위 차선수 20%, 3위 10% (무작위 엉뚱한 수 0%)
-      if (numCands >= 3 && rand < 0.10) {
-        chosenIndex = 2;
-      } else if (numCands >= 2 && rand < 0.30) {
-        chosenIndex = 1;
-      } else {
-        chosenIndex = 0;
-      }
-    } else if (sims === 2) {
-      // 2수 읽기 (17급): 1위 최선수 80%, 2위 차선수 15%, 3위 5%
-      if (numCands >= 3 && rand < 0.05) {
-        chosenIndex = 2;
-      } else if (numCands >= 2 && rand < 0.20) {
-        chosenIndex = 1;
-      } else {
-        chosenIndex = 0;
-      }
-    } else if (sims === 3) {
-      // 3수 읽기 (16급): 1위 85%, 2위 15%
-      if (numCands >= 2 && rand < 0.15) {
-        chosenIndex = 1;
-      } else {
-        chosenIndex = 0;
-      }
-    } else if (sims === 4) {
-      // 4수 읽기 (15급): 1위 90%, 2위 10%
+      // 1수 읽기 (18급): 1위 최선수 90%, 2위 차선수 10% (탄탄하고 단단한 방어/공격)
       if (numCands >= 2 && rand < 0.10) {
         chosenIndex = 1;
       } else {
         chosenIndex = 0;
       }
-    } else if (sims === 5) {
-      // 5수 읽기 (14급): 1위 75%, 2위 20%, 3위 5%
-      if (numCands >= 3 && rand < 0.05) {
-        chosenIndex = 2;
-      } else if (numCands >= 2 && rand < 0.25) {
+    } else if (sims === 2) {
+      // 2수 읽기 (17급): 1위 최선수 96%, 2위 차선수 4%
+      if (numCands >= 2 && rand < 0.04) {
         chosenIndex = 1;
+      } else {
+        chosenIndex = 0;
       }
+    } else if (sims >= 3) {
+      // 3수 이상: 100% 1위 최선수 선택
+      chosenIndex = 0;
     }
-    // sims >= 6: 항상 1위 최선수 선택
 
     const selectedCand = evaluatedCandidates[chosenIndex] || evaluatedCandidates[0];
 
