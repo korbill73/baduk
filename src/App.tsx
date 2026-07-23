@@ -270,8 +270,25 @@ export function App() {
     if (mode === 'play' && !boardRef.current.gameOver && turn !== userColor && !isThinking) {
       setIsThinking(true);
       const b = boardRef.current;
+      const delayMs = aiRank.mctsSimulations <= 2 ? 30 : 250;
       setTimeout(async () => {
         try {
+          // Level 0~2 (Beginner AI) executes instantly via fast local engine (0-30ms)
+          if (aiRank.mctsSimulations <= 2) {
+            const localResult = MCTSEngine.runSearch(b, b.turn, aiRank);
+            if (localResult && localResult.move && b.canPlay(localResult.move.x, localResult.move.y, b.turn).valid) {
+              b.playMove(localResult.move.x, localResult.move.y, b.turn);
+              soundManager.playStoneClick();
+              if (localResult.recommendations) setRecommendations(localResult.recommendations);
+              updateStateFromBoard();
+            } else {
+              b.passMove(b.turn);
+              updateStateFromBoard();
+            }
+            setIsThinking(false);
+            return;
+          }
+
           const historyMoves = b.history.map(item => item.move).filter((m): m is any => m !== null);
           const extResult = await KataGoBridge.queryKataGo(b.size, historyMoves, b.turn, false, aiRank, b.grid);
           if (extResult && extResult.move && b.canPlay(extResult.move.x, extResult.move.y, b.turn).valid) {
@@ -307,7 +324,7 @@ export function App() {
           } catch (e) {}
           setIsThinking(false);
         }
-      }, 350);
+      }, delayMs);
     }
   }, [turn, mode, userColor, aiRank, isThinking]);
 

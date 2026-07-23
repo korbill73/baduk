@@ -33,20 +33,11 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [hoverPoint, setHoverPoint] = useState<Point | null>(null);
 
-  // Responsive mobile state to enlarge grid on touch screens
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 960);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 960);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
-  // Constants for board sizing - Reduced padding on mobile (no coordinate text) to maximize board cell size
+  // Constants for board sizing - 24px padding on both PC and Mobile (no coordinate numbers) for clean look & max grid size
   const BOARD_DIM = 620; // fixed canvas resolution
-  const PADDING = isMobile ? 16 : 52; // 16px on mobile for maximum grid cell expansion & easy touch
+  const PADDING = 24;
   const CELL_SIZE = (BOARD_DIM - PADDING * 2) / (size - 1);
   const STONE_RADIUS = CELL_SIZE * 0.47;
 
@@ -146,25 +137,7 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
     ctx.lineTo(BOARD_DIM, 0);
     ctx.stroke();
 
-    // 2. Draw coordinate labels ONLY on desktop (hidden on mobile for maximum grid cell expansion & easy touch)
-    if (!isMobile) {
-      ctx.font = 'bold 13px Outfit, Inter, sans-serif';
-      ctx.fillStyle = 'rgba(45, 26, 8, 0.85)';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
 
-      const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'];
-      for (let i = 0; i < size; i++) {
-        const { cx } = gridToCanvas(i, 0);
-        ctx.fillText(letters[i], cx, PADDING - 22);
-        ctx.fillText(letters[i], cx, BOARD_DIM - PADDING + 22);
-
-        const { cy: cyY } = gridToCanvas(0, i);
-        const numLabel = `${size - i}`;
-        ctx.fillText(numLabel, PADDING - 24, cyY);
-        ctx.fillText(numLabel, BOARD_DIM - PADDING + 24, cyY);
-      }
-    }
 
     // 3. Draw grid lines
     ctx.strokeStyle = '#321e0a';
