@@ -597,19 +597,23 @@ export function App() {
           {/* 바둑판 아래: 승단/강등 챌린지 안내 & 대국 전적 바 */}
           <div className="glass-panel" style={{
             marginTop: '0.65rem',
-            padding: '0.6rem 0.9rem',
+            padding: '0.55rem 0.8rem',
             background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.95))',
             border: '1px solid rgba(245, 158, 11, 0.35)',
             borderRadius: 'var(--radius-md)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '0.6rem',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
             boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>🏆</span>
-              <div style={{ fontSize: '0.82rem', color: '#ffffff', lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>🏆</span>
+              <div style={{ fontSize: '0.8rem', color: '#ffffff', lineHeight: 1.3, display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
                 {currentUser ? (
                   <>
                     <strong style={{ color: '#fbbf24' }}>[{userProfile.nickname}님]</strong>
@@ -618,15 +622,15 @@ export function App() {
                       background: 'linear-gradient(90deg, #facc15, #fbbf24)',
                       color: '#0f172a',
                       fontWeight: 900,
-                      fontSize: '0.84rem',
-                      padding: '2px 8px',
-                      borderRadius: '8px',
-                      boxShadow: '0 0 12px rgba(250, 204, 21, 0.8)',
+                      fontSize: '0.8rem',
+                      padding: '2px 7px',
+                      borderRadius: '6px',
+                      boxShadow: '0 0 10px rgba(250, 204, 21, 0.8)',
                       letterSpacing: '-0.2px'
                     }}>
                       ⚡ {aiRank.name}
                     </span>
-                    <span style={{ color: '#38bdf8', marginLeft: '4px', fontWeight: 600 }}>
+                    <span style={{ color: '#38bdf8', marginLeft: '2px', fontWeight: 600 }}>
                       (⚔️ 1승 시 승급 | 현 3패시 강등: <strong style={{ color: '#ef4444' }}>{userProfile.currentRankLosses || 0}패</strong> / 3패)
                     </span>
                   </>
@@ -638,10 +642,10 @@ export function App() {
                       background: 'linear-gradient(90deg, #facc15, #fbbf24)',
                       color: '#0f172a',
                       fontWeight: 900,
-                      fontSize: '0.84rem',
-                      padding: '2px 8px',
-                      borderRadius: '8px',
-                      boxShadow: '0 0 12px rgba(250, 204, 21, 0.8)'
+                      fontSize: '0.8rem',
+                      padding: '2px 7px',
+                      borderRadius: '6px',
+                      boxShadow: '0 0 10px rgba(250, 204, 21, 0.8)'
                     }}>
                       ⚡ {aiRank.name}
                     </span>
