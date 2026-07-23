@@ -1,5 +1,5 @@
 import { GoBoard } from '../core/GoBoard';
-import type { Point, StoneColor, RankInfo, AiRecommendation, RankLevel } from '../types/go';
+import type { Point, StoneColor, RankInfo, AiRecommendation } from '../types/go';
 import { JosekiBook } from './JosekiBook';
 import { Evaluator } from './Evaluator';
 import { TacticalSolver } from './TacticalSolver';
@@ -8,20 +8,21 @@ export class MCTSEngine {
   static runSearch(
     board: GoBoard,
     aiColor: StoneColor,
-    _rankInfo: RankInfo
+    rankInfo: RankInfo
   ): { move: Point | null; recommendations: AiRecommendation[] } {
     if (!aiColor) return { move: null, recommendations: [] };
 
-    // USER REQUEST: "실력 구분없이 최고의 실력으로 업그레이드 해 주세요. 최고의 ai 실력을 구사해 주세요."
-    const bestRankName: RankLevel = '9단 (AI 신계)';
+    const sims = rankInfo?.mctsSimulations || 1;
+    const rankName = rankInfo?.name || '1수 읽기 (1회 연산)';
+    const openingRate = rankInfo?.openingBookRate ?? 0.1;
 
-    // 0. EMERGENCY TACTICAL OVERRIDE: Check life/death Ataris (Save our dying stones & Capture enemy Ataris immediately!)
-    // If we are about to be captured or can capture enemy stones right now, TACTICAL EMERGENCY TAKES ABSOLUTE PRIORITY OVER EVERYTHING!
+    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris
     const urgentMoves = TacticalSolver.findUrgentTacticalMoves(board, aiColor);
     if (urgentMoves.length > 0) {
       const topUrgent = urgentMoves[0];
-      // If priorityScore >= 9000 (`SAVE_ATARI` or `CAPTURE_ENEMY`), execute right immediately!
-      if (topUrgent.priorityScore >= 9000) {
+      // High level AI executes emergency Atari saves always; lower levels execute at lower rates
+      const urgentExecuteRate = sims <= 2 ? 0.4 : (sims <= 5 ? 0.7 : 0.98);
+      if (topUrgent.priorityScore >= 9000 && Math.random() < urgentExecuteRate) {
         const rec: AiRecommendation = {
           point: topUrgent.point,
           rank: 1,
@@ -33,17 +34,19 @@ export class MCTSEngine {
       }
     }
 
-    // 1. Check Joseki / Opening Book first up to move 36 (if no emergency Ataris on the board)
-    const opening = JosekiBook.getOpeningMove(board.size, board.grid, aiColor);
-    if (opening) {
-      const rec: AiRecommendation = {
-        point: opening.point,
-        rank: 1,
-        winRateChange: +2.5,
-        explanation: `[교과서 포석/정석] ${opening.comment}`,
-        category: '정석'
-      };
-      return { move: opening.point, recommendations: [rec] };
+    // 1. Check Joseki / Opening Book only if openingRate condition passes (Beginners get natural beginner moves)
+    if (Math.random() < openingRate) {
+      const opening = JosekiBook.getOpeningMove(board.size, board.grid, aiColor);
+      if (opening) {
+        const rec: AiRecommendation = {
+          point: opening.point,
+          rank: 1,
+          winRateChange: +2.5,
+          explanation: `[교과서 포석/정석] ${opening.comment}`,
+          category: '정석'
+        };
+        return { move: opening.point, recommendations: [rec] };
+      }
     }
 
     const validMoves = board.getValidMovesFast(aiColor);
@@ -51,12 +54,11 @@ export class MCTSEngine {
       return { move: null, recommendations: [] };
     }
 
-    // 2. Evaluate and score all valid moves using our deep tactical heuristic (Anti-suicide, anti-eye-filling, cutting, shape)
+    // 2. Evaluate and score valid moves using Evaluator with user's rank
     const candidateScores: { point: Point; heuristicScore: number }[] = [];
     for (const pt of validMoves) {
-      const score = Evaluator.evaluateMovePattern(board, pt.x, pt.y, aiColor, bestRankName);
-      // Prune out suicidal blunders (-1000) or eye-filling (-500) right immediately
-      if (score > -200) {
+      const score = Evaluator.evaluateMovePattern(board, pt.x, pt.y, aiColor, rankName);
+      if (score > -300) {
         candidateScores.push({ point: pt, heuristicScore: score });
       }
     }
@@ -65,9 +67,9 @@ export class MCTSEngine {
       return { move: null, recommendations: [] };
     }
 
-    // Sort by heuristic quality and pick top 16 candidates for deep 4-Ply / 2-Ply Alpha-Beta strategic evaluation
     candidateScores.sort((a, b) => b.heuristicScore - a.heuristicScore);
-    const topCandidates = candidateScores.slice(0, Math.min(16, candidateScores.length));
+    const candidateLimit = sims <= 2 ? 6 : (sims <= 5 ? 10 : 16);
+    const topCandidates = candidateScores.slice(0, Math.min(candidateLimit, candidateScores.length));
 
     const enemyColor: StoneColor = aiColor === 'black' ? 'white' : 'black';
     const evaluatedCandidates: {
@@ -77,9 +79,8 @@ export class MCTSEngine {
       category: '실리' | '세력' | '공격' | '방어' | '끝내기' | '정석';
     }[] = [];
 
-    // 3. Deep Alpha-Beta Minimax Lookahead & Territory/Safety Balance Evaluation (Pro Master Level)
+    // 3. Minimax Lookahead - Depth adjusts by simulation level
     for (const cand of topCandidates) {
-      // Step A: Simulate our move
       const simBoard = new GoBoard(board.size, false);
       simBoard.grid = board.cloneGrid(board.grid);
       simBoard.turn = board.turn;
@@ -89,39 +90,39 @@ export class MCTSEngine {
 
       simBoard.playMove(cand.point.x, cand.point.y, aiColor);
 
-      // Evaluate position right after our move
       const staticBalance = Evaluator.evaluateBoardState(simBoard, aiColor);
 
-      // Step B: Find opponent's top 6 counter-moves
-      const enemyMoves = simBoard.getValidMovesFast(enemyColor);
+      // Higher levels compute opponent counter-moves; lower levels evaluate simpler static balance
       let worstCounterBalance = staticBalance;
 
-      const enemyCandidates: { pt: Point; score: number }[] = [];
-      for (const ePt of enemyMoves) {
-        const eScore = Evaluator.evaluateMovePattern(simBoard, ePt.x, ePt.y, enemyColor, bestRankName);
-        if (eScore > -200) {
-          enemyCandidates.push({ pt: ePt, score: eScore });
+      if (sims >= 5) {
+        const enemyMoves = simBoard.getValidMovesFast(enemyColor);
+        const enemyCandidates: { pt: Point; score: number }[] = [];
+        for (const ePt of enemyMoves) {
+          const eScore = Evaluator.evaluateMovePattern(simBoard, ePt.x, ePt.y, enemyColor, rankName);
+          if (eScore > -200) {
+            enemyCandidates.push({ pt: ePt, score: eScore });
+          }
+        }
+        enemyCandidates.sort((a, b) => b.score - a.score);
+        const topEnemy = enemyCandidates.slice(0, Math.min(sims <= 15 ? 3 : 6, enemyCandidates.length));
+
+        for (const eCand of topEnemy) {
+          const enemySimBoard = new GoBoard(simBoard.size, false);
+          enemySimBoard.grid = simBoard.cloneGrid(simBoard.grid);
+          enemySimBoard.turn = simBoard.turn;
+          enemySimBoard.capturesBlack = simBoard.capturesBlack;
+          enemySimBoard.capturesWhite = simBoard.capturesWhite;
+          enemySimBoard.koPoint = simBoard.koPoint ? { ...simBoard.koPoint } : null;
+
+          enemySimBoard.playMove(eCand.pt.x, eCand.pt.y, enemyColor);
+          const balanceAfterCounter = Evaluator.evaluateBoardState(enemySimBoard, aiColor);
+          if (balanceAfterCounter < worstCounterBalance) {
+            worstCounterBalance = balanceAfterCounter;
+          }
         }
       }
-      enemyCandidates.sort((a, b) => b.score - a.score);
-      const topEnemy = enemyCandidates.slice(0, Math.min(6, enemyCandidates.length));
 
-      for (const eCand of topEnemy) {
-        const enemySimBoard = new GoBoard(simBoard.size, false);
-        enemySimBoard.grid = simBoard.cloneGrid(simBoard.grid);
-        enemySimBoard.turn = simBoard.turn;
-        enemySimBoard.capturesBlack = simBoard.capturesBlack;
-        enemySimBoard.capturesWhite = simBoard.capturesWhite;
-        enemySimBoard.koPoint = simBoard.koPoint ? { ...simBoard.koPoint } : null;
-
-        enemySimBoard.playMove(eCand.pt.x, eCand.pt.y, enemyColor);
-        const balanceAfterCounter = Evaluator.evaluateBoardState(enemySimBoard, aiColor);
-        if (balanceAfterCounter < worstCounterBalance) {
-          worstCounterBalance = balanceAfterCounter;
-        }
-      }
-
-      // Final score combines local tactical shape/safety (45%) and Minimax territory/safety balance (55%)
       const finalScore = cand.heuristicScore * 0.45 + worstCounterBalance * 0.55;
 
       let category: '실리' | '세력' | '공격' | '방어' | '끝내기' = '실리';
@@ -132,16 +133,47 @@ export class MCTSEngine {
       evaluatedCandidates.push({
         point: cand.point,
         totalScore: finalScore,
-        explanation: `4-Ply 사활/안형/행마 정밀 판독 완료 (종합 평가점: ${Math.round(finalScore)})`,
+        explanation: `${rankName} 수읽기 (평가점: ${Math.round(finalScore)})`,
         category
       });
     }
 
     evaluatedCandidates.sort((a, b) => b.totalScore - a.totalScore);
-    const bestCand = evaluatedCandidates[0];
+
+    // 4. BEGINNER-FRIENDLY SOFTMOVE INJECTION based on simulation level
+    let chosenIndex = 0;
+    const rand = Math.random();
+
+    if (sims === 1) {
+      // 1회 연산 (18급 극초보): 70% 확률로 2~4위 후보 선택 (인간적인 초보 수)
+      if (rand < 0.70 && evaluatedCandidates.length >= 2) {
+        chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 3) + 1);
+      }
+    } else if (sims === 2) {
+      // 2회 연산 (17급 초보): 55% 확률로 2~3위 후보 선택
+      if (rand < 0.55 && evaluatedCandidates.length >= 2) {
+        chosenIndex = Math.min(evaluatedCandidates.length - 1, Math.floor(Math.random() * 2) + 1);
+      }
+    } else if (sims === 3) {
+      // 3회 연산 (16급 기초): 40% 확률로 2위 후보 선택
+      if (rand < 0.40 && evaluatedCandidates.length >= 2) {
+        chosenIndex = 1;
+      }
+    } else if (sims === 4) {
+      // 4회 연산 (15급 기초+): 25% 확률로 2위 후보 선택
+      if (rand < 0.25 && evaluatedCandidates.length >= 2) {
+        chosenIndex = 1;
+      }
+    } else if (sims === 5) {
+      // 5회 연산 (14급): 15% 확률로 2위 후보 선택
+      if (rand < 0.15 && evaluatedCandidates.length >= 2) {
+        chosenIndex = 1;
+      }
+    }
+
+    const selectedCand = evaluatedCandidates[chosenIndex] || evaluatedCandidates[0];
 
     const recommendations: AiRecommendation[] = evaluatedCandidates.slice(0, 3).map((item, idx) => {
-      // Estimate win rate change relative to second best move
       const scoreDiff = item.totalScore - (evaluatedCandidates[1]?.totalScore || item.totalScore);
       const winRateChange = Math.min(5.0, Math.max(0.2, Math.round(scoreDiff * 0.1 * 10) / 10));
       return {
@@ -154,7 +186,7 @@ export class MCTSEngine {
     });
 
     return {
-      move: bestCand ? bestCand.point : null,
+      move: selectedCand ? selectedCand.point : null,
       recommendations
     };
   }
