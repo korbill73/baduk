@@ -547,13 +547,15 @@ button,
   }
 
   .rank-map-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-    overflow: hidden !important;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)) !important;
+    overflow-y: auto !important;
+    max-height: 72vh !important;
+    padding-right: 6px !important;
+    box-sizing: border-box !important;
   }
   .rank-stage-desc {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
   }
 }
 

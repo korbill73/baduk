@@ -121,9 +121,9 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
       padding: '0.5rem'
     }}>
       <div className="glass-panel rank-selector-modal" style={{
-        width: '98vw',
-        maxWidth: '1240px',
-        maxHeight: '96vh',
+        width: '92vw',
+        maxWidth: '1100px',
+        maxHeight: '94vh',
         display: 'flex',
         flexDirection: 'column',
         padding: '1.1rem 1.3rem',
@@ -132,7 +132,8 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
         border: '2px solid #fbbf24',
         boxShadow: '0 0 60px rgba(245, 158, 11, 0.4)',
         borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        boxSizing: 'border-box'
       }}>
         {/* Modal Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '0.45rem' }}>
