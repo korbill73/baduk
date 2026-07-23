@@ -35,7 +35,7 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
 
   // Constants for board sizing
   const BOARD_DIM = 620; // fixed canvas resolution
-  const PADDING = 48; // generous padding so 19 lines & labels (A~T, 1~19) are 100% inside canvas
+  const PADDING = 52; // extra generous padding to guarantee 0% clipping on all devices & PWA
   const CELL_SIZE = (BOARD_DIM - PADDING * 2) / (size - 1);
   const STONE_RADIUS = CELL_SIZE * 0.46;
 
@@ -404,7 +404,7 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
         position: 'relative',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
-        <div className="board-inner" style={{ width: '100%', height: '100%', display: 'flex' }}>
+        <div className="board-inner" style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <canvas
             ref={canvasRef}
             width={BOARD_DIM}
@@ -415,6 +415,10 @@ export const BoardCanvas: React.FC<BoardCanvasProps> = ({
             style={{
               width: '100%',
               height: '100%',
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+              display: 'block',
               cursor: isThinking ? 'wait' : 'pointer'
             }}
           />
