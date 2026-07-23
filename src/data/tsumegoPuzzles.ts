@@ -2,6 +2,16 @@ import type { TsumegoPuzzle, RankInfo } from '../types/go';
 
 export const RANKS_DATA: RankInfo[] = [
   {
+    id: 'rank-30k',
+    name: '입문 왕초보 (0회 연산)',
+    badgeColor: '#22c55e',
+    description: '바둑을 처음 접한 완전 왕초보 AI! 마음껏 돌을 잡으며 무조건 쉽게 승리할 수 있습니다.',
+    mctsSimulations: 0,
+    searchDepth: 0,
+    aiStyle: '입문자 무제한 이김',
+    openingBookRate: 0.0
+  },
+  {
     id: 'rank-18k',
     name: '1수 읽기 (1회 연산)',
     badgeColor: '#10b981',

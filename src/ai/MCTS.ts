@@ -12,9 +12,20 @@ export class MCTSEngine {
   ): { move: Point | null; recommendations: AiRecommendation[] } {
     if (!aiColor) return { move: null, recommendations: [] };
 
-    const sims = rankInfo?.mctsSimulations || 1;
+    const sims = rankInfo?.mctsSimulations ?? 1;
     const rankName = rankInfo?.name || '1수 읽기 (1회 연산)';
     const openingRate = rankInfo?.openingBookRate ?? 0.1;
+
+    // 0-A. LEVEL 0 (0-SIMULATIONS / 30-KYU): Pure random / beginner blunder moves
+    if (sims === 0) {
+      const validMoves = board.getValidMovesFast(aiColor).filter(pt => board.grid[pt.y][pt.x] === null);
+      if (validMoves.length === 0) return { move: null, recommendations: [] };
+      const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+      const recommendations: AiRecommendation[] = [
+        { point: randomMove, rank: 1, winRateChange: 0, explanation: '입문자 맞춤형 무작위 착수', category: '실리' }
+      ];
+      return { move: randomMove, recommendations };
+    }
 
     // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris (Disabled for levels 1-2 so beginners can capture AI stones easily)
     if (sims >= 3) {

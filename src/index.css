@@ -496,8 +496,41 @@ button,
   }
 }
 
-/* ===== PC (961px 이상): 고정 4열 콤팩트 레이아웃 ===== */
+/* ===== PC 데스크탑 (961px 이상) 프리미엄 레이아웃 최적화 ===== */
 @media (min-width: 961px) {
+  .app-main-container {
+    max-width: 1440px !important;
+    margin: 0 auto !important;
+    padding: 0.5rem 1.5rem 3rem 1.5rem !important;
+  }
+
+  .main-game-layout {
+    display: grid !important;
+    grid-template-columns: minmax(540px, 1fr) 380px !important;
+    gap: 1.5rem !important;
+    align-items: start !important;
+  }
+
+  .right-panel-scroll {
+    width: 380px !important;
+    max-width: 380px !important;
+    position: sticky !important;
+    top: 0.8rem !important;
+  }
+
+  .header-container {
+    padding: 0.65rem 1.2rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .header-top-row {
+    flex-wrap: nowrap !important;
+  }
+
+  .header-brand-title {
+    font-size: 1.2rem !important;
+  }
+
   .rank-map-grid {
     grid-template-columns: repeat(4, 1fr) !important;
     overflow: hidden !important;
