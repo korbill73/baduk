@@ -234,6 +234,25 @@ body {
     overflow-y: auto !important;
     padding-right: 4px;
   }
+
+  /* PC 헤더 1줄 가로 배치 */
+  header.glass-panel.header-container {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.6rem !important;
+  }
+  .header-top-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.6rem !important;
+  }
+  .header-bottom-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+  }
 }
 
 .header-nav-group,
@@ -319,34 +338,50 @@ button,
     box-sizing: border-box !important;
   }
 
-  /* 헤더 모바일 스크롤 가능 */
-  header.glass-panel {
+  /* 헤더 모바일 2줄 레이아웃 (가로 스크롤 0% 완전 제거) */
+  header.glass-panel.header-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.45rem !important;
+    padding: 0.5rem 0.6rem !important;
     max-width: 100% !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    overflow-x: auto !important;
+    overflow: visible !important;
   }
 
-  .header-nav-group,
-  .header-actions-group {
-    width: 100%;
-    overflow-x: auto;
+  .header-top-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 0.35rem !important;
+  }
+
+  .header-user-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
     flex-wrap: nowrap !important;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .header-nav-group::-webkit-scrollbar,
-  .header-actions-group::-webkit-scrollbar {
-    display: none;
   }
 
-  .header-nav-group button,
-  .header-actions-group button,
-  .header-actions-group > div {
-    white-space: nowrap;
-    flex-shrink: 0;
+  .header-bottom-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 0.25rem !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .header-bottom-row > button,
+  .header-bottom-row > select,
+  .header-bottom-row > div > button {
+    font-size: 0.74rem !important;
+    padding: 0.35rem 0.45rem !important;
+    white-space: nowrap !important;
+    flex: 1 1 auto !important;
+    justify-content: center !important;
   }
 
   /* 모바일 환경(확대/크게보기 포함) 바둑판 짤림 100% 철벽 차단 */
