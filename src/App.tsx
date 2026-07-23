@@ -272,11 +272,11 @@ export function App() {
     if (mode === 'play' && !boardRef.current.gameOver && turn !== userColor && !isThinking) {
       setIsThinking(true);
       const b = boardRef.current;
-      const delayMs = aiRank.mctsSimulations <= 2 ? 30 : 250;
+      const delayMs = aiRank.mctsSimulations <= 5 ? 20 : 150;
       setTimeout(async () => {
         try {
-          // Level 0~2 (Beginner AI) executes instantly via fast local engine (0-30ms)
-          if (aiRank.mctsSimulations <= 2) {
+          // Stage 1~8 (sims <= 15) executes instantly via fast local engine (0.1s)
+          if (aiRank.mctsSimulations <= 15) {
             const localResult = MCTSEngine.runSearch(b, b.turn, aiRank);
             if (localResult && localResult.move && b.canPlay(localResult.move.x, localResult.move.y, b.turn).valid) {
               b.playMove(localResult.move.x, localResult.move.y, b.turn);
