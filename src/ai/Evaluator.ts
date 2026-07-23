@@ -51,9 +51,9 @@ export class Evaluator {
       return -1000.0;
     }
 
-    // CRITICAL BASIC RULE 2: Eye-filling prohibition (자신의 집 메우기 및 눈 메우기 절대 금지)
+    // CRITICAL BASIC RULE 2: Eye-filling prohibition (자신의 집 메우기 및 눈 메우기 절대 금지!)
     if (friendlyNeighbors >= 3 && enemyNeighbors === 0 && capturesCount === 0) {
-      return -500.0;
+      return -50000.0;
     }
 
     // CRITICAL BASIC RULE 2.5: Dead Cage / prisoner feeding prohibition (`사석/죽은 돌 보태주기 절대 금지`)

@@ -147,33 +147,45 @@ export class MCTSEngine {
     evaluatedCandidates.sort((a, b) => b.totalScore - a.totalScore);
 
     // ====================================================================
-    // 4. 단계별 "의도적 차선수 선택" (Controlled Blunder Selection)
-    //    핵심 철학: AI는 항상 정확하게 평가하되, 낮은 단계에서는
-    //    "충분히 좋지만 최선은 아닌 수"를 의도적으로 선택함.
-    //    이렇게 하면 바둑의 기본 형태(포석, 연결, 집짓기)를 유지하면서도
-    //    초보자가 승리할 수 있는 빈틈을 자연스럽게 제공합니다.
+    // 4. 유저 아이디어 기반 [유효 추천 순위 슬라이딩 엔진] (Valid Rank Offset Engine)
+    //    자충수/집메우기가 100% 필터링된 "정당한 바둑 후보군(Valid Candidates)" 중에서
+    //    단계별로 순위 오프셋(Rank Offset)을 슬라이딩시켜 계단식 난이도 구성!
+    //    - 1단계(18급): 유효 5~7위 정수 선택 (약간 한가한 변/포석 수)
+    //    - 2단계(17급): 유효 4~5위 정수 선택
+    //    - 3단계(16급): 유효 3~4위 정수 선택
+    //    - 4단계(15급): 유효 2~3위 정수 선택
+    //    - 5단계(14급): 유효 1~2위 정수 선택
+    //    - 6단계~(13급~): 유효 1위 (최선수 100%)
+    //    종반(후반부)에는 잔여 수 감소에 따라 1~2위로 자동 수렴(Convergence)하여 판이 안 깨짐!
     // ====================================================================
     let chosenIndex = 0;
-    const rand = Math.random();
     const numCands = evaluatedCandidates.length;
+    const totalStones = board.grid.flat().filter(c => c !== null).length;
+    const isLateGame = totalStones >= 120; // 종반부 판단
 
-    if (sims <= 1) {
-      // 1수 읽기 (18급): 1위 최선수 90%, 2위 차선수 10% (탄탄하고 단단한 방어/공격)
-      if (numCands >= 2 && rand < 0.10) {
-        chosenIndex = 1;
-      } else {
-        chosenIndex = 0;
-      }
-    } else if (sims === 2) {
-      // 2수 읽기 (17급): 1위 최선수 96%, 2위 차선수 4%
-      if (numCands >= 2 && rand < 0.04) {
-        chosenIndex = 1;
-      } else {
-        chosenIndex = 0;
-      }
-    } else if (sims >= 3) {
-      // 3수 이상: 100% 1위 최선수 선택
-      chosenIndex = 0;
+    let baseOffset = 0;
+    if (sims <= 1) baseOffset = 5;       // 1단계 (18급): 6위 수 기준
+    else if (sims === 2) baseOffset = 4; // 2단계 (17급): 5위 수 기준
+    else if (sims === 3) baseOffset = 3; // 3단계 (16급): 4위 수 기준
+    else if (sims === 4) baseOffset = 2; // 4단계 (15급): 3위 수 기준
+    else if (sims === 5) baseOffset = 1; // 5단계 (14급): 2위 수 기준
+    else baseOffset = 0;                 // 6단계 이상: 1위 최선수
+
+    // 종반부 수렴 스케일링 (후반으로 갈수록 1위 수로 자동 수렴)
+    if (isLateGame && baseOffset > 0) {
+      baseOffset = Math.max(0, baseOffset - 2);
+    }
+
+    // 유효 후보군 크기 범위 내 안전 인덱스 산출 (약간의 자연스러운 흔들림 ±1)
+    const jitter = Math.random() < 0.3 ? 1 : (Math.random() < 0.2 ? -1 : 0);
+    const targetIdx = Math.max(0, baseOffset + jitter);
+    chosenIndex = Math.min(targetIdx, numCands - 1);
+
+    // 안전장치: 점수가 1위 최선수 대비 400점 이상 낮으면(대형 패착) 1~2위 정수로 보정
+    const topScore = evaluatedCandidates[0]?.totalScore ?? 0;
+    const chosenScore = evaluatedCandidates[chosenIndex]?.totalScore ?? 0;
+    if (topScore - chosenScore > 400 && chosenIndex > 1) {
+      chosenIndex = Math.random() < 0.6 ? 0 : 1;
     }
 
     const selectedCand = evaluatedCandidates[chosenIndex] || evaluatedCandidates[0];
