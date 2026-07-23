@@ -16,11 +16,11 @@ export class MCTSEngine {
     const rankName = rankInfo?.name || '1수 읽기 (1회 연산)';
     const openingRate = rankInfo?.openingBookRate ?? 0.1;
 
-    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris (88% for level 1-2)
+    // 0. EMERGENCY TACTICAL OVERRIDE: Save dying stones & Capture enemy Ataris (96%+ for level 1-2)
     const urgentMoves = TacticalSolver.findUrgentTacticalMoves(board, aiColor);
     if (urgentMoves.length > 0) {
       const topUrgent = urgentMoves[0];
-      const urgentExecuteRate = sims <= 2 ? 0.88 : (sims <= 4 ? 0.92 : 0.98);
+      const urgentExecuteRate = sims <= 2 ? 0.96 : 0.99;
       if (topUrgent.priorityScore >= 9000 && Math.random() < urgentExecuteRate) {
         const rec: AiRecommendation = {
           point: topUrgent.point,
@@ -158,34 +158,22 @@ export class MCTSEngine {
     //    - 6단계~(13급~): 유효 1위 (최선수 100%)
     //    종반(후반부)에는 잔여 수 감소에 따라 1~2위로 자동 수렴(Convergence)하여 판이 안 깨짐!
     // ====================================================================
+    // STAGE 1부터 헐거운 수(3위 이하)를 차단하고 1~2위 최선 정수 위주로 착수!
     let chosenIndex = 0;
     const numCands = evaluatedCandidates.length;
-    const totalStones = board.grid.flat().filter(c => c !== null).length;
-    const isLateGame = totalStones >= 120; // 종반부 판단
 
-    let baseOffset = 0;
-    if (sims <= 1) baseOffset = 5;       // 1단계 (18급): 6위 수 기준
-    else if (sims === 2) baseOffset = 4; // 2단계 (17급): 5위 수 기준
-    else if (sims === 3) baseOffset = 3; // 3단계 (16급): 4위 수 기준
-    else if (sims === 4) baseOffset = 2; // 4단계 (15급): 3위 수 기준
-    else if (sims === 5) baseOffset = 1; // 5단계 (14급): 2위 수 기준
-    else baseOffset = 0;                 // 6단계 이상: 1위 최선수
-
-    // 종반부 수렴 스케일링 (후반으로 갈수록 1위 수로 자동 수렴)
-    if (isLateGame && baseOffset > 0) {
-      baseOffset = Math.max(0, baseOffset - 2);
-    }
-
-    // 유효 후보군 크기 범위 내 안전 인덱스 산출 (약간의 자연스러운 흔들림 ±1)
-    const jitter = Math.random() < 0.3 ? 1 : (Math.random() < 0.2 ? -1 : 0);
-    const targetIdx = Math.max(0, baseOffset + jitter);
-    chosenIndex = Math.min(targetIdx, numCands - 1);
-
-    // 안전장치: 점수가 1위 최선수 대비 400점 이상 낮으면(대형 패착) 1~2위 정수로 보정
-    const topScore = evaluatedCandidates[0]?.totalScore ?? 0;
-    const chosenScore = evaluatedCandidates[chosenIndex]?.totalScore ?? 0;
-    if (topScore - chosenScore > 400 && chosenIndex > 1) {
-      chosenIndex = Math.random() < 0.6 ? 0 : 1;
+    if (sims <= 1) {
+      // STAGE 1 (18급): 1위 최선수 (80%), 2위 차선수 (20%) -> 헐겁지 않은 탄탄한 18급
+      chosenIndex = (numCands >= 2 && Math.random() < 0.20) ? 1 : 0;
+    } else if (sims === 2) {
+      // STAGE 2 (17급): 1위 최선수 (90%), 2위 차선수 (10%)
+      chosenIndex = (numCands >= 2 && Math.random() < 0.10) ? 1 : 0;
+    } else if (sims === 3) {
+      // STAGE 3 (16급): 1위 최선수 (95%), 2위 차선수 (5%)
+      chosenIndex = (numCands >= 2 && Math.random() < 0.05) ? 1 : 0;
+    } else {
+      // STAGE 4 이상 (15급~): 100% 1위 최선수
+      chosenIndex = 0;
     }
 
     const selectedCand = evaluatedCandidates[chosenIndex] || evaluatedCandidates[0];
