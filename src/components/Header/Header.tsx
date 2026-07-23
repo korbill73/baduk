@@ -189,7 +189,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {isMenuDropdownOpen && (
-              <div style={{
+              <div className="header-dropdown-menu header-menu-dropdown" style={{
                 position: 'absolute',
                 top: 'calc(100% + 6px)',
                 right: 0,
@@ -338,7 +338,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {isModeDropdownOpen && (
-            <div style={{
+            <div className="header-dropdown-menu header-mode-dropdown" style={{
               position: 'absolute',
               top: 'calc(100% + 6px)',
               left: 0,
