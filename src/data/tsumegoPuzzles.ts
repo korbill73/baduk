@@ -25,10 +25,10 @@ export const RANKS_DATA: RankInfo[] = [
     id: 'rank-16k',
     name: '2수 읽기 (3회 연산)',
     badgeColor: '#06b6d4',
-    description: '기초 연습용! 3회 탐색으로 한 걸음씩 바둑 승리의 재미를 느끼는 AI',
+    description: '★ 초급 표준 단계! 3회 수읽기로 바둑의 집짓기와 응수 재미를 느끼는 표준 초급 AI',
     mctsSimulations: 3,
     searchDepth: 2,
-    aiStyle: '기초 탐색형',
+    aiStyle: '표준 초급형',
     openingBookRate: 0.03
   },
   {

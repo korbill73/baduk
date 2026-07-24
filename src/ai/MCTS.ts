@@ -145,9 +145,20 @@ export class MCTSEngine {
 
     evaluatedCandidates.sort((a, b) => b.totalScore - a.totalScore);
 
-    // ====================================================================
     // 4. 초급 난이도 30% 수읽기 상향 (1위 최선수 98%+, 상대 반격 읽기 정교화)
     // ====================================================================
+    // 종반 패스(PASS) 자동 계가 신청 판단:
+    // 판 위 둘 자리가 무의미하거나 가치점수(totalScore < 30)가 낮으면
+    // AI가 자기 집을 메우지 않고 스스로 PASS(패스)하여 자동 계가를 신청합니다!
+    const totalStones = board.grid.flat().filter(c => c !== null).length;
+    const bestCand = evaluatedCandidates[0];
+    const isPassRecommended = (totalStones > 110 && bestCand && bestCand.totalScore < 30) ||
+                              (board.historyIndex > 0 && board.history[board.historyIndex - 1]?.move === null && bestCand && bestCand.totalScore < 60);
+
+    if (isPassRecommended) {
+      return { move: null, recommendations: [] }; // AI PASS (계가 신청)
+    }
+
     let chosenIndex = 0;
     const numCands = evaluatedCandidates.length;
     const rand = Math.random();

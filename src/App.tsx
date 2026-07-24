@@ -284,8 +284,18 @@ export function App() {
               if (localResult.recommendations) setRecommendations(localResult.recommendations);
               updateStateFromBoard();
             } else {
+              // AI PASS (계가 유도)
               b.passMove(b.turn);
+              soundManager.playStoneClick();
               updateStateFromBoard();
+              const hist = b.history;
+              const len = hist.length;
+              if (len >= 2 && hist[len - 1].move === null && hist[len - 2].move === null) {
+                setTimeout(() => {
+                  alert('🏁 [상대 AI 패스 (PASS)]\n\n더 이상 두실 자리가 없어 상대 AI가 패스하였습니다. 자동으로 계가(집 계산)를 진행합니다.');
+                  setIsScoringOpen(true);
+                }, 100);
+              }
             }
             setIsThinking(false);
             return;
