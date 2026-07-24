@@ -8,17 +8,20 @@ interface RankSelectorProps {
   currentRank: RankInfo;
   maxUnlockedRankIndex?: number;
   currentRankLosses?: number;
+  isAdmin?: boolean;
   onSelectRank: (rank: RankInfo, index: number) => void;
   onClose: () => void;
 }
 
 export const RankSelector: React.FC<RankSelectorProps> = ({
   currentRank,
-  maxUnlockedRankIndex = 0,
+  maxUnlockedRankIndex: rawMaxUnlocked = 0,
   currentRankLosses = 0,
+  isAdmin = false,
   onSelectRank,
   onClose,
 }) => {
+  const maxUnlockedRankIndex = isAdmin ? 13 : rawMaxUnlocked;
   console.log('Active rank:', currentRank.name);
 
   // Rich vibrant theme & colorful emoji icons based on reference design

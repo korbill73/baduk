@@ -713,6 +713,7 @@ export function App() {
           currentRank={aiRank}
           maxUnlockedRankIndex={userProfile.maxUnlockedRankIndex ?? 0}
           currentRankLosses={userProfile.currentRankLosses ?? 0}
+          isAdmin={isAdmin}
           onSelectRank={(r, idx) => {
             setAiRank(r);
             setUserProfile(prev => ({ ...prev, currentRankIndex: idx }));

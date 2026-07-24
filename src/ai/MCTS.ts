@@ -99,8 +99,8 @@ export class MCTSEngine {
 
       let worstCounterBalance = staticBalance;
 
-      // 2수 이상 읽기: 상대 반격 시뮬레이션
-      if (sims >= 5) {
+      // 2수 이상 읽기: 상대 반격 시뮬레이션 (모든 단계에서 2수 이상 미리 읽도록 탐색 30% 강화)
+      if (sims >= 1) {
         const enemyMoves = simBoard.getValidMovesFast(enemyColor);
         const enemyCandidates: { pt: Point; score: number }[] = [];
         for (const ePt of enemyMoves) {
@@ -110,7 +110,7 @@ export class MCTSEngine {
           }
         }
         enemyCandidates.sort((a, b) => b.score - a.score);
-        const topEnemy = enemyCandidates.slice(0, Math.min(sims <= 15 ? 3 : 6, enemyCandidates.length));
+        const topEnemy = enemyCandidates.slice(0, Math.min(sims <= 3 ? 3 : 6, enemyCandidates.length));
 
         for (const eCand of topEnemy) {
           const enemySimBoard = new GoBoard(simBoard.size, false);
@@ -146,30 +146,15 @@ export class MCTSEngine {
     evaluatedCandidates.sort((a, b) => b.totalScore - a.totalScore);
 
     // ====================================================================
-    // 4. 유저 아이디어 기반 [유효 추천 순위 슬라이딩 엔진] (Valid Rank Offset Engine)
-    //    자충수/집메우기가 100% 필터링된 "정당한 바둑 후보군(Valid Candidates)" 중에서
-    //    단계별로 순위 오프셋(Rank Offset)을 슬라이딩시켜 계단식 난이도 구성!
-    //    - 1단계(18급): 유효 5~7위 정수 선택 (약간 한가한 변/포석 수)
-    //    - 2단계(17급): 유효 4~5위 정수 선택
-    //    - 3단계(16급): 유효 3~4위 정수 선택
-    //    - 4단계(15급): 유효 2~3위 정수 선택
-    //    - 5단계(14급): 유효 1~2위 정수 선택
-    //    - 6단계~(13급~): 유효 1위 (최선수 100%)
-    //    종반(후반부)에는 잔여 수 감소에 따라 1~2위로 자동 수렴(Convergence)하여 판이 안 깨짐!
+    // 4. 초급 난이도 30% 수읽기 상향 (1위 최선수 98%+, 상대 반격 읽기 정교화)
     // ====================================================================
-    // 4. STANDARD BEGINNER BALANCE (3단계를 초급 표준으로 삼고 1~3단계 통합 강화)
-    // - STAGE 1~3 (18급~16급 초급 표준): 1위 최선 정수 (90%) / 2위 차선수 (10%)
-    // - STAGE 4 (15급): 1위 최선 정수 (96%) / 2위 차선수 (4%)
-    // - STAGE 5 이상 (14급~): 100% 1위 최선수
     let chosenIndex = 0;
     const numCands = evaluatedCandidates.length;
     const rand = Math.random();
 
     if (sims <= 3) {
-      // STAGE 1~3 (초급 표준): 1위 최선수 (90%), 2위 차선수 (10%)
-      chosenIndex = (numCands >= 2 && rand < 0.10) ? 1 : 0;
-    } else if (sims === 4) {
-      chosenIndex = (numCands >= 2 && rand < 0.04) ? 1 : 0;
+      // STAGE 1~3 (초급 30% 상향): 1위 최선수 (98%), 2위 차선수 (2%)
+      chosenIndex = (numCands >= 2 && rand < 0.02) ? 1 : 0;
     } else {
       chosenIndex = 0;
     }
