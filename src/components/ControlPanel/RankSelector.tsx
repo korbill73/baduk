@@ -151,11 +151,14 @@ export const RankSelector: React.FC<RankSelectorProps> = ({
               <Trophy size={22} color="#fff" />
             </div>
             <div>
+              <div style={{ display: 'inline-block', background: 'rgba(251, 191, 36, 0.2)', border: '1px solid #fbbf24', borderRadius: '12px', padding: '1px 8px', fontSize: '0.72rem', fontWeight: 800, color: '#fbbf24', marginBottom: '2px' }}>
+                ★ 바둑 대국 시작 전 수읽기 단계 확인
+              </div>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.3px', background: 'linear-gradient(90deg, #ffffff, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 🎮 AI 수읽기 승단 챌린지 RPG 스테이지 맵
               </h2>
               <p style={{ fontSize: '0.78rem', color: '#cbd5e1', margin: '1px 0 0 0', fontWeight: 600 }}>
-                현재 최고 해금 단계에서 1승 시 다음 수읽기 레벨이 즉시 언락되며, 3패 기록 시 아래 단계로 강등됩니다!
+                원하시는 단계를 클릭하시거나 [닫기]를 누르시면 대국이 즉시 시작됩니다! (1승 시 다음 수읽기 언락)
               </p>
             </div>
           </div>

@@ -50,7 +50,7 @@ export function App() {
   
   const [recommendations, setRecommendations] = useState<AiRecommendation[]>([]);
   const [territoryMap, setTerritoryMap] = useState<TerritoryMap | null>(null);
-  const [showRankSelector, setShowRankSelector] = useState(false);
+  const [showRankSelector, setShowRankSelector] = useState(true);
   const [showAiEngineModal, setShowAiEngineModal] = useState(false);
   const [isScoringOpen, setIsScoringOpen] = useState(false);
   const [isOnlineModalOpen, setIsOnlineModalOpen] = useState(false);
