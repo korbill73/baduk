@@ -292,8 +292,12 @@ export function App() {
               const len = hist.length;
               if (len >= 2 && hist[len - 1].move === null && hist[len - 2].move === null) {
                 setTimeout(() => {
-                  alert('🏁 [상대 AI 패스 (PASS)]\n\n더 이상 두실 자리가 없어 상대 AI가 패스하였습니다. 자동으로 계가(집 계산)를 진행합니다.');
+                  alert('🏁 [상대 AI 패스 (PASS)]\n\n더 이상 두실 자리가 없어 상대 AI가 패스하였습니다. 2연속 패스로 자동으로 계가(집 계산)가 진행됩니다.');
                   setIsScoringOpen(true);
+                }, 100);
+              } else {
+                setTimeout(() => {
+                  alert('🤖 [상대 AI 패스 (PASS)]\n\n둘 자리가 없어 상대 AI가 패스하였습니다. 하단의 계가 버튼을 누르시거나 한 번 더 통과하시면 계가가 진행됩니다.');
                 }, 100);
               }
             }

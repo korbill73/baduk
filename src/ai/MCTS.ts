@@ -56,19 +56,46 @@ export class MCTSEngine {
       return { move: null, recommendations: [] };
     }
 
-    // 2. Evaluate ALL valid moves using full-strength Evaluator (모든 단계에서 동일)
-    // 핵심: 초급이라도 "정확한 평가"를 하고, "의도적으로 약한 수를 선택"하는 구조
+    // 2. Evaluate ALL valid moves using full-strength Evaluator (자기 집 내부 착수 100% 원천 차단)
     const candidateScores: { point: Point; heuristicScore: number }[] = [];
     for (const pt of validMoves) {
       if (board.grid[pt.y][pt.x] !== null) continue;
-      // 평가 시에는 항상 프로급 rankName을 사용하여 정확한 점수를 산출
+
+      // HARD FILTER: 자신의 완벽한 집(Eye/Territory) 내부 착수 100% 금지!
+      const nbs = board.getNeighbors(pt.x, pt.y);
+      let friendlyNbs = 0;
+      for (const nb of nbs) {
+        if (board.grid[nb.y][nb.x] === aiColor) friendlyNbs++;
+      }
+      if (friendlyNbs === nbs.length) {
+        // 상대 돌을 따내는 착수가 아니라면 자기 집 메우기이므로 100% 제외
+        const prevCaptures = board.capturesBlack + board.capturesWhite;
+        const sim = new GoBoard(board.size, false);
+        sim.grid = board.cloneGrid(board.grid);
+        sim.capturesBlack = board.capturesBlack;
+        sim.capturesWhite = board.capturesWhite;
+        sim.playMove(pt.x, pt.y, aiColor);
+        const newCaptures = sim.capturesBlack + sim.capturesWhite;
+        if (newCaptures === prevCaptures) {
+          continue; // 자기 집 메우기 100% 원천 제외!
+        }
+      }
+
       const score = Evaluator.evaluateMovePattern(board, pt.x, pt.y, aiColor, '프로 평가');
-      if (score > -300) {
+      if (score > -200) {
         candidateScores.push({ point: pt, heuristicScore: score });
       }
     }
 
+    // 유효 착수점이 없거나 최선 점수가 미미하면(공배만 남음) AI가 패스(PASS)하여 계가 유도
     if (candidateScores.length === 0) {
+      return { move: null, recommendations: [] };
+    }
+
+    candidateScores.sort((a, b) => b.heuristicScore - a.heuristicScore);
+    
+    // 남은 착수점의 최고 점수가 35점 미만이거나 의미없는 한가한 착수만 남아있다면 AI 스스로 패스!
+    if (candidateScores[0].heuristicScore < 35) {
       return { move: null, recommendations: [] };
     }
 
