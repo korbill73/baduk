@@ -108,17 +108,21 @@ export class Evaluator {
         score -= 2.0;
       }
     } else {
-      // Mid-game and Endgame lines
+      // Mid-game and Endgame lines (중종반: 1선/2선 끝내기 권리 & 경계선 점유 강력 우대)
       if (x === 0 || x === size - 1 || y === 0 || y === size - 1) {
-        score -= 5.0;
+        // 1선 끝내기: 상대 돌 근처 젖혀잇기
+        if (enemyNeighbors > 0) score += 180.0;
+        else score += 5.0;
       } else if (x === 1 || x === size - 2 || y === 1 || y === size - 2) {
-        score += 4.0;
+        // 2선 끝내기: 알맹이 집 굳히기 & 젖혀잇기
+        if (enemyNeighbors > 0) score += 240.0;
+        else score += 40.0;
       } else if (x === 2 || x === size - 3 || y === 2 || y === size - 3) {
-        score += 7.0;
+        score += 35.0;
       } else if (x === 3 || x === size - 4 || y === 3 || y === size - 4) {
-        score += 7.0;
+        score += 30.0;
       } else {
-        score += 5.0;
+        score += 15.0;
       }
     }
 
@@ -128,12 +132,12 @@ export class Evaluator {
       if (c === color) {
         const grp = board.getGroupInfo(nb.x, nb.y);
         if (grp && grp.liberties.length === 1 && resultingLiberties >= 2) {
-          score += grp.stones.length * 40.0 + 60.0;
+          score += grp.stones.length * 50.0 + 120.0; // 단수 단단히 연결
         }
       } else if (c === enemyColor) {
         const grp = board.getGroupInfo(nb.x, nb.y);
         if (grp && grp.liberties.length === 2) {
-          score += grp.stones.length * 8.0 + 20.0;
+          score += grp.stones.length * 18.0 + 60.0; // 상대 조이기 압박
         }
       }
     }
@@ -227,6 +231,6 @@ export class Evaluator {
     const libertyDiff = aiLiberties - enemyLiberties;
     const captureDiff = (aiColor === 'black' ? board.capturesBlack - board.capturesWhite : board.capturesWhite - board.capturesBlack);
 
-    return (territoryDiff * 2.2) + (captureDiff * 14.0) + (libertyDiff * 0.8) + enemyAtariBonus - aiAtariPenalty;
+    return (territoryDiff * 4.5) + (captureDiff * 16.0) + (libertyDiff * 0.8) + enemyAtariBonus - aiAtariPenalty;
   }
 }
